@@ -3,8 +3,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
-
-
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -22,7 +21,8 @@ export default function RootLayout({
         <Providers>
           <Header></Header>
           <main className="flex-1 p-2">
-              {children}
+            {children}
+            <Toaster position="top-center" />
           </main>
           <Footer></Footer>
         </Providers>
