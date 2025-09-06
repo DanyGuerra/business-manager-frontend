@@ -1,47 +1,108 @@
-"use client"
+"use client";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import Link from "next/link";
 
+const loginSchema = z.object({
+  email: z.email("Ingresa un correo electronico valido"),
+  password: z.string().min(6, "La contrasena debe ser de almenos 6 caracteres"),
+});
+
+type LoginValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
- return (
+  const form = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  function onSubmit(data: LoginValues) {
+    console.log(form);
+    console.log("Form submitted:", data);
+  }
+
+  return (
     <div className="flex flex-col h-full justify-center items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-xl text-center">Login</CardTitle>
+          <CardTitle className="text-xl text-center">Iniciar Sesión</CardTitle>
         </CardHeader>
+
         <CardContent>
-          <form>
-            <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="email@example.com"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input id="password" type="password" required />
-              </div>
-            </div>
-          </form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="email@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="••••••••"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <Button type="submit" className="w-full">
+                Iniciar sesión
+              </Button>
+            </form>
+          </Form>
         </CardContent>
-        <CardFooter className="flex-col gap-4">
-          <Button type="submit" className="w-30 cursor-pointer">
-            Login
-          </Button>
-          <div className="text-sm">
-            <div>Don't have an account? <Link href="/signup" className="font-bold">Sign up</Link></div>
-            
+
+        <CardFooter className="flex-col gap-2 text-sm">
+          <div>
+            No tienes cuenta?{" "}
+            <Link href="/signup" className="font-bold">
+              Registrate
+            </Link>
           </div>
         </CardFooter>
       </Card>
