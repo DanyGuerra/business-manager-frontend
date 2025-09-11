@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -15,18 +14,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { ApiResponse } from "../types/auth";
 import { useRouter } from "next/navigation";
 import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { useAuthApi } from "@/lib/useAuthApi";
+import { AxiosError } from "axios";
+import { useLoadingStore } from "@/store/loadingStore";
+import ButtonLoading from "@/components/buttonLoading";
+import { InputPassword } from "@/components/inputPassword";
 
 const loginSchema = z.object({
   email: z.email("Ingresa un correo electronico valido"),
   username: z
     .string()
-    .min(4, "Ingresa un nombre de usuario de almenos 4 caracteres"),
+    .min(4, "Ingresa un nombre de usuario de almenos 4 caracteres")
+    .regex(
+      /^[a-z0-9_-]+$/,
+      "Username solo puede contener letras minúsculas, números y los símbolos _ o -."
+    ),
   name: z.string(),
   password: z.string().min(6, "La contrasena debe ser de almenos 6 caracteres"),
 });
@@ -34,25 +39,14 @@ const loginSchema = z.object({
 export type LoginValues = z.infer<typeof loginSchema>;
 
 export default function SignUp() {
+  const authApi = useAuthApi();
+  const { startLoading, stopLoading, loadings } = useLoadingStore();
   const router = useRouter();
 
-  const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  async function registerUser(data: LoginValues): Promise<ApiResponse> {
-    const res = await fetch("api/auth/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    return res.json() as Promise<ApiResponse>;
-  }
-
   async function onSubmit(dataUser: LoginValues) {
-    setLoading(true);
+    startLoading("authSignup");
     try {
-      const { message, statusCode } = await registerUser(dataUser);
+      const { statusCode } = await authApi.signup(dataUser);
 
       if (statusCode === 201) {
         toast.success("Usuario creado correctamente", {
@@ -61,13 +55,16 @@ export default function SignUp() {
         setTimeout(() => {
           router.push("/login");
         }, 2000);
-      } else if (statusCode === 409) {
-        toast.error(message, { style: toastErrorStyle });
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof AxiosError) {
+        const { response } = error;
+        toast.error(response?.data?.message, { style: toastErrorStyle });
+      } else {
+        toast.error("Algo salió mal intenta más tarde");
+      }
     } finally {
-      setLoading(false);
+      stopLoading("authSignup");
     }
   }
 
@@ -116,7 +113,7 @@ export default function SignUp() {
                   <FormItem>
                     <FormLabel>Nombre de usuario</FormLabel>
                     <FormControl>
-                      <Input type="string" placeholder="User name" {...field} />
+                      <Input type="text" placeholder="username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -130,7 +127,7 @@ export default function SignUp() {
                   <FormItem>
                     <FormLabel>Nombre</FormLabel>
                     <FormControl>
-                      <Input type="string" placeholder="Nombre" {...field} />
+                      <Input type="text" placeholder="Nombre" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -142,31 +139,12 @@ export default function SignUp() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
-
-                    <div className="relative">
-                      <Input
-                        type={show ? "text" : "password"}
-                        placeholder="••••••••"
-                        {...field}
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onMouseDown={() => setShow(true)}
-                        onMouseUp={() => setShow(false)}
-                        onMouseLeave={() => setShow(false)} // por si el usuario arrastra el cursor fuera
-                        onTouchStart={() => setShow(true)}
-                        onTouchEnd={() => setShow(false)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2"
-                      >
-                        {show ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
+                    <FormLabel>Contraseña</FormLabel>
+                    <InputPassword
+                      placeholder="••••••••"
+                      {...field}
+                      className="pr-10"
+                    />
 
                     <FormMessage />
                   </FormItem>
@@ -174,13 +152,10 @@ export default function SignUp() {
               />
 
               <div className="flex justify-center items-center">
-                <Button type="submit" className="w-50 cursor-pointer">
-                  {loading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    "Registrarse"
-                  )}
-                </Button>
+                <ButtonLoading
+                  loadingState={loadings.authSignup}
+                  buttonTitle="Registrarse"
+                ></ButtonLoading>
               </div>
             </form>
           </Form>
