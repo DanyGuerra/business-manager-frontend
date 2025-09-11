@@ -4,7 +4,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -22,6 +21,15 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { toast } from "sonner";
+import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { AxiosError } from "axios";
+import { useAuthApi } from "@/lib/useAuthApi";
+import { useLoadingStore } from "@/store/loadingStore";
+import ButtonLoading from "@/components/buttonLoading";
+import { InputPassword } from "@/components/inputPassword";
 
 const loginSchema = z.object({
   email: z.email("Ingresa un correo electronico valido"),
@@ -31,6 +39,11 @@ const loginSchema = z.object({
 type LoginValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
+  const { loadings, startLoading, stopLoading } = useLoadingStore();
+  const { setAccessToken } = useAuth();
+  const router = useRouter();
+  const businessApi = useAuthApi();
+
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -39,9 +52,26 @@ export default function Login() {
     },
   });
 
-  function onSubmit(data: LoginValues) {
-    console.log(form);
-    console.log("Form submitted:", data);
+  async function onSubmit(dataUser: LoginValues) {
+    startLoading("authLogin");
+    try {
+      const { data } = await businessApi.login(dataUser);
+
+      setAccessToken(data.access_token);
+      toast.success("Inicio de sesión exitoso", {
+        style: toastSuccessStyle,
+      });
+      router.push("/profile");
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        const { response } = error;
+        toast.error(response?.data?.message, { style: toastErrorStyle });
+      } else {
+        toast.error("Algo salió mal intenta más tarde");
+      }
+    } finally {
+      stopLoading("authLogin");
+    }
   }
 
   return (
@@ -77,12 +107,12 @@ export default function Login() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>Contraseña</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
+                      <InputPassword
                         placeholder="••••••••"
                         {...field}
+                        className="pr-10"
                       />
                     </FormControl>
                     <FormMessage />
@@ -90,9 +120,10 @@ export default function Login() {
                 )}
               />
 
-              <Button type="submit" className="w-full">
-                Iniciar sesión
-              </Button>
+              <ButtonLoading
+                loadingState={loadings.authLogin}
+                buttonTitle="Iniciar Sesión"
+              ></ButtonLoading>
             </form>
           </Form>
         </CardContent>
