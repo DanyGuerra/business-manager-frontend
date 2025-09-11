@@ -1,1 +1,5 @@
-export type ApiResponse = { message: string; statusCode: number; data: any };
+export type ApiResponse<T = any> = {
+  message: string;
+  statusCode: number;
+  data: T;
+};

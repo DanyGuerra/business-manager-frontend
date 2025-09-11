@@ -1,49 +1,48 @@
 import { NextResponse } from "next/server";
 
+const ACTIONS: Record<string, string> = {
+  signup: "/auth/signup",
+  login: "/auth/login",
+  refresh: "/auth/refresh",
+  logout: "/auth/logout",
+  updatePassword: "/auth/update-password",
+};
+
 export async function POST(
   req: Request,
-  { params }: { params: { action: string } }
+  context: { params: Promise<{ action: string }> }
 ) {
-  const { action } = params;
-  const body = await req.json().catch(() => null);
+  const { action } = await context.params;
+  const path = ACTIONS[action];
+  if (!path)
+    return NextResponse.json({ message: "Not Found" }, { status: 404 });
 
-  let targetUrl = "";
-  switch (action) {
-    case "signup":
-      targetUrl = `${process.env.API_BUSINESS_URL}/auth/signup`;
-      break;
-    case "login":
-      targetUrl = `${process.env.API_BUSINESS_URL}/auth/login`;
-      break;
-    case "refresh":
-      targetUrl = `${process.env.API_BUSINESS_URL}/auth/refresh`;
-      break;
-    case "logout":
-      targetUrl = `${process.env.API_BUSINESS_URL}/auth/logout`;
-      break;
-    case "update-password":
-      targetUrl = `${process.env.API_BUSINESS_URL}/auth/update-password`;
-      break;
-    default:
-      return NextResponse.json({ message: "Not Found" }, { status: 404 });
-  }
+  const body = await req.json().catch(() => null);
+  const targetUrl = `${process.env.API_BUSINESS_URL}${path}`;
+
+  const cookie = req.headers.get("cookie") || "";
 
   const res = await fetch(targetUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      cookie: req.headers.get("cookie") || "",
+      Cookie: cookie,
     },
     body: body ? JSON.stringify(body) : undefined,
     credentials: "include",
   });
 
   const data = await res.json().catch(() => ({}));
-
   const response = NextResponse.json(data, { status: res.status });
-  const setCookie = res.headers.get("set-cookie");
-  if (setCookie) {
-    response.headers.set("set-cookie", setCookie);
+
+  const setCookies = (res.headers as any).raw?.()["set-cookie"];
+  if (setCookies?.length) {
+    setCookies.forEach((cookie: any) =>
+      response.headers.append("set-cookie", cookie)
+    );
+  } else {
+    const setCookie = res.headers.get("set-cookie");
+    if (setCookie) response.headers.set("set-cookie", setCookie);
   }
 
   return response;
