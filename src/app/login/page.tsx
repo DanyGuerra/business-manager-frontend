@@ -27,7 +27,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { AxiosError } from "axios";
 import { useAuthApi } from "@/lib/useAuthApi";
-import { useLoadingStore } from "@/store/loadingStore";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "@/components/buttonLoading";
 import { InputPassword } from "@/components/inputPassword";
 
@@ -53,7 +53,7 @@ export default function Login() {
   });
 
   async function onSubmit(dataUser: LoginValues) {
-    startLoading("authLogin");
+    startLoading(LoadingsKeyEnum.LOGIN);
     try {
       const { data } = await businessApi.login(dataUser);
 
@@ -70,7 +70,7 @@ export default function Login() {
         toast.error("Algo salió mal intenta más tarde");
       }
     } finally {
-      stopLoading("authLogin");
+      stopLoading(LoadingsKeyEnum.LOGIN);
     }
   }
 
@@ -121,7 +121,7 @@ export default function Login() {
               />
 
               <ButtonLoading
-                loadingState={loadings.authLogin}
+                loadingState={loadings[LoadingsKeyEnum.LOGIN]}
                 buttonTitle="Iniciar Sesión"
               ></ButtonLoading>
             </form>
