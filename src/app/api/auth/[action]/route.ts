@@ -13,13 +13,24 @@ export async function POST(
   context: { params: Promise<{ action: string }> }
 ) {
   const { action } = await context.params;
+
+  if (action === "logout") {
+    const response = NextResponse.json(
+      { message: "Logged out" },
+      { status: 200 }
+    );
+
+    response.cookies.set("token", "", { path: "/", maxAge: 0 });
+
+    return response;
+  }
+
   const path = ACTIONS[action];
   if (!path)
     return NextResponse.json({ message: "Not Found" }, { status: 404 });
 
   const body = await req.json().catch(() => null);
   const targetUrl = `${process.env.API_BUSINESS_URL}${path}`;
-
   const cookie = req.headers.get("cookie") || "";
 
   const res = await fetch(targetUrl, {
