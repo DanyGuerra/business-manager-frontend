@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
 import { useAuthApi } from "@/lib/useAuthApi";
 import { AxiosError } from "axios";
-import { useLoadingStore } from "@/store/loadingStore";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "@/components/buttonLoading";
 import { InputPassword } from "@/components/inputPassword";
 
@@ -44,7 +44,7 @@ export default function SignUp() {
   const router = useRouter();
 
   async function onSubmit(dataUser: LoginValues) {
-    startLoading("authSignup");
+    startLoading(LoadingsKeyEnum.SIGNUP);
     try {
       const { statusCode } = await authApi.signup(dataUser);
 
@@ -64,7 +64,7 @@ export default function SignUp() {
         toast.error("Algo salió mal intenta más tarde");
       }
     } finally {
-      stopLoading("authSignup");
+      stopLoading(LoadingsKeyEnum.SIGNUP);
     }
   }
 
@@ -153,7 +153,7 @@ export default function SignUp() {
 
               <div className="flex justify-center items-center">
                 <ButtonLoading
-                  loadingState={loadings.authSignup}
+                  loadingState={loadings[LoadingsKeyEnum.SIGNUP]}
                   buttonTitle="Registrarse"
                 ></ButtonLoading>
               </div>
