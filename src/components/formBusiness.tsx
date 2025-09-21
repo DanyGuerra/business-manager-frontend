@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -11,11 +9,11 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import ButtonLoading from "./buttonLoading";
 
 const createBusinessSchema = z.object({
   name: z.string().min(3, { message: "El nombre es obligatorio" }),
@@ -23,17 +21,18 @@ const createBusinessSchema = z.object({
 });
 
 export type CreateBusinessValues = z.infer<typeof createBusinessSchema>;
+
 type PropsFormBusiness = {
   buttonTitle: string;
+  loadingKey: LoadingsKeyEnum;
   handleSubmitButton: (data: CreateBusinessValues) => void;
 };
 
 export default function FormBusiness({
   buttonTitle,
   handleSubmitButton,
+  loadingKey,
 }: PropsFormBusiness) {
-  const [loading, setLoading] = useState(false);
-
   const form = useForm<CreateBusinessValues>({
     resolver: zodResolver(createBusinessSchema),
     defaultValues: {
@@ -41,6 +40,8 @@ export default function FormBusiness({
       address: "",
     },
   });
+
+  const { loadings } = useLoadingStore();
 
   function onSubmit(data: CreateBusinessValues) {
     handleSubmitButton(data);
@@ -72,7 +73,7 @@ export default function FormBusiness({
             <FormItem>
               <FormLabel>Dirección</FormLabel>
               <FormControl>
-                <Input type="text" placeholder="Dirección A" {...field} />
+                <Input type="text" placeholder="Calle 123" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -80,17 +81,10 @@ export default function FormBusiness({
         />
 
         <div className="flex justify-center items-center">
-          <Button
-            type="submit"
-            className="w-50 cursor-pointer"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              `${buttonTitle}`
-            )}
-          </Button>
+          <ButtonLoading
+            loadingState={loadings[loadingKey]}
+            buttonTitle={buttonTitle}
+          />
         </div>
       </form>
     </Form>
