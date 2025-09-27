@@ -4,6 +4,7 @@ type LoadingKeys = string;
 
 export enum LoadingsKeyEnum {
   CREATE_BUSINESS = "createBusiness",
+  UPDATE_BUSINESS = "createBusiness",
   CREATE_PRODUCT_GROUP = "createProductGroup",
   UPDATE_PRODUCT_GROUP = "updateProductGroup",
   CREATE_PRODUCT = "createProduct",
