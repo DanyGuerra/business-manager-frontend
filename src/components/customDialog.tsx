@@ -12,22 +12,34 @@ import { ReactNode, useState } from "react";
 import { Button } from "./ui/button";
 import { PlusIcon } from "lucide-react";
 
-type CustomDialogPrps = {
+type CustomDialogProps = {
   children: ReactNode;
   modalTitle: string;
   modalDescription: string;
   onOpenChange?: (open: boolean) => void;
   icon?: React.ReactNode;
+  open?: boolean;
+  setOpen?: (open: boolean) => void;
+  textButtonTrigger?: string;
 };
 
-export default function FormCustomDialog({
+export default function CustomDialog({
   children,
   modalTitle,
   modalDescription,
   onOpenChange = () => {},
+  open: controlledOpen,
+  setOpen: controlledSetOpen,
   icon = <PlusIcon />,
-}: CustomDialogPrps) {
-  const [open, setOpen] = useState<boolean>(false);
+  textButtonTrigger,
+}: CustomDialogProps) {
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+
+  const isControlled =
+    controlledOpen !== undefined && controlledSetOpen !== undefined;
+
+  const open = isControlled ? controlledOpen : uncontrolledOpen;
+  const setOpen = isControlled ? controlledSetOpen : setUncontrolledOpen;
 
   function handleOpen(o: boolean) {
     setOpen(o);
@@ -35,11 +47,19 @@ export default function FormCustomDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(o) => handleOpen(o)}>
+    <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <Button size="icon" className="size-6 cursor-pointer">
-          {icon}
-        </Button>
+        {textButtonTrigger ? (
+          <Button className="cursor-pointer">{textButtonTrigger}</Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="icon"
+            className="size-6 cursor-pointer"
+          >
+            {icon}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
