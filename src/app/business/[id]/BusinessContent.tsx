@@ -1,20 +1,20 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { BusinessFull } from "@/lib/useBusinessApi";
-import { Pencil } from "lucide-react";
+import { BusinessFull, useBusinessApi } from "@/lib/useBusinessApi";
 import { Separator } from "@/components/ui/separator";
 import ProductGroupList from "./ProductGroupList";
 import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
-import { LoadingsKeyEnum } from "@/store/loadingStore";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import React, { useState } from "react";
-import CustomDialog from "@/components/formCustomDialog";
+import CustomDialog from "@/components/customDialog";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
+import { Edit2Icon } from "lucide-react";
+import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
 
 export default function BusinessContent({
   business,
@@ -23,11 +23,13 @@ export default function BusinessContent({
   business: BusinessFull;
   getBusiness: () => {};
 }) {
-  const [open, setOpen] = useState<boolean>(false);
   const productGroupApi = useProductGroupApi();
+  const { startLoading, stopLoading } = useLoadingStore();
+  const businessApi = useBusinessApi();
 
   const handleSubmitButton = async (data: ProductGroupValues) => {
     try {
+      startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
       await productGroupApi.createProductGroup(data, business.id);
       await getBusiness();
       toast.error("Menú creado", { style: toastSuccessStyle });
@@ -38,35 +40,71 @@ export default function BusinessContent({
         toast.error("Algo salió mal", { style: toastErrorStyle });
       }
     } finally {
-      setOpen(false);
+      stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
     }
   };
 
+  async function handleUpdateBusiness(
+    data: CreateBusinessValues,
+    businessId: string
+  ) {
+    try {
+      await businessApi.updateBusiness(businessId, data);
+      await getBusiness();
+      toast.success("Se actualizó correctamente el negocio", {
+        style: toastSuccessStyle,
+      });
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.message, { style: toastErrorStyle });
+      } else {
+        toast.error("Algo salió mal, intenta más tarde", {
+          style: toastErrorStyle,
+        });
+      }
+    }
+  }
+
   return (
     <section className="flex flex-col gap-6">
-      <div className="flex items-center gap-4">
-        <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
-          {business.name}
-        </h1>
-        <Button variant="outline" size="sm" className="cursor-pointer">
-          <Pencil />
-        </Button>
+      <div className="flex flex-col gap-1">
+        <div className="flex items-center gap-4">
+          <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
+            {business.name}
+          </h1>
+          <CustomDialog
+            modalTitle="Editar negocio"
+            modalDescription="Edita los datos de tu negocio"
+            icon={<Edit2Icon />}
+          >
+            <FormBusiness
+              buttonTitle="Guardar"
+              handleSubmitButton={(data) =>
+                handleUpdateBusiness(data, business.id)
+              }
+              loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
+              defaultValues={{ ...business, address: business.address ?? "" }}
+            ></FormBusiness>
+          </CustomDialog>
+        </div>
+        <div className="text-muted-foreground">{business.address}</div>
       </div>
       <Separator></Separator>
+
+      {/* Menus */}
       <div className="flex flex-col gap-5">
         <div className="flex items-center gap-4">
           <h2 className="scroll-m-20 text-xl font-extrabold tracking-tight text-balance">
             Menus
           </h2>
           <CustomDialog
-            onOpenChange={setOpen}
             modalTitle="Crear menú"
             modalDescription="Crea un menú de productos para tu negocio"
           >
             <FormProductGroup
               buttonTitle="Crear"
               handleSubmitButton={handleSubmitButton}
-              loadingKey={LoadingsKeyEnum.CREATE_BUSINESS}
+              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
             />
           </CustomDialog>
         </div>
