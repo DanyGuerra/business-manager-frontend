@@ -2,8 +2,14 @@ import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 
-export type ProductDto = {
+export type CreateProductDto = {
   group_product_id: string;
+  name: string;
+  description: string;
+  base_price: number;
+  available: boolean;
+};
+export type UpdateProductDto = {
   name: string;
   description: string;
   base_price: number;
@@ -14,9 +20,19 @@ export function useProductApi() {
   const api = useAxios();
 
   return {
-    createProduct: (data: ProductDto, businessId: string) =>
+    createProduct: (data: CreateProductDto, businessId: string) =>
       api
         .post<ApiResponse>("/product", data, {
+          headers: { [BusinessIdHeader]: businessId },
+        })
+        .then((res) => res.data),
+    updateProduct: (
+      data: UpdateProductDto,
+      productId: string,
+      businessId: string
+    ) =>
+      api
+        .put<ApiResponse>(`/product/${productId}`, data, {
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),
