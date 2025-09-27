@@ -45,7 +45,7 @@ export default function FormProduct({
     defaultValues: defaultValues ?? {
       name: "",
       description: "",
-      available: false,
+      available: true,
     },
   });
 

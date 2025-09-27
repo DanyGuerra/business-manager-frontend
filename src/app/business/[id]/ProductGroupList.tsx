@@ -2,7 +2,6 @@
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { ProductGroup } from "@/lib/useBusinessApi";
 
-import CustomDialog from "@/components/formCustomDialog";
+import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
 import { useState } from "react";
 import { Edit2Icon } from "lucide-react";
@@ -24,7 +23,7 @@ import FormProductGroup, {
 } from "@/components/FormProductGroup";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import FormProduct, { ProductValues } from "@/components/formProduct";
-import { ProductDto, useProductApi } from "@/lib/useProductApi";
+import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
@@ -64,12 +63,13 @@ export default function ProductGroupList({
     }
   }
 
-  async function handleUpdate(
+  async function handleUpdateProductGroup(
     businessId: string,
     productGroupId: string,
     data: ProductGroupValues
   ) {
     try {
+      startLoading(LoadingsKeyEnum.UPDATE_PRODUCT_GROUP);
       await apiProductGroup.updateProductGroup(
         productGroupId,
         businessId,
@@ -85,6 +85,8 @@ export default function ProductGroupList({
       if (error instanceof AxiosError) {
         toast.error(error.response?.data.message, { style: toastErrorStyle });
       }
+    } finally {
+      stopLoading(LoadingsKeyEnum.UPDATE_PRODUCT_GROUP);
     }
   }
 
@@ -96,7 +98,7 @@ export default function ProductGroupList({
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT);
       const priceNumber = Number(data.base_price);
-      const dataFormatted: ProductDto = {
+      const dataFormatted: CreateProductDto = {
         ...data,
         description: data.description ?? "",
         base_price: priceNumber,
@@ -104,6 +106,7 @@ export default function ProductGroupList({
       };
 
       await apiProduct.createProduct(dataFormatted, businessId);
+      getBusiness();
       toast.success("Producto creado", { style: toastSuccessStyle });
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -115,12 +118,10 @@ export default function ProductGroupList({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
       {productGroups.map((group) => {
-        const [defaultValues, setDefaultValues] = useState<ProductGroupValues>({
-          name: group.name,
-          description: group.description,
-        });
+        const [open, setOpen] = useState<boolean>(false);
+        const [openAddProduct, setOpenAddProduct] = useState<boolean>(false);
 
         return (
           <Card key={group.id}>
@@ -130,12 +131,8 @@ export default function ProductGroupList({
                   <span className="text-2xl font-bold">{group.name}</span>
                   <span className="flex gap-1 items-center">
                     <CustomDialog
-                      onOpenChange={() => {
-                        setDefaultValues({
-                          name: group.name,
-                          description: group.description ?? "",
-                        });
-                      }}
+                      setOpen={setOpen}
+                      open={open}
                       modalTitle="Editar menú"
                       modalDescription="Edita el menú de productos"
                       icon={<Edit2Icon />}
@@ -144,9 +141,16 @@ export default function ProductGroupList({
                         buttonTitle="Guardar"
                         loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
                         handleSubmitButton={(data) => {
-                          handleUpdate(group.business_id, group.id, data);
+                          handleUpdateProductGroup(
+                            group.business_id,
+                            group.id,
+                            data
+                          );
                         }}
-                        defaultValues={defaultValues}
+                        defaultValues={{
+                          ...group,
+                          description: group.description ?? "",
+                        }}
                       />
                     </CustomDialog>
                     <DeleteDialogConfirmation
@@ -162,15 +166,17 @@ export default function ProductGroupList({
             </CardHeader>
             <CardContent>
               <CardTitle className="text-lg">
-                <div className="flex items-center gap-2">
-                  <div>Productos</div>
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="text-lg">Productos</div>
                   <CustomDialog
+                    setOpen={setOpenAddProduct}
+                    open={openAddProduct}
                     modalTitle="Agregar producto"
                     modalDescription="Agrega un producto para tu menú"
                   >
                     <FormProduct
                       buttonTitle="Guardar"
-                      loadingKey={LoadingsKeyEnum.CREATE_BUSINESS}
+                      loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
                       handleSubmitButton={(data) =>
                         handleCreateProduct(data, group.business_id, group.id)
                       }
@@ -178,7 +184,11 @@ export default function ProductGroupList({
                   </CustomDialog>
                 </div>
               </CardTitle>
-              <ProductList products={group.products} />
+              <ProductList
+                products={group.products}
+                businessId={group.business_id}
+                getBusiness={getBusiness}
+              />
             </CardContent>
           </Card>
         );
