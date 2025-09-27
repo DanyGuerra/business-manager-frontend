@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
 import BusinessCard from "@/components/businessCard";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
-import CustomDialog from "@/components/formCustomDialog";
+import CustomDialog from "@/components/customDialog";
 
 export default function ProfilePage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -56,6 +56,8 @@ export default function ProfilePage() {
       <section className="flex gap-4 items-center">
         <h1 className="text-2xl font-bold">Mis negocios</h1>
         <CustomDialog
+          setOpen={setOpen}
+          open={open}
           onOpenChange={setOpen}
           modalTitle="Crear negocio"
           modalDescription="Crea un negocio"
