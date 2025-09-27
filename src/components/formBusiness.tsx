@@ -25,6 +25,7 @@ export type CreateBusinessValues = z.infer<typeof createBusinessSchema>;
 type PropsFormBusiness = {
   buttonTitle: string;
   loadingKey: LoadingsKeyEnum;
+  defaultValues?: CreateBusinessValues;
   handleSubmitButton: (data: CreateBusinessValues) => void;
 };
 
@@ -32,13 +33,11 @@ export default function FormBusiness({
   buttonTitle,
   handleSubmitButton,
   loadingKey,
+  defaultValues,
 }: PropsFormBusiness) {
   const form = useForm<CreateBusinessValues>({
     resolver: zodResolver(createBusinessSchema),
-    defaultValues: {
-      name: "",
-      address: "",
-    },
+    defaultValues,
   });
 
   const { loadings } = useLoadingStore();
@@ -82,6 +81,7 @@ export default function FormBusiness({
 
         <div className="flex justify-center items-center">
           <ButtonLoading
+            disabled={!form.formState.isDirty}
             loadingState={loadings[loadingKey]}
             buttonTitle={buttonTitle}
           />
