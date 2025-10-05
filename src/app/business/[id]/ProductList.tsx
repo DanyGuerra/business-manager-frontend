@@ -10,13 +10,13 @@ import OptionGroupList from "./OptionGroupList";
 import CustomDialog from "@/components/customDialog";
 import { Edit2Icon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
-import { AxiosError } from "axios";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 import { toast } from "sonner";
 import { UpdateProductDto, useProductApi } from "@/lib/useProductApi";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { useState } from "react";
+import { handleApiError } from "@/utils/handleApiError";
 
 type ProductListProps = {
   products: Product[];
@@ -40,13 +40,7 @@ export default function ProductList({
         style: toastSuccessStyle,
       });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal, intenta más tarde", {
-          style: toastErrorStyle,
-        });
-      }
+      handleApiError(error);
     }
   }
 
@@ -68,13 +62,7 @@ export default function ProductList({
         style: toastSuccessStyle,
       });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal, intenta más tarde", {
-          style: toastErrorStyle,
-        });
-      }
+      handleApiError(error);
     } finally {
       setOpen(false);
       stopLoading(LoadingsKeyEnum.UPDATE_PRODUCT);
@@ -115,8 +103,13 @@ export default function ProductList({
                 </section>
               </CollapsibleTrigger>
               <CollapsibleContent className="pl-4 pt-2">
-                <div className="flex items-center gap-2">
-                  <div className="flex gap-1 items-center">
+                <div className="flex justify-center items-center gap-2">
+                  {product.description && (
+                    <p className="w-full text-sm text-muted-foreground">
+                      Descripción: {product.description}
+                    </p>
+                  )}
+                  <div className="flex gap-1">
                     <CustomDialog
                       open={open}
                       setOpen={setOpen}
@@ -141,13 +134,13 @@ export default function ProductList({
                       description="Esta acción no podrá ser revertida y eliminará completamente el producto seleccionado"
                     />
                   </div>
-                  {product.description && (
-                    <p className="w-full text-sm text-muted-foreground">
-                      Descripción: {product.description}
-                    </p>
-                  )}
                 </div>
-                <OptionGroupList optionGroups={product.option_groups} />
+                <OptionGroupList
+                  getBusiness={getBusiness}
+                  productId={product.id}
+                  optionGroups={product.option_groups}
+                  businessId={businessId}
+                />
               </CollapsibleContent>
             </Collapsible>
           ))}

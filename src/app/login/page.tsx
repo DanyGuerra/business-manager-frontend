@@ -22,14 +22,14 @@ import {
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { toast } from "sonner";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { AxiosError } from "axios";
 import { useAuthApi } from "@/lib/useAuthApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "@/components/buttonLoading";
 import { InputPassword } from "@/components/inputPassword";
+import { handleApiError } from "@/utils/handleApiError";
 
 const loginSchema = z.object({
   email: z.email("Ingresa un correo electronico valido"),
@@ -63,12 +63,7 @@ export default function Login() {
       });
       router.push("/profile");
     } catch (error) {
-      if (error instanceof AxiosError) {
-        const { response } = error;
-        toast.error(response?.data?.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal intenta más tarde");
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.LOGIN);
     }

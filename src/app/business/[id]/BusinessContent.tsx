@@ -7,14 +7,14 @@ import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
-import React, { useState } from "react";
+import React from "react";
 import CustomDialog from "@/components/customDialog";
-import { AxiosError } from "axios";
 import { toast } from "sonner";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { Edit2Icon } from "lucide-react";
 import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
+import { handleApiError } from "@/utils/handleApiError";
 
 export default function BusinessContent({
   business,
@@ -34,11 +34,7 @@ export default function BusinessContent({
       await getBusiness();
       toast.error("Menú creado", { style: toastSuccessStyle });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal", { style: toastErrorStyle });
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
     }
@@ -55,13 +51,7 @@ export default function BusinessContent({
         style: toastSuccessStyle,
       });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal, intenta más tarde", {
-          style: toastErrorStyle,
-        });
-      }
+      handleApiError(error);
     }
   }
 

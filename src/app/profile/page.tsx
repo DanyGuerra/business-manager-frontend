@@ -3,12 +3,12 @@
 import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
 import { Business, useBusinessApi } from "@/lib/useBusinessApi";
 import { toast } from "sonner";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
 import BusinessCard from "@/components/businessCard";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import CustomDialog from "@/components/customDialog";
+import { handleApiError } from "@/utils/handleApiError";
 
 export default function ProfilePage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -21,7 +21,7 @@ export default function ProfilePage() {
       const { data } = await businessApi.getMyBusinesses();
       setBusinesses(data);
     } catch (error) {
-      toast.error("Algo salió mal al cargar los negocios");
+      handleApiError(error);
     }
   }
 
@@ -32,15 +32,7 @@ export default function ProfilePage() {
       await getBusiness();
       toast.success("Negocio creado con éxito", { style: toastSuccessStyle });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, {
-          style: toastErrorStyle,
-        });
-      } else {
-        toast.error("Algo salió mal, intenta mas tarde", {
-          style: toastErrorStyle,
-        });
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.CREATE_BUSINESS);
       setOpen(false);

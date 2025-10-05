@@ -2,13 +2,11 @@
 
 import * as React from "react";
 import { BusinessFull, useBusinessApi } from "@/lib/useBusinessApi";
-import { AxiosError } from "axios";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { toastErrorStyle } from "@/lib/toastStyles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoadingStore } from "@/store/loadingStore";
 import BusinessContent from "./BusinessContent";
+import { handleApiError } from "@/utils/handleApiError";
 
 export default function BusinessPage({
   params,
@@ -28,9 +26,7 @@ export default function BusinessPage({
 
       setBusiness(data);
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.message, { style: toastErrorStyle });
-      }
+      handleApiError(error);
     } finally {
       stopLoading("getBusiness");
     }

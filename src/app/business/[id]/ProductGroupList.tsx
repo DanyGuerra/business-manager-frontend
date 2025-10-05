@@ -16,14 +16,14 @@ import { Edit2Icon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
-import { AxiosError } from "axios";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
+import { handleApiError } from "@/utils/handleApiError";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
@@ -51,13 +51,7 @@ export default function ProductGroupList({
       toast.success(message, { style: toastSuccessStyle });
       await getBusiness();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      } else {
-        toast.error("Algo salió mal, intenta más tarde", {
-          style: toastErrorStyle,
-        });
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.UPDATE_PRODUCT_GROUP);
     }
@@ -82,9 +76,7 @@ export default function ProductGroupList({
 
       await getBusiness();
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.UPDATE_PRODUCT_GROUP);
     }
@@ -109,9 +101,7 @@ export default function ProductGroupList({
       getBusiness();
       toast.success("Producto creado", { style: toastSuccessStyle });
     } catch (error) {
-      if (error instanceof AxiosError) {
-        toast.error(error.response?.data.message, { style: toastErrorStyle });
-      }
+      handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT);
     }
