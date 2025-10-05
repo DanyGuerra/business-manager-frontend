@@ -55,7 +55,7 @@ export default function CustomDialog({
           <Button
             variant="outline"
             size="icon"
-            className="size-6 cursor-pointer"
+            className="size-7 cursor-pointer"
           >
             {icon}
           </Button>
