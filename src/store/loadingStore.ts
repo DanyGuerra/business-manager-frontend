@@ -9,6 +9,8 @@ export enum LoadingsKeyEnum {
   UPDATE_PRODUCT_GROUP = "updateProductGroup",
   CREATE_PRODUCT = "createProduct",
   UPDATE_PRODUCT = "updateProduct",
+  CREATE_PRODUCT_GROUP_OPTION = "createProductGroup",
+  UPDATE_PRODUCT_GROUP_OPTION = "createProductGroup",
   LOGIN = "createBusiness",
   SIGNUP = "createBusiness",
 }
