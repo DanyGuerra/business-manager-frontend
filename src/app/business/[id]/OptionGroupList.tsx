@@ -1,6 +1,5 @@
 "use client";
 
-import { OptionGroup } from "@/lib/useBusinessApi";
 import OptionList from "./OptionList";
 import CustomDialog from "@/components/customDialog";
 import { ListPlusIcon } from "lucide-react";
@@ -11,19 +10,21 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { useOptionProductGroupApi } from "@/lib/useOptionProductGroupApi";
 import {
   CreateOptionGroupDto,
+  OptionGroup,
   useOptionGroupApi,
 } from "@/lib/useOptionGroupApi";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
+import OptionGroupSelector from "@/components/optionGroupSelector";
 
 type OptionGroupListProps = {
   optionGroups: OptionGroup[];
   businessId: string;
   productId: string;
-  getBusiness: () => void;
+  getBusiness: () => {};
 };
 
 export default function OptionGroupList({
@@ -33,6 +34,8 @@ export default function OptionGroupList({
   getBusiness,
 }: OptionGroupListProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const [openOptionGroup, setOpenOptionGroup] = useState<boolean>(false);
+  const [optionsGroup, setOptionGroups] = useState<OptionGroup[]>([]);
   const { startLoading, stopLoading } = useLoadingStore();
   const optionGroupApi = useOptionGroupApi();
   const productOptionGroupApi = useOptionProductGroupApi();
@@ -77,12 +80,29 @@ export default function OptionGroupList({
         businessId
       );
 
-      toast.success("Se eliminó correctamente el grupo de opciones");
+      toast.success("Se eliminó correctamente el grupo de opciones", {
+        style: toastSuccessStyle,
+      });
       await getBusiness();
     } catch (error) {
       handleApiError(error);
     }
   }
+
+  async function getOptionsGroupsById() {
+    try {
+      const { data } = await optionGroupApi.getByBusinessId(businessId);
+      setOptionGroups(data);
+    } catch (error) {
+      handleApiError(error);
+    }
+  }
+
+  useEffect(() => {
+    if (openOptionGroup) {
+      getOptionsGroupsById();
+    }
+  }, [openOptionGroup]);
 
   return (
     <>
@@ -90,11 +110,18 @@ export default function OptionGroupList({
         <h1 className="text-sm font-bold">Variantes del producto</h1>
         <div className="flex gap-1">
           <CustomDialog
+            open={openOptionGroup}
+            setOpen={setOpenOptionGroup}
             modalTitle="Agregar variante del producto"
             modalDescription="Agrega un grupo de opciones existente para este producto"
             icon={<ListPlusIcon />}
           >
-            <></>
+            <OptionGroupSelector
+              setOpen={setOpenOptionGroup}
+              optionGroups={optionsGroup}
+              productId={productId}
+              getBusiness={getBusiness}
+            />
           </CustomDialog>
           <CustomDialog
             open={open}

@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/app/types/auth";
 import { BusinessIdHeader } from "@/consts/consts";
 import { useAxios } from "@/lib/axios";
+import { OptionGroup } from "./useOptionGroupApi";
 
 export type CreateBusinessResponse = {
   id: string;
@@ -13,20 +14,6 @@ export type Business = {
   id: string;
   name: string;
   address: string;
-};
-
-export type Option = {
-  id: string;
-  option_group_id: string;
-  name: string;
-  price: number;
-  available: boolean;
-};
-
-export type OptionGroup = {
-  id: string;
-  name: string;
-  options: Option[];
 };
 
 export type Product = {
