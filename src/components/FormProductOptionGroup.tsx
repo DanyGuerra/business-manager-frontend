@@ -92,7 +92,7 @@ export default function FormProductOptionGroup({
             <FormItem>
               <FormLabel>Mínimo</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="0" {...field} />
+                <Input type="number" placeholder="0" {...field} min={0} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -106,7 +106,7 @@ export default function FormProductOptionGroup({
             <FormItem>
               <FormLabel>Máximo</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="1" {...field} />
+                <Input type="number" placeholder="1" {...field} min={0} />
               </FormControl>
               <FormMessage />
             </FormItem>
