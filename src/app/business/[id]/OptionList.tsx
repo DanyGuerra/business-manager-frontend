@@ -1,6 +1,6 @@
 "use client";
 
-import { Option } from "@/lib/useBusinessApi";
+import { Option } from "@/lib/useOptionGroupApi";
 
 type OptionListProps = {
   options: Option[];
@@ -16,7 +16,7 @@ export default function OptionList({ options }: OptionListProps) {
           </span>
         ))
       ) : (
-        <div className="w-full flex items-center justify-center text-xs text-gray-400">
+        <div className="w-full flex items-center justify-center text-xs text-gray-400 min-h-10">
           <span>No hay opciones</span>
         </div>
       )}

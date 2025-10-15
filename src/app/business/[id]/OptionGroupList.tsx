@@ -150,7 +150,6 @@ export default function OptionGroupList({
       stopLoading(LoadingsKeyEnum.CREATE_OPTION);
     }
   }
-  // TODO: Add get option groups by productGroupId
   useEffect(() => {
     if (openOptionGroup) {
       getOptionsGroupsById();
