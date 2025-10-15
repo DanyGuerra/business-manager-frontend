@@ -140,6 +140,7 @@ export default function ProductList({
                   productId={product.id}
                   optionGroups={product.option_groups}
                   businessId={businessId}
+                  productGroupId={product.group_product_id}
                 />
               </CollapsibleContent>
             </Collapsible>

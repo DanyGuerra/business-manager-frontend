@@ -2,7 +2,7 @@
 
 import OptionList from "./OptionList";
 import CustomDialog from "@/components/customDialog";
-import { ListPlusIcon } from "lucide-react";
+import { Edit2, ListPlusIcon } from "lucide-react";
 import FormProductOptionGroup, {
   ProductOptionGroupValues,
 } from "@/components/FormProductOptionGroup";
@@ -19,12 +19,15 @@ import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useEffect, useState } from "react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import OptionGroupSelector from "@/components/optionGroupSelector";
+import FormOption, { OptionValues } from "@/components/formOption";
+import { useProductOptionApi } from "@/lib/useOptionApi";
 
 type OptionGroupListProps = {
   optionGroups: OptionGroup[];
   businessId: string;
   productId: string;
-  getBusiness: () => {};
+  productGroupId: string;
+  getBusiness: () => void;
 };
 
 export default function OptionGroupList({
@@ -32,15 +35,19 @@ export default function OptionGroupList({
   businessId,
   productId,
   getBusiness,
+  productGroupId,
 }: OptionGroupListProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [openOptionGroup, setOpenOptionGroup] = useState<boolean>(false);
-  const [optionsGroup, setOptionGroups] = useState<OptionGroup[]>([]);
+  const [openOption, setOpenOption] = useState<boolean>(false);
+  const [openEditOption, setOpenEditOption] = useState<boolean>(false);
+  const [optionsGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   const { startLoading, stopLoading } = useLoadingStore();
   const optionGroupApi = useOptionGroupApi();
   const productOptionGroupApi = useOptionProductGroupApi();
+  const optionApi = useProductOptionApi();
 
-  async function handleSubmit(dataDto: ProductOptionGroupValues) {
+  async function createOptionGroup(dataDto: ProductOptionGroupValues) {
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
       const optionGrooupDto: CreateOptionGroupDto = {
@@ -67,6 +74,32 @@ export default function OptionGroupList({
     } finally {
       setOpen(false);
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
+    }
+  }
+
+  async function handleEditGroupOption(
+    dataDto: ProductOptionGroupValues,
+    optionGroupId: string
+  ) {
+    try {
+      startLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
+      const optionGrooupDto: CreateOptionGroupDto = {
+        ...dataDto,
+        min_options: Number(dataDto.min_options),
+        max_options: Number(dataDto.max_options),
+      };
+
+      await optionGroupApi.update(optionGrooupDto, businessId, optionGroupId);
+      await getBusiness();
+
+      toast.success("Se actualizó correctamente el grupo de opciones", {
+        style: toastSuccessStyle,
+      });
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      stopLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
+      setOpenEditOption(false);
     }
   }
 
@@ -98,6 +131,26 @@ export default function OptionGroupList({
     }
   }
 
+  async function handleCreateOption(data: OptionValues, optionGroupId: string) {
+    try {
+      startLoading(LoadingsKeyEnum.CREATE_OPTION);
+      await optionApi.createOption(businessId, {
+        ...data,
+        option_group_id: optionGroupId,
+        price: Number(data.price),
+      });
+
+      await getBusiness();
+      toast.success("Se creó la opción correctamente", {
+        style: toastSuccessStyle,
+      });
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      stopLoading(LoadingsKeyEnum.CREATE_OPTION);
+    }
+  }
+  // TODO: Add get option groups by productGroupId
   useEffect(() => {
     if (openOptionGroup) {
       getOptionsGroupsById();
@@ -107,7 +160,7 @@ export default function OptionGroupList({
   return (
     <>
       <div className="flex items-center justify-center gap-3 mt-3">
-        <h1 className="text-sm font-bold">Variantes del producto</h1>
+        <h1 className="text-md font-bold">Variantes del producto</h1>
         <div className="flex gap-1">
           <CustomDialog
             open={openOptionGroup}
@@ -118,7 +171,7 @@ export default function OptionGroupList({
           >
             <OptionGroupSelector
               setOpen={setOpenOptionGroup}
-              optionGroups={optionsGroup}
+              optionGroups={optionsGroups}
               productId={productId}
               getBusiness={getBusiness}
             />
@@ -132,7 +185,7 @@ export default function OptionGroupList({
             <FormProductOptionGroup
               buttonTitle="Agregar"
               handleSubmitButton={(data) => {
-                handleSubmit(data);
+                createOptionGroup(data);
               }}
               loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
             />
@@ -140,16 +193,44 @@ export default function OptionGroupList({
         </div>
       </div>
       {optionGroups.length > 0 ? (
-        <div className="mt-2 space-y-1">
+        <div className="flex flex-col gap-4 mt-2 space-y-1">
           {optionGroups.map((og) => (
             <div key={og.id}>
               <div className="flex items-center gap-1">
                 <span className="font-semibold">{og.name}</span>
                 <CustomDialog
+                  open={openOption}
+                  setOpen={setOpenOption}
                   modalTitle="Agregar una opcion"
                   modalDescription={`Agregar opción al grupo "${og.name}"`}
                 >
-                  <></>
+                  <FormOption
+                    buttonTitle="Agregar"
+                    handleSubmitButton={(data) =>
+                      handleCreateOption(data, og.id)
+                    }
+                    loadingKey={LoadingsKeyEnum.CREATE_OPTION}
+                  />
+                </CustomDialog>
+                <CustomDialog
+                  open={openEditOption}
+                  setOpen={setOpenEditOption}
+                  modalTitle="Editar grupo opción"
+                  icon={<Edit2 />}
+                  modalDescription={`Editar grupo opción "${og.name}"`}
+                >
+                  <FormProductOptionGroup
+                    defaultValues={{
+                      ...og,
+                      min_options: `${og.min_options}`,
+                      max_options: `${og.max_options}`,
+                    }}
+                    buttonTitle="Guardar"
+                    handleSubmitButton={(data) =>
+                      handleEditGroupOption(data, og.id)
+                    }
+                    loadingKey={LoadingsKeyEnum.UPDATE_GROUP_OPTION}
+                  />
                 </CustomDialog>
                 <DeleteDialogConfirmation
                   description={`Se eliminará grupo de opciones "${og.name}" del producto seleccionado`}

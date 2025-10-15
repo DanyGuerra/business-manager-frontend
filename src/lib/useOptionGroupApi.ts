@@ -54,6 +54,20 @@ export function useOptionGroupApi() {
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),
+    update: (
+      data: CreateOptionGroupDto,
+      businessId: string,
+      optionGroupId: string
+    ) =>
+      api
+        .put<ApiResponse<ResponseSucessOptionGroup>>(
+          `/option-group/${optionGroupId}`,
+          data,
+          {
+            headers: { [BusinessIdHeader]: businessId },
+          }
+        )
+        .then((res) => res.data),
     getByBusinessId: (businessId: string) =>
       api
         .get<ApiResponse<OptionGroup[]>>(
