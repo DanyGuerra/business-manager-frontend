@@ -11,23 +11,26 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { useBusinessStore } from "@/store/businessStore";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
 type OptionGroupSelectorProps = {
   optionGroups: OptionGroup[];
   productId: string;
   setOpen: (open: boolean) => void;
-  getBusiness: () => void;
 };
 
 export default function OptionGroupSelector({
   optionGroups = [],
   productId,
   setOpen,
-  getBusiness,
 }: OptionGroupSelectorProps) {
   const pgApi = useOptionProductGroupApi();
   const [selectedGroupOption, setSelectedGroupOption] =
     useState<OptionGroup | null>(null);
+
+  const { businessId } = useBusinessStore();
+  const { getBusiness } = useFetchBusiness();
 
   function handleCheck(og: OptionGroup) {
     setSelectedGroupOption(og);
@@ -41,7 +44,7 @@ export default function OptionGroupSelector({
         selectedGroupOption.business_id
       );
 
-      await getBusiness();
+      await getBusiness(businessId);
       toast.success("Se agregó correctamente el grupo de opciones", {
         style: toastSuccessStyle,
       });
@@ -68,7 +71,7 @@ export default function OptionGroupSelector({
                   <Label key={og.id} htmlFor={og.id} className="w-full">
                     <div className="w-full">
                       <Card
-                        className={`cursor-pointer transition-all border rounded-xl p-4 flex gap-3 items-start hover:border-primary/50 ${
+                        className={`cursor-pointer transition-all border rounded-xl p-4 flex items-start hover:border-primary/50 ${
                           selectedGroupOption?.id === og.id
                             ? "border-primary bg-primary/5"
                             : "border-muted"
@@ -76,13 +79,13 @@ export default function OptionGroupSelector({
                         onClick={() => handleCheck(og)}
                       >
                         <CardHeader className="w-full">
-                          <CardTitle className="flex items-center justify-between gap-4">
+                          <CardTitle className="flex items-center justify-between">
                             <span>{og.name}</span>
                             <RadioGroupItem id={og.id} value={og.id} />
                           </CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-wrap gap-2">
-                          {og.options ? (
+                        <CardContent className="flex flex-wrap gap-2 w-full">
+                          {og.options.length > 0 ? (
                             og.options.map((o) => (
                               <span
                                 className="rounded-md border p-2 text-sm"
@@ -92,7 +95,9 @@ export default function OptionGroupSelector({
                               </span>
                             ))
                           ) : (
-                            <></>
+                            <div className="p-2 flex justify-center items-center w-full text-muted-foreground ">
+                              <div>No hay opciones</div>
+                            </div>
                           )}
                         </CardContent>
                       </Card>

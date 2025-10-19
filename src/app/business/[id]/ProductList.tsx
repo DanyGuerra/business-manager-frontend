@@ -17,25 +17,23 @@ import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { useState } from "react";
 import { handleApiError } from "@/utils/handleApiError";
+import { useBusinessStore } from "@/store/businessStore";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
 type ProductListProps = {
   products: Product[];
-  businessId: string;
-  getBusiness: () => void;
 };
-export default function ProductList({
-  products,
-  businessId,
-  getBusiness,
-}: ProductListProps) {
+export default function ProductList({ products }: ProductListProps) {
   const productApi = useProductApi();
   const [open, setOpen] = useState<boolean>(false);
   const { startLoading, stopLoading } = useLoadingStore();
+  const { businessId } = useBusinessStore();
+  const { getBusiness } = useFetchBusiness();
 
   async function handleDeleteProduct(productId: string) {
     try {
       await productApi.deleteProduct(productId, businessId);
-      await getBusiness();
+      await getBusiness(businessId);
       toast.success("Se eliminó el producto correctamente", {
         style: toastSuccessStyle,
       });
@@ -57,7 +55,7 @@ export default function ProductList({
     try {
       startLoading(LoadingsKeyEnum.UPDATE_PRODUCT);
       await productApi.updateProduct(dataUpdate, productId, businessId);
-      await getBusiness();
+      await getBusiness(businessId);
       toast.success("Se actualizó el producto exitosamente", {
         style: toastSuccessStyle,
       });
@@ -136,10 +134,8 @@ export default function ProductList({
                   </div>
                 </div>
                 <OptionGroupList
-                  getBusiness={getBusiness}
                   productId={product.id}
                   optionGroups={product.option_groups}
-                  businessId={businessId}
                   productGroupId={product.group_product_id}
                 />
               </CollapsibleContent>

@@ -11,7 +11,6 @@ import { ProductGroup } from "@/lib/useBusinessApi";
 
 import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
-import { useState } from "react";
 import { Edit2Icon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
@@ -24,19 +23,19 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { handleApiError } from "@/utils/handleApiError";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
-  getBusiness: () => void;
 };
 
 export default function ProductGroupList({
   productGroups,
-  getBusiness,
 }: ProductGroupListProps) {
   const apiProductGroup = useProductGroupApi();
   const apiProduct = useProductApi();
   const { stopLoading, startLoading } = useLoadingStore();
+  const { getBusiness } = useFetchBusiness();
 
   async function handleDeleteProductGroup(
     productGroupId: string,
@@ -49,7 +48,7 @@ export default function ProductGroupList({
         businessId
       );
       toast.success(message, { style: toastSuccessStyle });
-      await getBusiness();
+      await getBusiness(businessId);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -74,7 +73,7 @@ export default function ProductGroupList({
         style: toastSuccessStyle,
       });
 
-      await getBusiness();
+      await getBusiness(businessId);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -98,7 +97,7 @@ export default function ProductGroupList({
       };
 
       await apiProduct.createProduct(dataFormatted, businessId);
-      getBusiness();
+      await getBusiness(businessId);
       toast.success("Producto creado", { style: toastSuccessStyle });
     } catch (error) {
       handleApiError(error);
@@ -110,19 +109,14 @@ export default function ProductGroupList({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
       {productGroups.map((group) => {
-        const [open, setOpen] = useState<boolean>(false);
-        const [openAddProduct, setOpenAddProduct] = useState<boolean>(false);
-
         return (
           <Card key={group.id}>
             <CardHeader>
               <CardTitle>
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold">{group.name}</span>
                   <span className="flex gap-1 items-center">
                     <CustomDialog
-                      setOpen={setOpen}
-                      open={open}
                       modalTitle="Editar menú"
                       modalDescription="Edita el menú de productos"
                       icon={<Edit2Icon />}
@@ -159,8 +153,6 @@ export default function ProductGroupList({
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="text-lg">Productos</div>
                   <CustomDialog
-                    setOpen={setOpenAddProduct}
-                    open={openAddProduct}
                     modalTitle="Agregar producto"
                     modalDescription="Agrega un producto para tu menú"
                   >
@@ -174,11 +166,7 @@ export default function ProductGroupList({
                   </CustomDialog>
                 </div>
               </CardTitle>
-              <ProductList
-                products={group.products}
-                businessId={group.business_id}
-                getBusiness={getBusiness}
-              />
+              <ProductList products={group.products} />
             </CardContent>
           </Card>
         );

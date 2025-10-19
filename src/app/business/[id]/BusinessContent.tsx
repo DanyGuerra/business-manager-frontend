@@ -1,6 +1,6 @@
 "use client";
 
-import { BusinessFull, useBusinessApi } from "@/lib/useBusinessApi";
+import { useBusinessApi } from "@/lib/useBusinessApi";
 import { Separator } from "@/components/ui/separator";
 import ProductGroupList from "./ProductGroupList";
 import FormProductGroup, {
@@ -15,23 +15,24 @@ import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { Edit2Icon } from "lucide-react";
 import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
 import { handleApiError } from "@/utils/handleApiError";
+import { useBusinessStore } from "@/store/businessStore";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
-export default function BusinessContent({
-  business,
-  getBusiness,
-}: {
-  business: BusinessFull;
-  getBusiness: () => {};
-}) {
+export default function BusinessContent({}: {}) {
   const productGroupApi = useProductGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
+  const { business, businessId } = useBusinessStore();
   const businessApi = useBusinessApi();
+  const { getBusiness } = useFetchBusiness();
 
   const handleSubmitButton = async (data: ProductGroupValues) => {
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
-      await productGroupApi.createProductGroup(data, business.id);
-      await getBusiness();
+      await productGroupApi.createProductGroup(
+        { ...data, description: data.description ?? "" },
+        businessId
+      );
+      await getBusiness(businessId);
       toast.error("Menú creado", { style: toastSuccessStyle });
     } catch (error) {
       handleApiError(error);
@@ -46,7 +47,8 @@ export default function BusinessContent({
   ) {
     try {
       await businessApi.updateBusiness(businessId, data);
-      await getBusiness();
+      await getBusiness(businessId);
+
       toast.success("Se actualizó correctamente el negocio", {
         style: toastSuccessStyle,
       });
@@ -60,7 +62,7 @@ export default function BusinessContent({
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-4">
           <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
-            {business.name}
+            {business?.name}
           </h1>
           <CustomDialog
             modalTitle="Editar negocio"
@@ -70,14 +72,17 @@ export default function BusinessContent({
             <FormBusiness
               buttonTitle="Guardar"
               handleSubmitButton={(data) =>
-                handleUpdateBusiness(data, business.id)
+                handleUpdateBusiness(data, businessId)
               }
               loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
-              defaultValues={{ ...business, address: business.address ?? "" }}
+              defaultValues={{
+                name: business?.name ?? "",
+                address: business?.address,
+              }}
             ></FormBusiness>
           </CustomDialog>
         </div>
-        <div className="text-muted-foreground">{business.address}</div>
+        <div className="text-muted-foreground">{business?.address}</div>
       </div>
       <Separator></Separator>
 
@@ -99,9 +104,8 @@ export default function BusinessContent({
           </CustomDialog>
         </div>
 
-        {business.productGroup.length > 0 ? (
+        {business && business?.productGroup.length > 0 ? (
           <ProductGroupList
-            getBusiness={getBusiness}
             productGroups={business.productGroup}
           ></ProductGroupList>
         ) : (

@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { BusinessFull, useBusinessApi } from "@/lib/useBusinessApi";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoadingStore } from "@/store/loadingStore";
 import BusinessContent from "./BusinessContent";
-import { handleApiError } from "@/utils/handleApiError";
+import { useBusinessStore } from "@/store/businessStore";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
 export default function BusinessPage({
   params,
@@ -15,25 +15,12 @@ export default function BusinessPage({
 }) {
   const { id } = React.use(params);
 
-  const apiBusiness = useBusinessApi();
-  const [business, setBusiness] = useState<BusinessFull>();
-  const { startLoading, stopLoading, loadings } = useLoadingStore();
-
-  async function getBusiness() {
-    try {
-      startLoading("getBusiness");
-      const { data } = await apiBusiness.getBusinessProducts(id);
-
-      setBusiness(data);
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      stopLoading("getBusiness");
-    }
-  }
+  const { loadings } = useLoadingStore();
+  const { business } = useBusinessStore();
+  const { getBusiness } = useFetchBusiness();
 
   useEffect(() => {
-    getBusiness();
+    getBusiness(id);
   }, [id]);
 
   let content;
@@ -46,7 +33,7 @@ export default function BusinessPage({
       </div>
     );
   } else if (business) {
-    content = <BusinessContent business={business} getBusiness={getBusiness} />;
+    content = <BusinessContent />;
   } else {
     content = (
       <div className="flex items-center justify-center w-full h-100">

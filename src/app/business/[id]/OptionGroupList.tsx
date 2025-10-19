@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import OptionList from "./OptionList";
 import CustomDialog from "@/components/customDialog";
 import { Edit2, ListPlusIcon } from "lucide-react";
@@ -16,64 +17,63 @@ import {
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useEffect, useState } from "react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import OptionGroupSelector from "@/components/optionGroupSelector";
 import FormOption, { OptionValues } from "@/components/formOption";
 import { useProductOptionApi } from "@/lib/useOptionApi";
+import { useBusinessStore } from "@/store/businessStore";
+import { useFetchBusiness } from "@/app/hooks/useBusiness";
 
 type OptionGroupListProps = {
   optionGroups: OptionGroup[];
-  businessId: string;
   productId: string;
   productGroupId: string;
-  getBusiness: () => void;
 };
+
+type DialogType =
+  | null
+  | "createGroup"
+  | "addExistingGroup"
+  | { type: "addOption"; groupId: string }
+  | { type: "editGroup"; groupId: string };
 
 export default function OptionGroupList({
   optionGroups,
-  businessId,
   productId,
-  getBusiness,
-  productGroupId,
 }: OptionGroupListProps) {
-  const [open, setOpen] = useState<boolean>(false);
-  const [openOptionGroup, setOpenOptionGroup] = useState<boolean>(false);
-  const [openOption, setOpenOption] = useState<boolean>(false);
-  const [openEditOption, setOpenEditOption] = useState<boolean>(false);
+  const [dialog, setDialog] = useState<DialogType>(null);
   const [optionsGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   const { startLoading, stopLoading } = useLoadingStore();
+  const { businessId } = useBusinessStore();
   const optionGroupApi = useOptionGroupApi();
   const productOptionGroupApi = useOptionProductGroupApi();
   const optionApi = useProductOptionApi();
+  const { getBusiness } = useFetchBusiness();
+
+  const closeDialog = () => setDialog(null);
 
   async function createOptionGroup(dataDto: ProductOptionGroupValues) {
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
-      const optionGrooupDto: CreateOptionGroupDto = {
+      const dto: CreateOptionGroupDto = {
         ...dataDto,
         min_options: Number(dataDto.min_options),
         max_options: Number(dataDto.max_options),
       };
-      const { data } = await optionGroupApi.create(optionGrooupDto, businessId);
-
+      const { data } = await optionGroupApi.create(dto, businessId);
       await productOptionGroupApi.create(
-        {
-          product_id: productId,
-          option_group_id: data.id,
-        },
+        { product_id: productId, option_group_id: data.id },
         businessId
       );
-
-      await getBusiness();
+      await getBusiness(businessId);
       toast.success("Opción del producto creada correctamente", {
         style: toastSuccessStyle,
       });
     } catch (error) {
       handleApiError(error);
     } finally {
-      setOpen(false);
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
+      closeDialog();
     }
   }
 
@@ -83,40 +83,34 @@ export default function OptionGroupList({
   ) {
     try {
       startLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
-      const optionGrooupDto: CreateOptionGroupDto = {
+      const dto: CreateOptionGroupDto = {
         ...dataDto,
         min_options: Number(dataDto.min_options),
         max_options: Number(dataDto.max_options),
       };
-
-      await optionGroupApi.update(optionGrooupDto, businessId, optionGroupId);
-      await getBusiness();
-
-      toast.success("Se actualizó correctamente el grupo de opciones", {
+      await optionGroupApi.update(dto, businessId, optionGroupId);
+      await getBusiness(businessId);
+      toast.success("Grupo de opciones actualizado correctamente", {
         style: toastSuccessStyle,
       });
     } catch (error) {
       handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
-      setOpenEditOption(false);
+      closeDialog();
     }
   }
 
   async function handleDeleteOptionGroup(optionGroupId: string) {
     try {
       await productOptionGroupApi.delete(
-        {
-          product_id: productId,
-          option_group_id: optionGroupId,
-        },
+        { product_id: productId, option_group_id: optionGroupId },
         businessId
       );
-
       toast.success("Se eliminó correctamente el grupo de opciones", {
         style: toastSuccessStyle,
       });
-      await getBusiness();
+      await getBusiness(businessId);
     } catch (error) {
       handleApiError(error);
     }
@@ -139,22 +133,21 @@ export default function OptionGroupList({
         option_group_id: optionGroupId,
         price: Number(data.price),
       });
-
-      await getBusiness();
-      toast.success("Se creó la opción correctamente", {
+      await getBusiness(businessId);
+      toast.success("Opción creada correctamente", {
         style: toastSuccessStyle,
       });
     } catch (error) {
       handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.CREATE_OPTION);
+      closeDialog();
     }
   }
+
   useEffect(() => {
-    if (openOptionGroup) {
-      getOptionsGroupsById();
-    }
-  }, [openOptionGroup]);
+    if (dialog === "addExistingGroup") getOptionsGroupsById();
+  }, [dialog]);
 
   return (
     <>
@@ -162,45 +155,58 @@ export default function OptionGroupList({
         <h1 className="text-md font-bold">Variantes del producto</h1>
         <div className="flex gap-1">
           <CustomDialog
-            open={openOptionGroup}
-            setOpen={setOpenOptionGroup}
+            open={dialog === "addExistingGroup"}
+            setOpen={(v) => setDialog(v ? "addExistingGroup" : null)}
             modalTitle="Agregar variante del producto"
             modalDescription="Agrega un grupo de opciones existente para este producto"
             icon={<ListPlusIcon />}
           >
             <OptionGroupSelector
-              setOpen={setOpenOptionGroup}
+              setOpen={() => closeDialog()}
               optionGroups={optionsGroups}
               productId={productId}
-              getBusiness={getBusiness}
             />
           </CustomDialog>
+
           <CustomDialog
-            open={open}
-            setOpen={setOpen}
+            open={dialog === "createGroup"}
+            setOpen={(v) => setDialog(v ? "createGroup" : null)}
             modalTitle="Crear variante del producto"
             modalDescription="Crea un nuevo grupo de opciones para este producto"
           >
             <FormProductOptionGroup
               buttonTitle="Agregar"
-              handleSubmitButton={(data) => {
-                createOptionGroup(data);
-              }}
+              handleSubmitButton={createOptionGroup}
               loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
             />
           </CustomDialog>
         </div>
       </div>
+
       {optionGroups.length > 0 ? (
         <div className="flex flex-col gap-4 mt-2 space-y-1">
           {optionGroups.map((og) => (
-            <div key={og.id}>
-              <div className="flex items-center gap-1">
-                <span className="font-semibold">{og.name}</span>
+            <div key={og.id} className="flex flex-col gap-3">
+              <div className="flex items-center ">
+                <span
+                  className={`font-semibold ${
+                    !og.available ? "line-through text-muted-foreground" : ""
+                  }`}
+                >
+                  {og.name}
+                </span>
+
+                {/* Create option */}
                 <CustomDialog
-                  open={openOption}
-                  setOpen={setOpenOption}
-                  modalTitle="Agregar una opcion"
+                  open={
+                    typeof dialog === "object" &&
+                    dialog?.type === "addOption" &&
+                    dialog.groupId === og.id
+                  }
+                  setOpen={(v) =>
+                    setDialog(v ? { type: "addOption", groupId: og.id } : null)
+                  }
+                  modalTitle="Agregar una opción"
                   modalDescription={`Agregar opción al grupo "${og.name}"`}
                 >
                   <FormOption
@@ -211,12 +217,20 @@ export default function OptionGroupList({
                     loadingKey={LoadingsKeyEnum.CREATE_OPTION}
                   />
                 </CustomDialog>
+
+                {/* Edit group option */}
                 <CustomDialog
-                  open={openEditOption}
-                  setOpen={setOpenEditOption}
-                  modalTitle="Editar grupo opción"
+                  open={
+                    typeof dialog === "object" &&
+                    dialog?.type === "editGroup" &&
+                    dialog.groupId === og.id
+                  }
+                  setOpen={(v) =>
+                    setDialog(v ? { type: "editGroup", groupId: og.id } : null)
+                  }
+                  modalTitle="Editar grupo de opción"
                   icon={<Edit2 />}
-                  modalDescription={`Editar grupo opción "${og.name}"`}
+                  modalDescription={`Editar grupo "${og.name}"`}
                 >
                   <FormProductOptionGroup
                     defaultValues={{
@@ -231,12 +245,15 @@ export default function OptionGroupList({
                     loadingKey={LoadingsKeyEnum.UPDATE_GROUP_OPTION}
                   />
                 </CustomDialog>
+
+                {/* Delete group option */}
                 <DeleteDialogConfirmation
                   description={`Se eliminará grupo de opciones "${og.name}" del producto seleccionado`}
                   handleContinue={() => handleDeleteOptionGroup(og.id)}
                 />
               </div>
 
+              <div className="text-sm text-muted-foreground">{`Opciones ${og.min_options} - ${og.max_options}`}</div>
               <OptionList options={og.options} />
             </div>
           ))}
