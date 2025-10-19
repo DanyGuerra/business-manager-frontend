@@ -2,6 +2,11 @@ import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 
+type CreateProductGroupDto = {
+  name: string;
+  description: string;
+};
+
 type UpdateProductGroupDto = {
   name?: string;
   description?: string;
@@ -11,7 +16,7 @@ export function useProductGroupApi() {
   const api = useAxios();
 
   return {
-    createProductGroup: (data: any, businessId: string) =>
+    createProductGroup: (data: CreateProductGroupDto, businessId: string) =>
       api
         .post<ApiResponse>("/product-group", data, {
           headers: { [BusinessIdHeader]: businessId },
