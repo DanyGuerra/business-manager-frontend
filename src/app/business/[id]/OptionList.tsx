@@ -8,6 +8,7 @@ import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useProductOptionApi } from "@/lib/useOptionApi";
 import { Option } from "@/lib/useOptionGroupApi";
 import { useBusinessStore } from "@/store/businessStore";
+import { useEditModeStore } from "@/store/editModeStore";
 import { LoadingsKeyEnum } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { Pencil } from "lucide-react";
@@ -23,6 +24,7 @@ export default function OptionList({ options }: OptionListProps) {
   const optionApi = useProductOptionApi();
   const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
+  const { isEditMode } = useEditModeStore();
 
   async function handleUpdateOption(
     productOptionId: string,
@@ -73,28 +75,30 @@ export default function OptionList({ options }: OptionListProps) {
             >
               {opt.name} {opt.price > 0 && `+ $${opt.price}`}
             </div>
-            <span className="flex gap-1">
-              <CustomDialog
-                open={open === opt.id}
-                setOpen={(o) => (o ? setOpen(opt.id) : setOpen(null))}
-                modalTitle="Editar opción"
-                modalDescription={`Editar la opción "${opt.name}"`}
-                icon={<Pencil />}
-              >
-                <FormOption
-                  defaultValues={{ ...opt, price: `${opt.price}` }}
-                  buttonTitle="Guardar"
-                  loadingKey={LoadingsKeyEnum.UPDATE_OPTION}
-                  handleSubmitButton={(data: OptionValues) =>
-                    handleUpdateOption(opt.id, data)
-                  }
+            {isEditMode && (
+              <span className="flex gap-1">
+                <CustomDialog
+                  open={open === opt.id}
+                  setOpen={(o) => (o ? setOpen(opt.id) : setOpen(null))}
+                  modalTitle="Editar opción"
+                  modalDescription={`Editar la opción "${opt.name}"`}
+                  icon={<Pencil />}
+                >
+                  <FormOption
+                    defaultValues={{ ...opt, price: `${opt.price}` }}
+                    buttonTitle="Guardar"
+                    loadingKey={LoadingsKeyEnum.UPDATE_OPTION}
+                    handleSubmitButton={(data: OptionValues) =>
+                      handleUpdateOption(opt.id, data)
+                    }
+                  />
+                </CustomDialog>
+                <DeleteDialogConfirmation
+                  description={`Esta acción eliminará permanentemente la opcion "${opt.name}"`}
+                  handleContinue={() => handleDeleteOption(opt.id)}
                 />
-              </CustomDialog>
-              <DeleteDialogConfirmation
-                description={`Esta acción eliminará permanentemente la opcion "${opt.name}"`}
-                handleContinue={() => handleDeleteOption(opt.id)}
-              />
-            </span>
+              </span>
+            )}
           </span>
         ))
       ) : (

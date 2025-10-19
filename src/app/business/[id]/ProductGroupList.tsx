@@ -11,7 +11,7 @@ import { ProductGroup } from "@/lib/useBusinessApi";
 
 import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
-import { Edit2Icon } from "lucide-react";
+import { Edit2Icon, PencilIcon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
@@ -24,6 +24,8 @@ import FormProduct, { ProductValues } from "@/components/formProduct";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { handleApiError } from "@/utils/handleApiError";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
+import { useEditModeStore } from "@/store/editModeStore";
+import { Toggle } from "@/components/ui/toggle";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
@@ -36,6 +38,7 @@ export default function ProductGroupList({
   const apiProduct = useProductApi();
   const { stopLoading, startLoading } = useLoadingStore();
   const { getBusiness } = useFetchBusiness();
+  const { isEditMode, setEditMode } = useEditModeStore();
 
   async function handleDeleteProductGroup(
     productGroupId: string,
@@ -112,38 +115,50 @@ export default function ProductGroupList({
         return (
           <Card key={group.id}>
             <CardHeader>
-              <CardTitle>
+              <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className="text-2xl font-bold">{group.name}</span>
-                  <span className="flex gap-1 items-center">
-                    <CustomDialog
-                      modalTitle="Editar menú"
-                      modalDescription="Edita el menú de productos"
-                      icon={<Edit2Icon />}
-                    >
-                      <FormProductGroup
-                        buttonTitle="Guardar"
-                        loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
-                        handleSubmitButton={(data) => {
-                          handleUpdateProductGroup(
-                            group.business_id,
-                            group.id,
-                            data
-                          );
+                  {isEditMode && (
+                    <span className="flex gap-1 items-center">
+                      <CustomDialog
+                        modalTitle="Editar menú"
+                        modalDescription="Edita el menú de productos"
+                        icon={<Edit2Icon />}
+                      >
+                        <FormProductGroup
+                          buttonTitle="Guardar"
+                          loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
+                          handleSubmitButton={(data) => {
+                            handleUpdateProductGroup(
+                              group.business_id,
+                              group.id,
+                              data
+                            );
+                          }}
+                          defaultValues={{
+                            ...group,
+                            description: group.description ?? "",
+                          }}
+                        />
+                      </CustomDialog>
+                      <DeleteDialogConfirmation
+                        handleContinue={() => {
+                          handleDeleteProductGroup(group.id, group.business_id);
                         }}
-                        defaultValues={{
-                          ...group,
-                          description: group.description ?? "",
-                        }}
+                        description="Esta acción no podrá ser revertida y eliminará completamente el menú seleccionado"
                       />
-                    </CustomDialog>
-                    <DeleteDialogConfirmation
-                      handleContinue={() => {
-                        handleDeleteProductGroup(group.id, group.business_id);
-                      }}
-                      description="Esta acción no podrá ser revertida y eliminará completamente el menú seleccionado"
-                    />
-                  </span>
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <Toggle
+                    className="cursor-pointer"
+                    pressed={isEditMode}
+                    onPressedChange={(state) => setEditMode(state)}
+                    aria-label="Toggle edit mode"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </Toggle>
                 </div>
               </CardTitle>
               <CardDescription>{group.description}</CardDescription>
@@ -152,18 +167,20 @@ export default function ProductGroupList({
               <CardTitle className="text-lg">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="text-lg">Productos</div>
-                  <CustomDialog
-                    modalTitle="Agregar producto"
-                    modalDescription="Agrega un producto para tu menú"
-                  >
-                    <FormProduct
-                      buttonTitle="Guardar"
-                      loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
-                      handleSubmitButton={(data) =>
-                        handleCreateProduct(data, group.business_id, group.id)
-                      }
-                    ></FormProduct>
-                  </CustomDialog>
+                  {isEditMode && (
+                    <CustomDialog
+                      modalTitle="Agregar producto"
+                      modalDescription="Agrega un producto para tu menú"
+                    >
+                      <FormProduct
+                        buttonTitle="Guardar"
+                        loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
+                        handleSubmitButton={(data) =>
+                          handleCreateProduct(data, group.business_id, group.id)
+                        }
+                      ></FormProduct>
+                    </CustomDialog>
+                  )}
                 </div>
               </CardTitle>
               <ProductList products={group.products} />

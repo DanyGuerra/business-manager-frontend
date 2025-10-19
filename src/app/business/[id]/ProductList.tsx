@@ -19,6 +19,7 @@ import { useState } from "react";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
+import { useEditModeStore } from "@/store/editModeStore";
 
 type ProductListProps = {
   products: Product[];
@@ -29,6 +30,7 @@ export default function ProductList({ products }: ProductListProps) {
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
+  const { isEditMode } = useEditModeStore();
 
   async function handleDeleteProduct(productId: string) {
     try {
@@ -107,31 +109,33 @@ export default function ProductList({ products }: ProductListProps) {
                       Descripción: {product.description}
                     </p>
                   )}
-                  <div className="flex gap-1">
-                    <CustomDialog
-                      open={open}
-                      setOpen={setOpen}
-                      modalTitle="Editar producto"
-                      modalDescription="Edita el prodcucto seleccionado"
-                      icon={<Edit2Icon />}
-                    >
-                      <FormProduct
-                        buttonTitle="Guardar cambios"
-                        handleSubmitButton={(data) =>
-                          handleEditProduct(data, product.id, businessId)
-                        }
-                        loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT}
-                        defaultValues={{
-                          ...product,
-                          base_price: `${product.base_price}`,
-                        }}
+                  {isEditMode && (
+                    <div className="flex gap-1">
+                      <CustomDialog
+                        open={open}
+                        setOpen={setOpen}
+                        modalTitle="Editar producto"
+                        modalDescription="Edita el prodcucto seleccionado"
+                        icon={<Edit2Icon />}
+                      >
+                        <FormProduct
+                          buttonTitle="Guardar cambios"
+                          handleSubmitButton={(data) =>
+                            handleEditProduct(data, product.id, businessId)
+                          }
+                          loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT}
+                          defaultValues={{
+                            ...product,
+                            base_price: `${product.base_price}`,
+                          }}
+                        />
+                      </CustomDialog>
+                      <DeleteDialogConfirmation
+                        handleContinue={() => handleDeleteProduct(product.id)}
+                        description="Esta acción no podrá ser revertida y eliminará completamente el producto seleccionado"
                       />
-                    </CustomDialog>
-                    <DeleteDialogConfirmation
-                      handleContinue={() => handleDeleteProduct(product.id)}
-                      description="Esta acción no podrá ser revertida y eliminará completamente el producto seleccionado"
-                    />
-                  </div>
+                    </div>
+                  )}
                 </div>
                 <OptionGroupList
                   productId={product.id}
