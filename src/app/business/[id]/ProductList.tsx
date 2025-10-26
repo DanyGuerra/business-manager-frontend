@@ -76,7 +76,7 @@ export default function ProductList({ products }: ProductListProps) {
           {products.map((product) => (
             <Collapsible key={product.id}>
               <CollapsibleTrigger
-                className="flex justify-between w-full p-2 bg-muted rounded"
+                className="flex justify-between w-full p-2 bg-muted rounded cursor-pointer"
                 asChild
               >
                 <section className="flex">
