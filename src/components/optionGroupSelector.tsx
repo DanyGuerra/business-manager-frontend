@@ -57,8 +57,8 @@ export default function OptionGroupSelector({
 
   return (
     <section className="flex flex-col w-full gap-4">
-      <ScrollArea className="h-[300px] w-[100%] rounded-md border p-4Í">
-        <div className="flex flex-col gap-5">
+      <ScrollArea className="h-[300px] w-[100%] rounded-md border p-4">
+        <div className="flex flex-col gap-5 h-full ">
           {optionGroups.length > 0 ? (
             optionGroups.map((og) => {
               return (
@@ -95,8 +95,8 @@ export default function OptionGroupSelector({
                               </span>
                             ))
                           ) : (
-                            <div className="p-2 flex justify-center items-center w-full text-muted-foreground ">
-                              <div>No hay opciones</div>
+                            <div className="p-2 flex justify-center items-center w-full text-muted-foreground">
+                              <div className="w-full">No hay opciones</div>
                             </div>
                           )}
                         </CardContent>
@@ -107,7 +107,9 @@ export default function OptionGroupSelector({
               );
             })
           ) : (
-            <div>No hay opciones</div>
+            <div className="flex itmes-center justify-center">
+              No hay opciones
+            </div>
           )}
         </div>
       </ScrollArea>
