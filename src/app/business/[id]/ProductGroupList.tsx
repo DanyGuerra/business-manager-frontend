@@ -11,7 +11,7 @@ import { ProductGroup } from "@/lib/useBusinessApi";
 
 import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
-import { Edit2Icon, PencilIcon } from "lucide-react";
+import { Edit2Icon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
@@ -116,7 +116,7 @@ export default function ProductGroupList({
           <Card key={group.id}>
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-3 w-full">
                   <span className="text-2xl font-bold">{group.name}</span>
                   {isEditMode && (
                     <span className="flex gap-1 items-center">
@@ -149,16 +149,6 @@ export default function ProductGroupList({
                       />
                     </span>
                   )}
-                </div>
-                <div>
-                  <Toggle
-                    className="cursor-pointer"
-                    pressed={isEditMode}
-                    onPressedChange={(state) => setEditMode(state)}
-                    aria-label="Toggle edit mode"
-                  >
-                    <PencilIcon className="h-4 w-4" />
-                  </Toggle>
                 </div>
               </CardTitle>
               <CardDescription>{group.description}</CardDescription>

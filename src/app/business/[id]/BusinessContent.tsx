@@ -12,16 +12,19 @@ import CustomDialog from "@/components/customDialog";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
-import { Edit2Icon } from "lucide-react";
+import { Edit2Icon, FilePenIcon } from "lucide-react";
 import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
+import { Toggle } from "@/components/ui/toggle";
+import { useEditModeStore } from "@/store/editModeStore";
 
 export default function BusinessContent({}: {}) {
   const productGroupApi = useProductGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const { business, businessId } = useBusinessStore();
+  const { isEditMode, setEditMode } = useEditModeStore();
   const businessApi = useBusinessApi();
   const { getBusiness } = useFetchBusiness();
 
@@ -60,27 +63,43 @@ export default function BusinessContent({}: {}) {
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-4">
-          <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
-            {business?.name}
-          </h1>
-          <CustomDialog
-            modalTitle="Editar negocio"
-            modalDescription="Edita los datos de tu negocio"
-            icon={<Edit2Icon />}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
+                {business?.name}
+              </h1>
+
+              {isEditMode && (
+                <CustomDialog
+                  modalTitle="Editar negocio"
+                  modalDescription="Edita los datos de tu negocio"
+                  icon={<Edit2Icon />}
+                >
+                  <FormBusiness
+                    buttonTitle="Guardar"
+                    handleSubmitButton={(data) =>
+                      handleUpdateBusiness(data, businessId)
+                    }
+                    loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
+                    defaultValues={{
+                      name: business?.name ?? "",
+                      address: business?.address,
+                    }}
+                  ></FormBusiness>
+                </CustomDialog>
+              )}
+            </div>
+          </div>
+          <Toggle
+            className="cursor-pointer"
+            pressed={isEditMode}
+            onPressedChange={(state) => setEditMode(state)}
+            aria-label="Toggle edit mode"
           >
-            <FormBusiness
-              buttonTitle="Guardar"
-              handleSubmitButton={(data) =>
-                handleUpdateBusiness(data, businessId)
-              }
-              loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
-              defaultValues={{
-                name: business?.name ?? "",
-                address: business?.address,
-              }}
-            ></FormBusiness>
-          </CustomDialog>
+            <FilePenIcon className="h-4 w-4" />
+            Modo edición
+          </Toggle>
         </div>
         <div className="text-muted-foreground">{business?.address}</div>
       </div>
@@ -92,16 +111,19 @@ export default function BusinessContent({}: {}) {
           <h2 className="scroll-m-20 text-xl font-extrabold tracking-tight text-balance">
             Menus
           </h2>
-          <CustomDialog
-            modalTitle="Crear menú"
-            modalDescription="Crea un menú de productos para tu negocio"
-          >
-            <FormProductGroup
-              buttonTitle="Crear"
-              handleSubmitButton={handleSubmitButton}
-              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
-            />
-          </CustomDialog>
+
+          {isEditMode && (
+            <CustomDialog
+              modalTitle="Crear menú"
+              modalDescription="Crea un menú de productos para tu negocio"
+            >
+              <FormProductGroup
+                buttonTitle="Crear"
+                handleSubmitButton={handleSubmitButton}
+                loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
+              />
+            </CustomDialog>
+          )}
         </div>
 
         {business && business?.productGroup.length > 0 ? (
