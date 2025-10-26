@@ -19,6 +19,8 @@ import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { Toggle } from "@/components/ui/toggle";
 import { useEditModeStore } from "@/store/editModeStore";
+import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
+import { useRouter } from "next/navigation";
 
 export default function BusinessContent({}: {}) {
   const productGroupApi = useProductGroupApi();
@@ -27,6 +29,7 @@ export default function BusinessContent({}: {}) {
   const { isEditMode, setEditMode } = useEditModeStore();
   const businessApi = useBusinessApi();
   const { getBusiness } = useFetchBusiness();
+  const router = useRouter();
 
   const handleSubmitButton = async (data: ProductGroupValues) => {
     try {
@@ -60,6 +63,20 @@ export default function BusinessContent({}: {}) {
     }
   }
 
+  async function handleDeleteBusiness() {
+    try {
+      await businessApi.deleteBusiness(businessId);
+
+      toast.success("Se eliminó correctamente el negocio", {
+        style: toastSuccessStyle,
+      });
+
+      router.push("/profile");
+    } catch (error) {
+      handleApiError(error);
+    }
+  }
+
   return (
     <section className="flex flex-col gap-6">
       <div className="flex flex-col gap-1">
@@ -71,23 +88,28 @@ export default function BusinessContent({}: {}) {
               </h1>
 
               {isEditMode && (
-                <CustomDialog
-                  modalTitle="Editar negocio"
-                  modalDescription="Edita los datos de tu negocio"
-                  icon={<Edit2Icon />}
-                >
-                  <FormBusiness
-                    buttonTitle="Guardar"
-                    handleSubmitButton={(data) =>
-                      handleUpdateBusiness(data, businessId)
-                    }
-                    loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
-                    defaultValues={{
-                      name: business?.name ?? "",
-                      address: business?.address,
-                    }}
-                  ></FormBusiness>
-                </CustomDialog>
+                <>
+                  <CustomDialog
+                    modalTitle="Editar negocio"
+                    modalDescription="Edita los datos de tu negocio"
+                    icon={<Edit2Icon />}
+                  >
+                    <FormBusiness
+                      buttonTitle="Guardar"
+                      handleSubmitButton={(data) =>
+                        handleUpdateBusiness(data, businessId)
+                      }
+                      loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
+                      defaultValues={{
+                        name: business?.name ?? "",
+                        address: business?.address,
+                      }}
+                    ></FormBusiness>
+                  </CustomDialog>
+                  <DeleteDialogConfirmation
+                    handleContinue={handleDeleteBusiness}
+                  />
+                </>
               )}
             </div>
           </div>
