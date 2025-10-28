@@ -41,6 +41,7 @@ export default function FormOption({
     resolver: zodResolver(createOptionSchema),
     defaultValues: defaultValues ?? {
       name: "",
+      price: "0",
       available: true,
     },
   });
