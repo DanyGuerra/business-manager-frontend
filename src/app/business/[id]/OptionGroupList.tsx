@@ -191,15 +191,17 @@ export default function OptionGroupList({
         <div className="flex flex-col gap-4 mt-2 space-y-1">
           {optionGroups.map((og) => (
             <div key={og.id} className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`font-semibold ${
-                    !og.available ? "line-through text-muted-foreground" : ""
-                  }`}
-                >
-                  {og.name}
-                </span>
-
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-baseline gap-2">
+                  <div
+                    className={`font-semibold ${
+                      !og.available ? "line-through text-muted-foreground" : ""
+                    }`}
+                  >
+                    {og.name}
+                  </div>
+                  <div className="text-sm text-muted-foreground">{`Min: ${og.min_options} - Max: ${og.max_options}`}</div>
+                </div>
                 {isEditMode && (
                   <span className="flex gap-1">
                     {/* Create option */}
@@ -265,7 +267,6 @@ export default function OptionGroupList({
                 )}
               </div>
 
-              <div className="text-sm text-muted-foreground">{`Opciones ${og.min_options} - ${og.max_options}`}</div>
               <OptionList options={og.options} />
             </div>
           ))}
