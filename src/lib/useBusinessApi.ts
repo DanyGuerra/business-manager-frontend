@@ -18,7 +18,7 @@ export type Business = {
 
 export type Product = {
   id: string;
-  group_product_id: string;
+  product_group: ProductGroup;
   name: string;
   description: string;
   base_price: number;
@@ -28,14 +28,13 @@ export type Product = {
 
 export type ProductGroup = {
   id: string;
-  business_id: string;
   name: string;
   description: string;
   products: Product[];
 };
 
 export type BusinessFull = Business & {
-  productGroup: ProductGroup[];
+  product_group: ProductGroup[];
 };
 
 export function useBusinessApi() {

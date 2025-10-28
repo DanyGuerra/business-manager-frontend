@@ -20,7 +20,7 @@ export function useProductApi() {
   const api = useAxios();
 
   return {
-    createProduct: (data: CreateProductDto, businessId: string) =>
+    createProduct: (data: CreateProductDto[], businessId: string) =>
       api
         .post<ApiResponse>("/product", data, {
           headers: { [BusinessIdHeader]: businessId },

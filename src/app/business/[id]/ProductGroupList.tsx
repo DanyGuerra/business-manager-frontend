@@ -25,7 +25,7 @@ import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { handleApiError } from "@/utils/handleApiError";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
-import { Toggle } from "@/components/ui/toggle";
+import { useBusinessStore } from "@/store/businessStore";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
@@ -37,8 +37,9 @@ export default function ProductGroupList({
   const apiProductGroup = useProductGroupApi();
   const apiProduct = useProductApi();
   const { stopLoading, startLoading } = useLoadingStore();
+  const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
-  const { isEditMode, setEditMode } = useEditModeStore();
+  const { isEditMode } = useEditModeStore();
 
   async function handleDeleteProductGroup(
     productGroupId: string,
@@ -99,7 +100,7 @@ export default function ProductGroupList({
         group_product_id: productGroupId,
       };
 
-      await apiProduct.createProduct(dataFormatted, businessId);
+      await apiProduct.createProduct([dataFormatted], businessId);
       await getBusiness(businessId);
       toast.success("Producto creado", { style: toastSuccessStyle });
     } catch (error) {
@@ -130,7 +131,7 @@ export default function ProductGroupList({
                           loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
                           handleSubmitButton={(data) => {
                             handleUpdateProductGroup(
-                              group.business_id,
+                              businessId,
                               group.id,
                               data
                             );
@@ -143,7 +144,7 @@ export default function ProductGroupList({
                       </CustomDialog>
                       <DeleteDialogConfirmation
                         handleContinue={() => {
-                          handleDeleteProductGroup(group.id, group.business_id);
+                          handleDeleteProductGroup(group.id, businessId);
                         }}
                         description="Esta acción no podrá ser revertida y eliminará completamente el menú seleccionado"
                       />
@@ -166,7 +167,7 @@ export default function ProductGroupList({
                         buttonTitle="Guardar"
                         loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
                         handleSubmitButton={(data) =>
-                          handleCreateProduct(data, group.business_id, group.id)
+                          handleCreateProduct(data, businessId, group.id)
                         }
                       ></FormProduct>
                     </CustomDialog>

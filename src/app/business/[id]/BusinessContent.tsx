@@ -148,9 +148,9 @@ export default function BusinessContent({}: {}) {
           )}
         </div>
 
-        {business && business?.productGroup.length > 0 ? (
+        {business && business?.product_group.length > 0 ? (
           <ProductGroupList
-            productGroups={business.productGroup}
+            productGroups={business.product_group}
           ></ProductGroupList>
         ) : (
           <div className="flex w-full h-100 items-center justify-center">
