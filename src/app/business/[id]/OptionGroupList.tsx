@@ -155,36 +155,35 @@ export default function OptionGroupList({
     <>
       <div className="flex items-center justify-center gap-3 mt-3">
         <h1 className="text-md font-bold">Variantes del producto</h1>
-        {isEditMode && (
-          <div className="flex gap-1">
-            <CustomDialog
-              open={dialog === "addExistingGroup"}
-              setOpen={(v) => setDialog(v ? "addExistingGroup" : null)}
-              modalTitle="Agregar variante del producto"
-              modalDescription="Agrega un grupo de opciones existente para este producto"
-              icon={<ListPlusIcon />}
-            >
-              <OptionGroupSelector
-                setOpen={() => closeDialog()}
-                optionGroups={optionsGroups}
-                productId={productId}
-              />
-            </CustomDialog>
 
-            <CustomDialog
-              open={dialog === "createGroup"}
-              setOpen={(v) => setDialog(v ? "createGroup" : null)}
-              modalTitle="Crear variante del producto"
-              modalDescription="Crea un nuevo grupo de opciones para este producto"
-            >
-              <FormProductOptionGroup
-                buttonTitle="Agregar"
-                handleSubmitButton={createOptionGroup}
-                loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
-              />
-            </CustomDialog>
-          </div>
-        )}
+        <div className="flex gap-1">
+          <CustomDialog
+            open={dialog === "addExistingGroup"}
+            setOpen={(v) => setDialog(v ? "addExistingGroup" : null)}
+            modalTitle="Agregar variante del producto"
+            modalDescription="Agrega un grupo de opciones existente para este producto"
+            icon={<ListPlusIcon />}
+          >
+            <OptionGroupSelector
+              setOpen={() => closeDialog()}
+              optionGroups={optionsGroups}
+              productId={productId}
+            />
+          </CustomDialog>
+
+          <CustomDialog
+            open={dialog === "createGroup"}
+            setOpen={(v) => setDialog(v ? "createGroup" : null)}
+            modalTitle="Crear variante del producto"
+            modalDescription="Crea un nuevo grupo de opciones para este producto"
+          >
+            <FormProductOptionGroup
+              buttonTitle="Agregar"
+              handleSubmitButton={createOptionGroup}
+              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
+            />
+          </CustomDialog>
+        </div>
       </div>
 
       {optionGroups.length > 0 ? (
@@ -192,79 +191,88 @@ export default function OptionGroupList({
           {optionGroups.map((og) => (
             <div key={og.id} className="flex flex-col gap-3">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-baseline gap-2">
-                  <div
-                    className={`font-semibold ${
-                      !og.available ? "line-through text-muted-foreground" : ""
-                    }`}
+                <div className="flex items-center gap-2">
+                  {/* Create option */}
+
+                  <CustomDialog
+                    open={
+                      typeof dialog === "object" &&
+                      dialog?.type === "addOption" &&
+                      dialog.groupId === og.id
+                    }
+                    setOpen={(v) =>
+                      setDialog(
+                        v ? { type: "addOption", groupId: og.id } : null
+                      )
+                    }
+                    modalTitle="Agregar una opción"
+                    modalDescription={`Agregar opción al grupo "${og.name}"`}
                   >
-                    {og.name}
-                  </div>
-                  <div className="text-sm text-muted-foreground">{`Min: ${og.min_options} - Max: ${og.max_options}`}</div>
-                </div>
-                {isEditMode && (
-                  <span className="flex gap-1">
-                    {/* Create option */}
-                    <CustomDialog
-                      open={
-                        typeof dialog === "object" &&
-                        dialog?.type === "addOption" &&
-                        dialog.groupId === og.id
+                    <FormOption
+                      buttonTitle="Agregar"
+                      handleSubmitButton={(data) =>
+                        handleCreateOption(data, og.id)
                       }
-                      setOpen={(v) =>
-                        setDialog(
-                          v ? { type: "addOption", groupId: og.id } : null
-                        )
-                      }
-                      modalTitle="Agregar una opción"
-                      modalDescription={`Agregar opción al grupo "${og.name}"`}
-                    >
-                      <FormOption
-                        buttonTitle="Agregar"
-                        handleSubmitButton={(data) =>
-                          handleCreateOption(data, og.id)
-                        }
-                        loadingKey={LoadingsKeyEnum.CREATE_OPTION}
-                      />
-                    </CustomDialog>
-
-                    {/* Edit group option */}
-                    <CustomDialog
-                      open={
-                        typeof dialog === "object" &&
-                        dialog?.type === "editGroup" &&
-                        dialog.groupId === og.id
-                      }
-                      setOpen={(v) =>
-                        setDialog(
-                          v ? { type: "editGroup", groupId: og.id } : null
-                        )
-                      }
-                      modalTitle="Editar grupo de opción"
-                      icon={<Edit2 />}
-                      modalDescription={`Editar grupo "${og.name}"`}
-                    >
-                      <FormProductOptionGroup
-                        defaultValues={{
-                          ...og,
-                          min_options: `${og.min_options}`,
-                          max_options: `${og.max_options}`,
-                        }}
-                        buttonTitle="Guardar"
-                        handleSubmitButton={(data) =>
-                          handleEditGroupOption(data, og.id)
-                        }
-                        loadingKey={LoadingsKeyEnum.UPDATE_GROUP_OPTION}
-                      />
-                    </CustomDialog>
-
-                    {/* Delete group option */}
-                    <DeleteDialogConfirmation
-                      description={`Se eliminará grupo de opciones "${og.name}" del producto seleccionado`}
-                      handleContinue={() => handleDeleteOptionGroup(og.id)}
+                      loadingKey={LoadingsKeyEnum.CREATE_OPTION}
                     />
-                  </span>
-                )}
+                  </CustomDialog>
+
+                  <div className="flex items-baseline gap-2">
+                    <div
+                      className={`font-semibold ${
+                        !og.available
+                          ? "line-through text-muted-foreground"
+                          : ""
+                      }`}
+                    >
+                      {og.name}
+                    </div>
+                    <div className="text-sm text-muted-foreground">{`Min: ${og.min_options} - Max: ${og.max_options}`}</div>
+                  </div>
+                </div>
+
+                <span className="flex gap-1">
+                  {/* Edit group option */}
+
+                  {isEditMode && (
+                    <span>
+                      <CustomDialog
+                        open={
+                          typeof dialog === "object" &&
+                          dialog?.type === "editGroup" &&
+                          dialog.groupId === og.id
+                        }
+                        setOpen={(v) =>
+                          setDialog(
+                            v ? { type: "editGroup", groupId: og.id } : null
+                          )
+                        }
+                        modalTitle="Editar grupo de opción"
+                        icon={<Edit2 />}
+                        modalDescription={`Editar grupo "${og.name}"`}
+                      >
+                        <FormProductOptionGroup
+                          defaultValues={{
+                            ...og,
+                            min_options: `${og.min_options}`,
+                            max_options: `${og.max_options}`,
+                          }}
+                          buttonTitle="Guardar"
+                          handleSubmitButton={(data) =>
+                            handleEditGroupOption(data, og.id)
+                          }
+                          loadingKey={LoadingsKeyEnum.UPDATE_GROUP_OPTION}
+                        />
+                      </CustomDialog>
+
+                      {/* Delete group option */}
+                      <DeleteDialogConfirmation
+                        description={`Se eliminará grupo de opciones "${og.name}" del producto seleccionado`}
+                        handleContinue={() => handleDeleteOptionGroup(og.id)}
+                      />
+                    </span>
+                  )}
+                </span>
               </div>
 
               <OptionList options={og.options} />

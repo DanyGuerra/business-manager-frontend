@@ -158,20 +158,19 @@ export default function ProductGroupList({
               <CardTitle className="text-lg">
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <div className="text-lg">Productos</div>
-                  {isEditMode && (
-                    <CustomDialog
-                      modalTitle="Agregar producto"
-                      modalDescription="Agrega un producto para tu menú"
-                    >
-                      <FormProduct
-                        buttonTitle="Guardar"
-                        loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
-                        handleSubmitButton={(data) =>
-                          handleCreateProduct(data, businessId, group.id)
-                        }
-                      ></FormProduct>
-                    </CustomDialog>
-                  )}
+
+                  <CustomDialog
+                    modalTitle="Agregar producto"
+                    modalDescription="Agrega un producto para tu menú"
+                  >
+                    <FormProduct
+                      buttonTitle="Guardar"
+                      loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
+                      handleSubmitButton={(data) =>
+                        handleCreateProduct(data, businessId, group.id)
+                      }
+                    ></FormProduct>
+                  </CustomDialog>
                 </div>
               </CardTitle>
               <ProductList products={group.products} />
