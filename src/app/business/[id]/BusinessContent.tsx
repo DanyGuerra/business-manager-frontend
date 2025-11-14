@@ -21,31 +21,15 @@ import { Toggle } from "@/components/ui/toggle";
 import { useEditModeStore } from "@/store/editModeStore";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useRouter } from "next/navigation";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TabMenu from "./TabMenu";
 
 export default function BusinessContent({}: {}) {
-  const productGroupApi = useProductGroupApi();
-  const { startLoading, stopLoading } = useLoadingStore();
   const { business, businessId } = useBusinessStore();
   const { isEditMode, setEditMode } = useEditModeStore();
   const businessApi = useBusinessApi();
   const { getBusiness } = useFetchBusiness();
   const router = useRouter();
-
-  const handleSubmitButton = async (data: ProductGroupValues) => {
-    try {
-      startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
-      await productGroupApi.createProductGroup(
-        { ...data, description: data.description ?? "" },
-        businessId
-      );
-      await getBusiness(businessId);
-      toast.error("Menú creado", { style: toastSuccessStyle });
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
-    }
-  };
 
   async function handleUpdateBusiness(
     data: CreateBusinessValues,
@@ -127,37 +111,25 @@ export default function BusinessContent({}: {}) {
       </div>
       <Separator></Separator>
 
-      {/* Menus */}
-      <div className="flex flex-col gap-5">
-        <div className="flex items-center gap-4">
-          <h2 className="scroll-m-20 text-xl font-extrabold tracking-tight text-balance">
-            Menus
-          </h2>
-
-          {isEditMode && (
-            <CustomDialog
-              modalTitle="Crear menú"
-              modalDescription="Crea un menú de productos para tu negocio"
-            >
-              <FormProductGroup
-                buttonTitle="Crear"
-                handleSubmitButton={handleSubmitButton}
-                loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
-              />
-            </CustomDialog>
-          )}
+      {/* Tabs */}
+      <Tabs defaultValue="orders">
+        {/* wrapper que permite scroll en mobile */}
+        <div className="overflow-x-auto mx-2 sm:mx-0">
+          <TabsList className="flex gap-2 px-2 whitespace-nowrap">
+            <TabsTrigger value="orders">Pedidos</TabsTrigger>
+            <TabsTrigger value="menus">Menús</TabsTrigger>
+            <TabsTrigger value="products">Productos</TabsTrigger>
+            <TabsTrigger value="option-groups">Grupo de opciones</TabsTrigger>
+            <TabsTrigger value="rols_users">Usuarios y roles</TabsTrigger>
+          </TabsList>
         </div>
 
-        {business && business?.product_group.length > 0 ? (
-          <ProductGroupList
-            productGroups={business.product_group}
-          ></ProductGroupList>
-        ) : (
-          <div className="flex w-full h-100 items-center justify-center">
-            <h1>No hay menus</h1>
-          </div>
-        )}
-      </div>
+        <TabsContent value="orders">Contenido Pedidos</TabsContent>
+        <TabsContent value="menus">
+          <TabMenu />
+        </TabsContent>
+        <TabsContent value="products">Contenido Productos</TabsContent>
+      </Tabs>
     </section>
   );
 }
