@@ -68,6 +68,15 @@ export function useOptionGroupApi() {
           }
         )
         .then((res) => res.data),
+    delete: (businessId: string, optionGroupId: string) =>
+      api
+        .delete<ApiResponse<ResponseSucessOptionGroup>>(
+          `/option-group/${optionGroupId}`,
+          {
+            headers: { [BusinessIdHeader]: businessId },
+          }
+        )
+        .then((res) => res.data),
     getByBusinessId: (businessId: string) =>
       api
         .get<ApiResponse<OptionGroup[]>>(

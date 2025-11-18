@@ -28,3 +28,29 @@ export async function PUT(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  context: { params: Promise<{ optionGroupId: string }> }
+) {
+  try {
+    const { optionGroupId } = await context.params;
+
+    const res = await fetch(`${NESTJS_URL}/option-group/${optionGroupId}`, {
+      method: "DELETE",
+      headers: {
+        ...buildHeaders(req),
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch (err) {
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
