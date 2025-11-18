@@ -23,6 +23,7 @@ import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation"
 import { useRouter } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TabMenu from "./TabMenu";
+import TabOptionGroups from "./TabOptionGroups";
 
 export default function BusinessContent({}: {}) {
   const { business, businessId } = useBusinessStore();
@@ -113,7 +114,6 @@ export default function BusinessContent({}: {}) {
 
       {/* Tabs */}
       <Tabs defaultValue="orders">
-        {/* wrapper que permite scroll en mobile */}
         <div className="overflow-x-auto mx-2 sm:mx-0">
           <TabsList className="flex gap-2 px-2 whitespace-nowrap">
             <TabsTrigger value="orders">Pedidos</TabsTrigger>
@@ -129,6 +129,9 @@ export default function BusinessContent({}: {}) {
           <TabMenu />
         </TabsContent>
         <TabsContent value="products">Contenido Productos</TabsContent>
+        <TabsContent value="option-groups">
+          <TabOptionGroups />
+        </TabsContent>
       </Tabs>
     </section>
   );
