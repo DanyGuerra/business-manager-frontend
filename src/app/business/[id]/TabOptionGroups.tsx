@@ -89,11 +89,44 @@ export default function TabOptionGroups() {
         <div className="grid py-4 grid-cols-1 gap-4 sm:grid-cols-2">
           {optionGroups.map((og) => {
             return (
-              <Card key={og.id}>
-                <CardHeader className="w-full">
-                  <CardTitle className="flex items-center justify-between">
-                    <span>{og.name}</span>
-                    <span>
+              <Card
+                key={og.id}
+                className="overflow-hidden transition-all hover:shadow-md border-muted/60"
+              >
+                <CardHeader className="bg-muted/20 pb-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-lg font-semibold">
+                          {og.name}
+                        </CardTitle>
+                        <Badge
+                          variant="outline"
+                          className={
+                            og.available
+                              ? "bg-green-50 text-green-700 border-green-200 hover:bg-green-100 hover:border-green-300 transition-colors"
+                              : "bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:border-red-300 transition-colors"
+                          }
+                        >
+                          {og.available ? "Disponible" : "No disponible"}
+                        </Badge>
+                      </div>
+                      <CardDescription className="flex items-center gap-3 text-xs sm:text-sm">
+                        <div className="flex items-center gap-1.5 bg-background px-2 py-1 rounded-md border shadow-sm">
+                          <span className="font-medium text-foreground">
+                            Min:
+                          </span>
+                          <span>{og.min_options}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 bg-background px-2 py-1 rounded-md border shadow-sm">
+                          <span className="font-medium text-foreground">
+                            Max:
+                          </span>
+                          <span>{og.max_options}</span>
+                        </div>
+                      </CardDescription>
+                    </div>
+                    <div className="flex items-center gap-1">
                       <CustomDialog
                         open={activeModal === og.id}
                         setOpen={(state) =>
@@ -101,7 +134,7 @@ export default function TabOptionGroups() {
                         }
                         modalTitle="Editar grupo de opciones"
                         modalDescription={`Editar grupo de opcioones "${og.name}"`}
-                        icon={<Pencil />}
+                        icon={<Pencil className="h-4 w-4" />}
                       >
                         <FormProductOptionGroup
                           buttonTitle="Guardar"
@@ -119,38 +152,41 @@ export default function TabOptionGroups() {
                       <DeleteDialogConfirmation
                         handleContinue={() => deleteOptionGroup(og.id)}
                       />
-                    </span>
-                  </CardTitle>
-                  <CardDescription className="flex gap-2 items-center">
-                    <Badge
-                      className={
-                        og.available
-                          ? "bg-green-100 text-green-700 border-green-300 text-xs"
-                          : "bg-red-100 text-red-700 border-red-300 text-xs"
-                      }
-                    >
-                      {og.available ? "Disponible" : "No disponible"}
-                    </Badge>
-                    <div>Maximo: {og.max_options}</div>
-                    <div>Minimo: {og.min_options}</div>
-                  </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
-                <CardContent className="flex flex-col flex-wrap gap-2 w-full">
-                  <div>
-                    {og.options.length > 0 ? (
-                      og.options.map((o) => (
-                        <span
-                          className="rounded-md border p-2 text-sm"
-                          key={o.id}
-                        >
-                          {o.name} {o.price > 0 && `+ $${o.price}`}
-                        </span>
-                      ))
-                    ) : (
-                      <div className="p-2 flex justify-center items-center w-full text-muted-foreground">
-                        <div className="w-full">No hay opciones</div>
-                      </div>
-                    )}
+                <CardContent className="p-4 pt-4">
+                  <div className="space-y-3">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                      Opciones
+                      <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-[10px]">
+                        {og.options.length}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {og.options.length > 0 ? (
+                        og.options.map((o) => (
+                          <Badge
+                            key={o.id}
+                            variant="secondary"
+                            className="px-2.5 py-1 text-sm font-normal bg-secondary/50 hover:bg-secondary transition-colors border-transparent hover:border-border border"
+                          >
+                            {o.name}
+                            {o.price > 0 && (
+                              <span className="ml-1.5 font-semibold text-primary">
+                                +${o.price}
+                              </span>
+                            )}
+                          </Badge>
+                        ))
+                      ) : (
+                        <div className="w-full py-6 flex flex-col items-center justify-center text-muted-foreground bg-muted/10 rounded-lg border border-dashed gap-1">
+                          <span className="text-sm">
+                            No hay opciones configuradas
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
