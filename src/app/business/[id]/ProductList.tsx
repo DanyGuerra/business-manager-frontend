@@ -5,10 +5,10 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@radix-ui/react-collapsible";
+} from "@/components/ui/collapsible";
 import OptionGroupList from "./OptionGroupList";
 import CustomDialog from "@/components/customDialog";
-import { Edit2Icon } from "lucide-react";
+import { Edit2Icon, ChevronDown } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { toast } from "sonner";
@@ -20,6 +20,8 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type ProductListProps = {
   products: Product[];
@@ -72,51 +74,66 @@ export default function ProductList({ products }: ProductListProps) {
   return (
     <>
       {products.length ? (
-        <div className="flex flex-col space-y-4">
+        <div className="flex flex-col space-y-3" >
           {products.map((product) => (
-            <Collapsible key={product.id}>
+            <Collapsible key={product.id} className="group/collapsible">
               <CollapsibleTrigger
-                className="flex justify-between w-full p-2 bg-muted rounded cursor-pointer"
-                asChild
+                className={cn(
+                  "flex items-center cursor-pointer justify-between w-full p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all duration-200 text-left group-hover/collapsible:shadow-sm",
+                  !product.available && "opacity-75 bg-muted/50"
+                )}
               >
-                <section className="flex">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`${
-                        !product.available
-                          ? "line-through text-muted-foreground"
-                          : ""
-                      }`}
-                    >
-                      <span>{product.name}</span>
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          "font-semibold text-base",
+                          !product.available && "text-muted-foreground line-through"
+                        )}
+                      >
+                        {product.name}
+                      </span>
+                      {!product.available && (
+                        <Badge variant="destructive" className="text-[10px] h-5 px-1.5">
+                          No disponible
+                        </Badge>
+                      )}
+                    </div>
+                    <div className="font-bold text-primary">
+                      ${product.base_price}
                     </div>
                   </div>
-                  <span
-                    className={`${
-                      !product.available
-                        ? "line-through text-muted-foreground"
-                        : ""
-                    }`}
-                  >
-                    ${product.base_price}
-                  </span>
-                </section>
+                </div>
+                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="pl-4 pt-2">
-                <div className="flex justify-center items-center gap-2">
-                  {product.description && (
-                    <p className="w-full text-sm text-muted-foreground">
-                      Descripción: {product.description}
-                    </p>
-                  )}
+              <CollapsibleContent className="border-x border-b rounded-b-lg bg-card/50 px-4 py-4 -mt-1 pt-4 space-y-4 animate-in slide-in-from-top-2 fade-in-0">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                  <div className="flex-1">
+                    {product.description ? (
+                      <div className="space-y-1">
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                          Descripción
+                        </span>
+                        <p className="text-sm text-foreground/90 leading-relaxed">
+                          {product.description}
+                        </p>
+                      </div>
+                    ) : (
+                      <span className="text-sm text-muted-foreground italic">
+                        Sin descripción
+                      </span>
+                    )}
+                  </div>
+                  
                   {isEditMode && (
-                    <div className="flex gap-1">
+                    <div className="flex items-center gap-2 shrink-0 self-start sm:self-center bg-background p-1 rounded-md border shadow-sm">
                       <CustomDialog
                         open={open}
                         setOpen={setOpen}
                         modalTitle="Editar producto"
-                        modalDescription="Edita el prodcucto seleccionado"
-                        icon={<Edit2Icon />}
+                        modalDescription="Edita el producto seleccionado"
+                        icon={<Edit2Icon className="h-4 w-4" />}
                       >
                         <FormProduct
                           buttonTitle="Guardar cambios"
@@ -130,6 +147,7 @@ export default function ProductList({ products }: ProductListProps) {
                           }}
                         />
                       </CustomDialog>
+                      <div className="w-px h-4 bg-border" />
                       <DeleteDialogConfirmation
                         handleContinue={() => handleDeleteProduct(product.id)}
                         description="Esta acción no podrá ser revertida y eliminará completamente el producto seleccionado"
@@ -137,18 +155,24 @@ export default function ProductList({ products }: ProductListProps) {
                     </div>
                   )}
                 </div>
-                <OptionGroupList
-                  productId={product.id}
-                  optionGroups={product.option_groups}
-                  productGroupId={product.group_product_id}
-                />
+                
+                <div className="pt-2 border-t">
+                  <OptionGroupList
+                    productId={product.id}
+                    optionGroups={product.option_groups}
+                    productGroupId={product.id}
+                  />
+                </div>
               </CollapsibleContent>
             </Collapsible>
           ))}
         </div>
       ) : (
-        <div className="flex items-center justify-center min-h-25">
-          <p className="text-muted-foreground">No hay productos</p>
+        <div className="flex flex-col items-center justify-center min-h-[200px] p-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
+          <h3 className="text-lg font-medium">No hay productos</h3>
+          <p className="text-sm text-muted-foreground mt-1">
+            Este menú aún no tiene productos agregados.
+          </p>
         </div>
       )}
     </>
