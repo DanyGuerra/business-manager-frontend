@@ -11,7 +11,7 @@ import { ProductGroup } from "@/lib/useBusinessApi";
 
 import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
-import { Edit2Icon } from "lucide-react";
+import { Edit2Icon, PlusIcon } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
@@ -114,66 +114,79 @@ export default function ProductGroupList({
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
       {productGroups.map((group) => {
         return (
-          <Card key={group.id}>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center justify-between gap-3 w-full">
-                  <span className="text-2xl font-bold">{group.name}</span>
-                  {isEditMode && (
-                    <span className="flex gap-1 items-center">
-                      <CustomDialog
-                        modalTitle="Editar menú"
-                        modalDescription="Edita el menú de productos"
-                        icon={<Edit2Icon />}
-                      >
-                        <FormProductGroup
-                          buttonTitle="Guardar"
-                          loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
-                          handleSubmitButton={(data) => {
-                            handleUpdateProductGroup(
-                              businessId,
-                              group.id,
-                              data
-                            );
-                          }}
-                          defaultValues={{
-                            ...group,
-                            description: group.description ?? "",
-                          }}
-                        />
-                      </CustomDialog>
-                      <DeleteDialogConfirmation
-                        handleContinue={() => {
-                          handleDeleteProductGroup(group.id, businessId);
-                        }}
-                        description="Esta acción no podrá ser revertida y eliminará completamente el menú seleccionado"
-                      />
-                    </span>
+          <Card
+            key={group.id}
+            className="overflow-hidden transition-all hover:shadow-md border-muted/60 flex flex-col h-full"
+          >
+            <CardHeader className="bg-muted/20 pb-4">
+              <div className="flex items-start justify-between gap-4">
+                <div className="space-y-1">
+                  <CardTitle className="text-xl font-bold">
+                    {group.name}
+                  </CardTitle>
+                  {group.description && (
+                    <CardDescription className="text-sm line-clamp-2">
+                      {group.description}
+                    </CardDescription>
                   )}
                 </div>
-              </CardTitle>
-              <CardDescription>{group.description}</CardDescription>
+                {isEditMode && (
+                  <div className="flex items-center gap-1 shrink-0">
+                    <CustomDialog
+                      modalTitle="Editar menú"
+                      modalDescription="Edita el menú de productos"
+                      icon={<Edit2Icon className="h-4 w-4" />}
+                    >
+                      <FormProductGroup
+                        buttonTitle="Guardar"
+                        loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT_GROUP}
+                        handleSubmitButton={(data) => {
+                          handleUpdateProductGroup(businessId, group.id, data);
+                        }}
+                        defaultValues={{
+                          ...group,
+                          description: group.description ?? "",
+                        }}
+                      />
+                    </CustomDialog>
+                    <DeleteDialogConfirmation
+                      handleContinue={() => {
+                        handleDeleteProductGroup(group.id, businessId);
+                      }}
+                      description="Esta acción no podrá ser revertida y eliminará completamente el menú seleccionado"
+                    />
+                  </div>
+                )}
+              </div>
             </CardHeader>
-            <CardContent>
-              <CardTitle className="text-lg">
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <div className="text-lg">Productos</div>
-
-                  <CustomDialog
-                    modalTitle="Agregar producto"
-                    modalDescription="Agrega un producto para tu menú"
-                  >
-                    <FormProduct
-                      buttonTitle="Guardar"
-                      loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
-                      handleSubmitButton={(data) =>
-                        handleCreateProduct(data, businessId, group.id)
-                      }
-                    ></FormProduct>
-                  </CustomDialog>
+            <CardContent className="p-4 pt-4 flex-1 flex flex-col gap-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                    Productos
+                  </h3>
+                  <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-[10px] font-medium">
+                    {group.products.length}
+                  </span>
                 </div>
-              </CardTitle>
-              <ProductList products={group.products} />
+                <CustomDialog
+                  modalTitle="Agregar producto"
+                  modalDescription="Agrega un producto para tu menú"
+                  textButtonTrigger="Agregar"
+                  icon={<PlusIcon className="h-4 w-4 mr-1" />}
+                >
+                  <FormProduct
+                    buttonTitle="Guardar"
+                    loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
+                    handleSubmitButton={(data) =>
+                      handleCreateProduct(data, businessId, group.id)
+                    }
+                  ></FormProduct>
+                </CustomDialog>
+              </div>
+              <div className="flex-1">
+                <ProductList products={group.products} />
+              </div>
             </CardContent>
           </Card>
         );
