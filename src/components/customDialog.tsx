@@ -21,17 +21,19 @@ type CustomDialogProps = {
   open?: boolean;
   setOpen?: (open: boolean) => void;
   textButtonTrigger?: string;
+  trigger?: ReactNode;
 };
 
 export default function CustomDialog({
   children,
   modalTitle,
   modalDescription,
-  onOpenChange = () => {},
+  onOpenChange = () => { },
   open: controlledOpen,
   setOpen: controlledSetOpen,
   icon = <PlusIcon />,
   textButtonTrigger,
+  trigger,
 }: CustomDialogProps) {
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
 
@@ -49,7 +51,9 @@ export default function CustomDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        {textButtonTrigger ? (
+        {trigger ? (
+          trigger
+        ) : textButtonTrigger ? (
           <Button className="cursor-pointer">{textButtonTrigger}</Button>
         ) : (
           <Button

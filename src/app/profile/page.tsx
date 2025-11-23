@@ -9,19 +9,26 @@ import BusinessCard from "@/components/businessCard";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import CustomDialog from "@/components/customDialog";
 import { handleApiError } from "@/utils/handleApiError";
+import { Button } from "@/components/ui/button";
+import { Plus, Store } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const businessApi = useBusinessApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function getBusiness() {
     try {
+      setIsLoading(true);
       const { data } = await businessApi.getMyBusinesses();
       setBusinesses(data);
     } catch (error) {
       handleApiError(error);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -44,33 +51,68 @@ export default function ProfilePage() {
   }, []);
 
   return (
-    <div className="flex flex-col gap-3">
-      <section className="flex gap-4 items-center">
-        <h1 className="text-2xl font-bold">Mis negocios</h1>
+    <div className="flex flex-col gap-8 p-6 max-w-7xl mx-auto w-full">
+      <section className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Mis negocios</h1>
+          <p className="text-muted-foreground">
+            Gestiona y administra tus negocios desde aquí.
+          </p>
+        </div>
         <CustomDialog
           setOpen={setOpen}
           open={open}
           onOpenChange={setOpen}
           modalTitle="Crear negocio"
-          modalDescription="Crea un negocio"
+          modalDescription="Ingresa los datos para registrar un nuevo negocio"
+          trigger={
+            <Button className="w-full sm:w-auto gap-2 cursor-pointer">
+              <Plus className="h-4 w-4" />
+              Crear negocio
+            </Button>
+          }
         >
           <FormBusiness
-            buttonTitle="Crear"
+            buttonTitle="Crear negocio"
             handleSubmitButton={handleSubmit}
             loadingKey={LoadingsKeyEnum.CREATE_BUSINESS}
-          ></FormBusiness>
+          />
         </CustomDialog>
       </section>
-      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-5">
-        {businesses && businesses.length > 0
-          ? businesses.map((business) => (
-              <BusinessCard
-                key={business.id}
-                business={business}
-              ></BusinessCard>
-            ))
-          : "No hay negocios"}
-      </section>
+
+      {isLoading ? (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="flex flex-col space-y-3">
+              <Skeleton className="h-[125px] w-full rounded-xl" />
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-[250px]" />
+                <Skeleton className="h-4 w-[200px]" />
+              </div>
+            </div>
+          ))}
+        </section>
+      ) : businesses && businesses.length > 0 ? (
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {businesses.map((business) => (
+            <BusinessCard key={business.id} business={business} />
+          ))}
+        </section>
+      ) : (
+        <section className="flex flex-col items-center justify-center py-12 text-center border rounded-lg bg-muted/10 border-dashed">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mb-4">
+            <Store className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">No tienes negocios aún</h2>
+          <p className="text-muted-foreground max-w-sm mb-6">
+            Comienza creando tu primer negocio para empezar a gestionar tus productos y ventas.
+          </p>
+          <Button onClick={() => setOpen(true)} variant="outline" className="gap-2">
+            <Plus className="h-4 w-4" />
+            Crear mi primer negocio
+          </Button>
+        </section>
+      )}
     </div>
   );
 }
