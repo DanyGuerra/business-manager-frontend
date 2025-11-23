@@ -19,7 +19,7 @@ export default function TabMenu() {
   const { business, businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
 
-  const handleSubmitButton = async (data: ProductGroupValues) => {
+  const handleCreateProduct = async (data: ProductGroupValues) => {
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
       await productGroupApi.createProductGroup(
@@ -47,7 +47,7 @@ export default function TabMenu() {
         >
           <FormProductGroup
             buttonTitle="Crear"
-            handleSubmitButton={handleSubmitButton}
+            handleSubmitButton={handleCreateProduct}
             loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
           />
         </CustomDialog>
