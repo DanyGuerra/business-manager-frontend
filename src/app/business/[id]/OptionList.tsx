@@ -17,9 +17,15 @@ import { toast } from "sonner";
 
 type OptionListProps = {
   options: Option[];
+  onDelete?: (id: string) => Promise<void>;
+  onUpdate?: (id: string, data: OptionValues) => Promise<void>;
 };
 
-export default function OptionList({ options }: OptionListProps) {
+export default function OptionList({
+  options,
+  onDelete,
+  onUpdate,
+}: OptionListProps) {
   const [open, setOpen] = useState<string | null>(null);
   const optionApi = useProductOptionApi();
   const { businessId } = useBusinessStore();
@@ -30,6 +36,11 @@ export default function OptionList({ options }: OptionListProps) {
     productOptionId: string,
     data: OptionValues
   ) {
+    if (onUpdate) {
+      await onUpdate(productOptionId, data);
+      setOpen(null);
+      return;
+    }
     try {
       await optionApi.updateProductOption(productOptionId, businessId, {
         ...data,
@@ -47,6 +58,11 @@ export default function OptionList({ options }: OptionListProps) {
   }
 
   async function handleDeleteOption(productOptionId: string) {
+    if (onDelete) {
+      await onDelete(productOptionId);
+      setOpen(null);
+      return;
+    }
     try {
       await optionApi.deleteProductOption(productOptionId, businessId);
       toast.success("Opción eliminada correctamente", {

@@ -17,13 +17,12 @@ import {
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import OptionGroupSelector from "@/components/optionGroupSelector";
-import FormOption, { OptionValues } from "@/components/formOption";
 import { useProductOptionApi } from "@/lib/useOptionApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
+import OptionGroupCard from "@/components/OptionGroupCard";
 
 type OptionGroupListProps = {
   optionGroups: OptionGroup[];
@@ -31,12 +30,9 @@ type OptionGroupListProps = {
   productGroupId: string;
 };
 
-type DialogType =
-  | null
-  | "createGroup"
-  | "addExistingGroup"
-  | { type: "addOption"; groupId: string }
-  | { type: "editGroup"; groupId: string };
+import { DialogType as CardDialogType } from "@/components/OptionGroupCard";
+
+type DialogType = CardDialogType | "addExistingGroup";
 
 export default function OptionGroupList({
   optionGroups,
@@ -79,44 +75,7 @@ export default function OptionGroupList({
     }
   }
 
-  async function handleEditGroupOption(
-    dataDto: ProductOptionGroupValues,
-    optionGroupId: string
-  ) {
-    try {
-      startLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
-      const dto: CreateOptionGroupDto = {
-        ...dataDto,
-        min_options: Number(dataDto.min_options),
-        max_options: Number(dataDto.max_options),
-      };
-      await optionGroupApi.update(dto, businessId, optionGroupId);
-      await getBusiness(businessId);
-      toast.success("Grupo de opciones actualizado correctamente", {
-        style: toastSuccessStyle,
-      });
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      stopLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
-      closeDialog();
-    }
-  }
 
-  async function handleDeleteOptionGroup(optionGroupId: string) {
-    try {
-      await productOptionGroupApi.delete(
-        { product_id: productId, option_group_id: optionGroupId },
-        businessId
-      );
-      toast.success("Se eliminó correctamente el grupo de opciones", {
-        style: toastSuccessStyle,
-      });
-      await getBusiness(businessId);
-    } catch (error) {
-      handleApiError(error);
-    }
-  }
 
   async function getOptionsGroupsById() {
     try {
@@ -127,25 +86,6 @@ export default function OptionGroupList({
     }
   }
 
-  async function handleCreateOption(data: OptionValues, optionGroupId: string) {
-    try {
-      startLoading(LoadingsKeyEnum.CREATE_OPTION);
-      await optionApi.createOption(businessId, {
-        ...data,
-        option_group_id: optionGroupId,
-        price: Number(data.price),
-      });
-      await getBusiness(businessId);
-      toast.success("Opción creada correctamente", {
-        style: toastSuccessStyle,
-      });
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      stopLoading(LoadingsKeyEnum.CREATE_OPTION);
-      closeDialog();
-    }
-  }
 
   useEffect(() => {
     if (dialog === "addExistingGroup") getOptionsGroupsById();
@@ -190,92 +130,11 @@ export default function OptionGroupList({
       {optionGroups.length > 0 ? (
         <div className="grid gap-6">
           {optionGroups.map((og) => (
-            <div key={og.id} className="flex flex-col gap-4 p-4 rounded-lg border bg-card text-card-foreground shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h3
-                      className={`font-semibold text-lg ${!og.available
-                        ? "line-through text-muted-foreground"
-                        : ""
-                        }`}
-                    >
-                      {og.name}
-                    </h3>
-                    {isEditMode && (
-                      <div className="flex items-center gap-1">
-                        <CustomDialog
-                          open={
-                            typeof dialog === "object" &&
-                            dialog?.type === "editGroup" &&
-                            dialog.groupId === og.id
-                          }
-                          setOpen={(v) =>
-                            setDialog(
-                              v ? { type: "editGroup", groupId: og.id } : null
-                            )
-                          }
-                          modalTitle="Editar grupo de opción"
-                          icon={<Edit2 className="h-3 w-3" />}
-                          modalDescription={`Editar grupo "${og.name}"`}
-                        >
-                          <FormProductOptionGroup
-                            defaultValues={{
-                              ...og,
-                              min_options: `${og.min_options}`,
-                              max_options: `${og.max_options}`,
-                            }}
-                            buttonTitle="Guardar"
-                            handleSubmitButton={(data) =>
-                              handleEditGroupOption(data, og.id)
-                            }
-                            loadingKey={LoadingsKeyEnum.UPDATE_GROUP_OPTION}
-                          />
-                        </CustomDialog>
-
-                        <DeleteDialogConfirmation
-                          description={`Se eliminará grupo de opciones "${og.name}" del producto seleccionado`}
-                          handleContinue={() => handleDeleteOptionGroup(og.id)}
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Selección: {og.min_options} min - {og.max_options} max
-                  </p>
-                </div>
-
-                {isEditMode && (
-                  <CustomDialog
-                    open={
-                      typeof dialog === "object" &&
-                      dialog?.type === "addOption" &&
-                      dialog.groupId === og.id
-                    }
-                    setOpen={(v) =>
-                      setDialog(
-                        v ? { type: "addOption", groupId: og.id } : null
-                      )
-                    }
-                    modalTitle="Agregar una opción"
-                    modalDescription={`Agregar opción al grupo "${og.name}"`}
-
-                  >
-                    <FormOption
-                      buttonTitle="Agregar"
-                      handleSubmitButton={(data) =>
-                        handleCreateOption(data, og.id)
-                      }
-                      loadingKey={LoadingsKeyEnum.CREATE_OPTION}
-                    />
-                  </CustomDialog>
-                )}
-              </div>
-
-              <div className="pl-0 sm:pl-4 border-l-0 sm:border-l-2 border-muted">
-                <OptionList options={og.options} />
-              </div>
-            </div>
+            <OptionGroupCard
+              key={og.id}
+              og={og}
+              productId={productId}
+            />
           ))}
         </div>
       ) : (
