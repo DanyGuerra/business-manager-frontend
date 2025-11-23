@@ -69,9 +69,8 @@ export default function OptionList({ options }: OptionListProps) {
             className="px-2 py-1 border rounded text-sm flex items-center gap-4"
           >
             <div
-              className={`${
-                !opt.available ? "line-through text-muted-foreground" : ""
-              }`}
+              className={`${!opt.available ? "line-through text-muted-foreground" : ""
+                }`}
             >
               {opt.name} {opt.price > 0 && `+ $${opt.price}`}
             </div>
