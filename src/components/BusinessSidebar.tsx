@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ShoppingBag,
-  Utensils,
+  BookOpen,
   Package,
   Layers,
   Users,
@@ -37,7 +37,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
     {
       title: "Menús",
       href: `/business/${businessId}/menus`,
-      icon: Utensils,
+      icon: BookOpen,
     },
     {
       title: "Productos",

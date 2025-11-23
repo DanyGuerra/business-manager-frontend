@@ -124,7 +124,7 @@ export default function BusinessLayout({
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
                 <BreadcrumbLink href={`/business/${id}`}>
-                  Mi negocio
+                  {business.name}
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />

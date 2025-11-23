@@ -12,12 +12,15 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import ProductGroupList from "./ProductGroupList";
+import { useEditModeStore } from "@/store/editModeStore";
+import { BookOpen } from "lucide-react";
 
 export default function TabMenu() {
   const productGroupApi = useProductGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const { business, businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
+  const { isEditMode } = useEditModeStore()
 
   const handleCreateProduct = async (data: ProductGroupValues) => {
     try {
@@ -41,16 +44,17 @@ export default function TabMenu() {
           Menús
         </h2>
 
-        <CustomDialog
-          modalTitle="Crear menú"
-          modalDescription="Crea un menú de productos para tu negocio"
-        >
-          <FormProductGroup
-            buttonTitle="Crear"
-            handleSubmitButton={handleCreateProduct}
-            loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
-          />
-        </CustomDialog>
+        {isEditMode && (
+          <CustomDialog
+            modalTitle="Crear menú"
+            modalDescription="Crea un menú de productos para tu negocio"
+          >
+            <FormProductGroup
+              buttonTitle="Crear"
+              handleSubmitButton={handleCreateProduct}
+              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
+            />
+          </CustomDialog>)}
       </div>
 
       {business && business?.product_group.length > 0 ? (
@@ -58,8 +62,27 @@ export default function TabMenu() {
           productGroups={business.product_group}
         ></ProductGroupList>
       ) : (
-        <div className="flex w-full h-100 items-center justify-center">
-          <h1>No hay menus</h1>
+        <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg bg-muted/10 border-dashed">
+          <div className="bg-background p-3 rounded-full shadow-sm mb-4">
+            <BookOpen className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold">No hay menús disponibles</h3>
+          <p className="text-sm text-muted-foreground max-w-sm mt-1 mb-4">
+            Comienza creando un menú para organizar tus productos.
+          </p>
+
+          <CustomDialog
+            modalTitle="Crear menú"
+            modalDescription="Crea un menú de productos para tu negocio"
+            textButtonTrigger="Crear primer menú"
+          >
+            <FormProductGroup
+              buttonTitle="Crear"
+              handleSubmitButton={handleCreateProduct}
+              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP}
+            />
+          </CustomDialog>
+
         </div>
       )}
     </div>
