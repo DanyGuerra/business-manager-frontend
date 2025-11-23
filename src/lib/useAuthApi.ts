@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/app/types/auth";
+import { ApiResponse, User } from "@/app/types/auth";
 import { useAxios } from "@/lib/axios";
 
 type LoginResponse = { access_token: string };
@@ -24,5 +24,16 @@ export function useAuthApi() {
       api
         .post<ApiResponse<SignupResponse>>("auth/signup", data)
         .then((res) => res.data),
+
+    getMe: () =>
+      api.get<ApiResponse<User>>("/users/me").then((res) => res.data),
+
+    updatePassword: (data: any) =>
+      api
+        .post<ApiResponse>("auth/update-password", data)
+        .then((res) => res.data),
+
+    updateUser: (data: any) =>
+      api.patch<ApiResponse<User>>("/users/me", data).then((res) => res.data),
   };
 }
