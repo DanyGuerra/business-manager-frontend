@@ -20,6 +20,7 @@ import {
   useOptionGroupApi,
 } from "@/lib/useOptionGroupApi";
 import { useBusinessStore } from "@/store/businessStore";
+import { useEditModeStore } from "@/store/editModeStore";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { Pencil } from "lucide-react";
@@ -32,6 +33,7 @@ export default function TabOptionGroups() {
   const optionGroupApi = useOptionGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
+  const { isEditMode } = useEditModeStore();
 
   async function getOptionsGroups() {
     try {
@@ -93,7 +95,7 @@ export default function TabOptionGroups() {
                 key={og.id}
                 className="overflow-hidden transition-all hover:shadow-md border-muted/60"
               >
-                <CardHeader className="bg-muted/20 pb-4">
+                <CardHeader className="bg-muted/10 pb-4">
                   <div className="flex items-start justify-between gap-4">
                     <div className="space-y-1.5">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -126,6 +128,7 @@ export default function TabOptionGroups() {
                         </div>
                       </CardDescription>
                     </div>
+                    {isEditMode && (
                     <div className="flex items-center gap-1">
                       <CustomDialog
                         open={activeModal === og.id}
@@ -152,7 +155,7 @@ export default function TabOptionGroups() {
                       <DeleteDialogConfirmation
                         handleContinue={() => deleteOptionGroup(og.id)}
                       />
-                    </div>
+                    </div>)}
                   </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-4">
@@ -169,7 +172,7 @@ export default function TabOptionGroups() {
                           <Badge
                             key={o.id}
                             variant="secondary"
-                            className="px-2.5 py-1 text-sm font-normal bg-secondary/50 hover:bg-secondary transition-colors border-transparent hover:border-border border"
+                            className="px-2.5 py-1 text-sm font-normal bg-secondary/50 transition-colors border-transparent border"
                           >
                             {o.name}
                             {o.price > 0 && (
