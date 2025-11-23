@@ -30,7 +30,7 @@ export function useAuthApi() {
 
     updatePassword: (data: any) =>
       api
-        .post<ApiResponse>("auth/update-password", data)
+        .post<ApiResponse>("users/update-password", data)
         .then((res) => res.data),
 
     updateUser: (data: any) =>

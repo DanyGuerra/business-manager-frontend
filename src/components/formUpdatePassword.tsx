@@ -91,15 +91,17 @@ export default function FormUpdatePassword({
                         </FormItem>
                     )}
                 />
-                <Button
-                    type="submit"
-                    disabled={loadings["UPDATE_PASSWORD"]}
-                >
-                    {loadings["UPDATE_PASSWORD"] && (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    )}
-                    Guardar cambios
-                </Button>
+                <div className="flex items-center justify-end">
+                    <Button
+                        type="submit"
+                        disabled={loadings["UPDATE_PASSWORD"]}
+                    >
+                        {loadings["UPDATE_PASSWORD"] && (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        )}
+                        Guardar cambios
+                    </Button>
+                </div>
             </form>
         </Form>
     );

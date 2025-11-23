@@ -137,10 +137,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              <CustomDialog modalDescription="Ingresa tu contraseña actual y la nueva contraseña" modalTitle="Cambiar contraseña" trigger={<Button className='cursor-pointer' variant="outline">
-                <Lock className="h-4 w-4" />
-                Cambiar contraseña
-              </Button>}>
+              <CustomDialog
+                open={openPassword}
+                setOpen={setOpenPassword}
+                modalDescription="Ingresa tu contraseña actual y la nueva contraseña" modalTitle="Cambiar contraseña" trigger={<Button className='cursor-pointer' variant="outline">
+                  <Lock className="h-4 w-4" />
+                  Cambiar contraseña
+                </Button>}>
 
 
                 <FormUpdatePassword onSuccess={() => setOpenPassword(false)} />
