@@ -34,6 +34,6 @@ export function useAuthApi() {
         .then((res) => res.data),
 
     updateUser: (data: any) =>
-      api.patch<ApiResponse<User>>("/users/me", data).then((res) => res.data),
+      api.patch<ApiResponse<User>>("/users/update", data).then((res) => res.data),
   };
 }
