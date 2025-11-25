@@ -1,6 +1,7 @@
 import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
+import { Product } from "./useBusinessApi";
 
 export type CreateProductDto = {
   group_product_id: string;
@@ -39,6 +40,12 @@ export function useProductApi() {
     deleteProduct: (productId: string, businessId: string) =>
       api
         .delete<ApiResponse>(`/product/${productId}`, {
+          headers: { [BusinessIdHeader]: businessId },
+        })
+        .then((res) => res.data),
+    getProductsByBusinessId: (businessId: string) =>
+      api
+        .get<ApiResponse<Product[]>>(`/product/business/${businessId}`, {
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),
