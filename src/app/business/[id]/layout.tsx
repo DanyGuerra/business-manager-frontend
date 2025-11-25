@@ -32,6 +32,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from "@/lib/utils";
 
 export default function BusinessLayout({
   children,
@@ -184,13 +185,19 @@ export default function BusinessLayout({
                   </div>
                 )}
                 <Toggle
-                  className="cursor-pointer gap-2 data-[state=on]:bg-primary/10 data-[state=on]:text-primary"
+                  className={cn(
+                    "cursor-pointer gap-2 transition-all duration-300",
+                    "hover:scale-105 hover:shadow-md",
+                    "data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/50",
+                    !isEditMode &&
+                    "bg-background border-2 border-dashed border-primary/60 hover:border-primary hover:bg-primary/5 shadow-sm animate-pulse hover:animate-none"
+                  )}
                   pressed={isEditMode}
                   onPressedChange={(state) => setEditMode(state)}
                   aria-label="Toggle edit mode"
                 >
                   <FilePenIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Modo edición</span>
+                  <span className="hidden sm:inline font-medium">Modo edición</span>
                 </Toggle>
               </div>
             </div>
