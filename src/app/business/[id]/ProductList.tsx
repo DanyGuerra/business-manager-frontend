@@ -12,7 +12,7 @@ import { Edit2Icon, ChevronDown } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { toast } from "sonner";
-import { UpdateProductDto, useProductApi } from "@/lib/useProductApi";
+import { CreateProductDto, UpdateProductDto, useProductApi } from "@/lib/useProductApi";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { useState } from "react";
@@ -25,14 +25,40 @@ import { cn } from "@/lib/utils";
 
 type ProductListProps = {
   products: Product[];
+  productGroupId: string;
 };
-export default function ProductList({ products }: ProductListProps) {
+export default function ProductList({ products, productGroupId }: ProductListProps) {
   const productApi = useProductApi();
   const [open, setOpen] = useState<boolean>(false);
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
   const { isEditMode } = useEditModeStore();
+
+  async function handleCreateProduct(
+    data: ProductValues,
+    businessId: string,
+    productGroupId: string
+  ) {
+    try {
+      startLoading(LoadingsKeyEnum.CREATE_PRODUCT);
+      const priceNumber = Number(data.base_price);
+      const dataFormatted: CreateProductDto = {
+        ...data,
+        description: data.description ?? "",
+        base_price: priceNumber,
+        group_product_id: productGroupId,
+      };
+
+      await productApi.createProduct([dataFormatted], businessId);
+      await getBusiness(businessId);
+      toast.success("Producto creado", { style: toastSuccessStyle });
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      stopLoading(LoadingsKeyEnum.CREATE_PRODUCT);
+    }
+  }
 
   async function handleDeleteProduct(productId: string) {
     try {
@@ -125,7 +151,7 @@ export default function ProductList({ products }: ProductListProps) {
                       </span>
                     )}
                   </div>
-                  
+
                   {isEditMode && (
                     <div className="flex items-center gap-2 shrink-0 self-start sm:self-center bg-background p-1 rounded-md border shadow-sm">
                       <CustomDialog
@@ -155,7 +181,7 @@ export default function ProductList({ products }: ProductListProps) {
                     </div>
                   )}
                 </div>
-                
+
                 <div className="pt-2 border-t">
                   <OptionGroupList
                     productId={product.id}
@@ -170,9 +196,23 @@ export default function ProductList({ products }: ProductListProps) {
       ) : (
         <div className="flex flex-col items-center justify-center min-h-[200px] p-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
           <h3 className="text-lg font-medium">No hay productos</h3>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
             Este menú aún no tiene productos agregados.
           </p>
+
+          <CustomDialog
+            modalTitle="Agregar producto"
+            modalDescription="Agrega un producto para tu menú"
+            textButtonTrigger="Agregar producto"
+          >
+            <FormProduct
+              buttonTitle="Guardar"
+              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
+              handleSubmitButton={(data) =>
+                handleCreateProduct(data, businessId, productGroupId)
+              }
+            />
+          </CustomDialog>
         </div>
       )}
     </>

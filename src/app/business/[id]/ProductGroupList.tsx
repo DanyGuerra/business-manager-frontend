@@ -186,7 +186,7 @@ export default function ProductGroupList({
                   </CustomDialog>)}
               </div>
               <div className="flex-1">
-                <ProductList products={group.products} />
+                <ProductList products={group.products} productGroupId={group.id} />
               </div>
             </CardContent>
           </Card>
