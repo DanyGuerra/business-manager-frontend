@@ -238,11 +238,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                     </p>
                 )}
 
-                <div className="pt-2 flex-1">
+                <div className="flex flex-col gap-1">
                     {(product.description || product.option_groups.length > 0) && <Separator className="mb-5 opacity-50" />}
 
 
-                    <div className="flex flex-col gap-3 space-y-1">
+                    <div className="flex flex-col gap-4 pb-4">
                         {product.option_groups.map((group) => (
                             <ProductCardOptionGroup
                                 key={group.id}
@@ -299,7 +299,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-none"
+                                    className="h-8 w-8 rounded-none cursor-pointer"
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     disabled={quantity <= 1}
                                 >
@@ -309,14 +309,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-none"
+                                    className="h-8 w-8 rounded-none cursor-pointer"
                                     onClick={() => setQuantity(quantity + 1)}
                                 >
                                     <PlusIcon className="h-3 w-3" />
                                 </Button>
                             </div>
                             <Button
-                                className="flex-1 gap-2"
+                                className="flex-1 gap-2 cursor-pointer"
                                 disabled={!isValidSelection}
                                 onClick={handleAddToCart}
                             >

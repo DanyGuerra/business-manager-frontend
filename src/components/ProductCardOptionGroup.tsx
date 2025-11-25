@@ -192,7 +192,7 @@ export default function ProductCardOptionGroup({
 
             <div className={cn("flex flex-wrap gap-2", !isEditMode && "flex-wrap")}>
                 {!isEditMode ? (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 pb-4">
                         {og.options.map((opt) => {
                             const isSelected = selectedOptions.includes(opt.id);
                             return (
