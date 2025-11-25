@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Product } from "@/lib/useBusinessApi";
 import {
     Card,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit2Icon, PlusCircleIcon } from "lucide-react";
+import { Edit2Icon, PlusCircleIcon, MinusIcon, PlusIcon, ShoppingCartIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEditModeStore } from "@/store/editModeStore";
 import CustomDialog from "@/components/customDialog";
@@ -27,6 +27,7 @@ import ProductCardOptionGroup from "./ProductCardOptionGroup";
 import { Separator } from "@/components/ui/separator";
 import OptionGroupSelector from "@/components/optionGroupSelector";
 import { useOptionGroupApi, OptionGroup } from "@/lib/useOptionGroupApi";
+import { useCartStore, CartItemOption } from "@/store/cartStore";
 
 type ProductCardProps = {
     product: Product;
@@ -42,6 +43,81 @@ export default function ProductCard({ product }: ProductCardProps) {
     const { businessId } = useBusinessStore();
     const { getBusiness } = useFetchBusiness();
     const [allOptionGroups, setAllOptionGroups] = useState<OptionGroup[]>([]);
+
+    const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+    const [quantity, setQuantity] = useState(1);
+    const addToCart = useCartStore((state) => state.addToCart);
+
+    const totalPrice = useMemo(() => {
+        let optionsTotal = 0;
+        product.option_groups.forEach(group => {
+            const groupSelections = selectedOptions[group.id] || [];
+            groupSelections.forEach(optId => {
+                const option = group.options.find(o => o.id === optId);
+                if (option) optionsTotal += option.price;
+            });
+        });
+        return (product.base_price + optionsTotal) * quantity;
+    }, [product, selectedOptions, quantity]);
+
+
+    const isValidSelection = useMemo(() => {
+        return product.option_groups.every(group => {
+            const selections = selectedOptions[group.id] || [];
+            return selections.length >= group.min_options && selections.length <= group.max_options;
+        });
+    }, [product.option_groups, selectedOptions]);
+
+    function handleOptionSelect(groupId: string, optionId: string, isMulti: boolean) {
+        setSelectedOptions(prev => {
+            const currentSelections = prev[groupId] || [];
+            let newSelections;
+
+            if (isMulti) {
+                if (currentSelections.includes(optionId)) {
+                    newSelections = currentSelections.filter(id => id !== optionId);
+                } else {
+                    const group = product.option_groups.find(g => g.id === groupId);
+                    if (group && currentSelections.length >= group.max_options) {
+                        toast.error(`Máximo ${group.max_options} opciones permitidas`);
+                        return prev;
+                    }
+                    newSelections = [...currentSelections, optionId];
+                }
+            } else {
+                newSelections = [optionId];
+            }
+
+            return { ...prev, [groupId]: newSelections };
+        });
+    }
+
+    function handleAddToCart() {
+        if (!isValidSelection) return;
+
+        const cartOptions: CartItemOption[] = [];
+        product.option_groups.forEach(group => {
+            const selections = selectedOptions[group.id] || [];
+            selections.forEach(optId => {
+                const option = group.options.find(o => o.id === optId);
+                if (option) {
+                    cartOptions.push({
+                        group_id: group.id,
+                        group_name: group.name,
+                        option_id: option.id,
+                        option_name: option.name,
+                        price: option.price
+                    });
+                }
+            });
+        });
+
+        addToCart(product, cartOptions, quantity);
+        toast.success("Producto agregado al carrito", { style: toastSuccessStyle });
+
+        setSelectedOptions({});
+        setQuantity(1);
+    }
 
     async function handleEditProduct(
         data: ProductValues,
@@ -131,7 +207,7 @@ export default function ProductCard({ product }: ProductCardProps) {
 
             <CardHeader className="p-5 pb-3">
                 <div className="flex flex-col gap-2">
-                    <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start justify-between gap-2">
                         <CardTitle
                             className={cn(
                                 "text-lg font-bold leading-tight tracking-tight text-foreground",
@@ -155,23 +231,25 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="flex-1 p-5 pt-0 space-y-4">
+            <CardContent className="flex-1 p-5 pt-0 space-y-4 flex flex-col">
                 {product.description && (
                     <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
                         {product.description}
                     </p>
                 )}
 
-                <div className="pt-2">
-                    {(product.description || product.option_groups.length > 0) && <Separator className="mb-4 opacity-50" />}
+                <div className="pt-2 flex-1">
+                    {(product.description || product.option_groups.length > 0) && <Separator className="mb-5 opacity-50" />}
 
-                    {/* Minimalist Option Groups Display */}
-                    <div className="space-y-1">
+
+                    <div className="flex flex-col gap-3 space-y-1">
                         {product.option_groups.map((group) => (
                             <ProductCardOptionGroup
                                 key={group.id}
                                 og={group}
                                 productId={product.id}
+                                selectedOptions={selectedOptions[group.id]}
+                                onSelect={(optId, isMulti) => handleOptionSelect(group.id, optId, isMulti)}
                             />
                         ))}
 
@@ -211,6 +289,43 @@ export default function ProductCard({ product }: ProductCardProps) {
                         )}
                     </div>
                 </div>
+
+                {/* Add to Cart Section */}
+                {!isEditMode && product.available && (
+                    <div className="pt-4 mt-auto space-y-3">
+                        <Separator className="opacity-50" />
+                        <div className="flex items-center justify-between gap-4">
+                            <div className="flex items-center border rounded-md">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-none"
+                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                    disabled={quantity <= 1}
+                                >
+                                    <MinusIcon className="h-3 w-3" />
+                                </Button>
+                                <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-none"
+                                    onClick={() => setQuantity(quantity + 1)}
+                                >
+                                    <PlusIcon className="h-3 w-3" />
+                                </Button>
+                            </div>
+                            <Button
+                                className="flex-1 gap-2"
+                                disabled={!isValidSelection}
+                                onClick={handleAddToCart}
+                            >
+                                <ShoppingCartIcon className="h-4 w-4" />
+                                <span className="font-bold">${totalPrice}</span>
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

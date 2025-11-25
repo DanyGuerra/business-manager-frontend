@@ -21,15 +21,20 @@ import { toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { useProductOptionApi } from "@/lib/useOptionApi";
 import { useOptionProductGroupApi } from "@/lib/useOptionProductGroupApi";
+import { cn } from "@/lib/utils";
 
 type ProductCardOptionGroupProps = {
     og: OptionGroup;
     productId: string;
+    selectedOptions?: string[];
+    onSelect?: (optionId: string, isMulti: boolean) => void;
 };
 
 export default function ProductCardOptionGroup({
     og,
     productId,
+    selectedOptions = [],
+    onSelect,
 }: ProductCardOptionGroupProps) {
     const { isEditMode } = useEditModeStore();
     const { startLoading, stopLoading } = useLoadingStore();
@@ -42,6 +47,8 @@ export default function ProductCardOptionGroup({
     const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
     const [isAddOptionOpen, setIsAddOptionOpen] = useState(false);
     const [editingOptionId, setEditingOptionId] = useState<string | null>(null);
+
+    const isMultiSelect = og.max_options > 1;
 
     async function handleEditGroupOption(
         dataDto: ProductOptionGroupValues,
@@ -134,19 +141,20 @@ export default function ProductCardOptionGroup({
     }
 
     return (
-        <div className="flex flex-col gap-2 py-2 border-b border-border/40 last:border-0">
-            {/* Header: Name + Actions */}
+        <div className="flex flex-col gap-3 py-3 border-b border-border/40 last:border-0" >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-foreground">
                         {og.name}
                     </span>
-                    <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        Min: {og.min_options}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                        Max: {og.max_options}
-                    </span>
+                    <div className="flex gap-1">
+                        <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                            Min: {og.min_options}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                            Max: {og.max_options}
+                        </span>
+                    </div>
                 </div>
 
                 {isEditMode && (
@@ -182,71 +190,91 @@ export default function ProductCardOptionGroup({
                 )}
             </div>
 
-            {/* Options List */}
-            <div className="flex flex-wrap gap-1.5">
-                {og.options.map((opt) => (
-                    <div key={opt.id} className="relative group/option">
-                        {isEditMode ? (
-                            <CustomDialog
-                                open={editingOptionId === opt.id}
-                                setOpen={(open) => setEditingOptionId(open ? opt.id : null)}
-                                modalTitle="Editar opción"
-                                modalDescription={`Editar ${opt.name}`}
-                                trigger={
-                                    <Badge
-                                        variant="outline"
-                                        className="cursor-pointer hover:bg-muted transition-colors pr-1.5"
-                                    >
-                                        {opt.name} {opt.price > 0 && `(+$${opt.price})`}
-                                    </Badge>
-                                }
-                            >
-                                <div className="space-y-4">
-                                    <FormOption
-                                        defaultValues={{ ...opt, price: `${opt.price}` }}
-                                        buttonTitle="Guardar"
-                                        loadingKey={LoadingsKeyEnum.UPDATE_OPTION}
-                                        handleSubmitButton={(data) => handleUpdateOption(opt.id, data)}
-                                    />
-                                    <div className="flex justify-end border-t pt-4">
-                                        <DeleteDialogConfirmation
-                                            handleContinue={() => handleDeleteOption(opt.id)}
-                                            description="¿Eliminar esta opción permanentemente?"
-                                        />
-                                    </div>
-                                </div>
-                            </CustomDialog>
-                        ) : (
-                            <Badge variant="outline" className="text-muted-foreground bg-muted/20">
-                                {opt.name} {opt.price > 0 && `(+$${opt.price})`}
-                            </Badge>
-                        )}
+            <div className={cn("flex flex-wrap gap-2", !isEditMode && "flex-wrap")}>
+                {!isEditMode ? (
+                    <div className="flex flex-wrap gap-2">
+                        {og.options.map((opt) => {
+                            const isSelected = selectedOptions.includes(opt.id);
+                            return (
+                                <Badge
+                                    key={opt.id}
+                                    variant={isSelected ? "default" : "outline"}
+                                    className={cn(
+                                        "cursor-pointer px-2 py-1 text-xs transition-all hover:border-primary/50 select-none font-normal",
+                                        isSelected
+                                            ? "border-primary shadow-none"
+                                            : "text-muted-foreground bg-transparent border-dashed hover:bg-accent hover:text-accent-foreground hover:border-solid"
+                                    )}
+                                    onClick={() => onSelect?.(opt.id, isMultiSelect)}
+                                >
+                                    {opt.name}
+                                    {opt.price > 0 && (
+                                        <span className="ml-1 text-[10px] opacity-70">
+                                            +${opt.price}
+                                        </span>
+                                    )}
+                                </Badge>
+                            );
+                        })}
                     </div>
-                ))}
+                ) : (
+                    <>
+                        {og.options.map((opt) => (
+                            <div key={opt.id} className="relative group/option">
+                                <CustomDialog
+                                    open={editingOptionId === opt.id}
+                                    setOpen={(open) => setEditingOptionId(open ? opt.id : null)}
+                                    modalTitle="Editar opción"
+                                    modalDescription={`Editar ${opt.name}`}
+                                    trigger={
+                                        <Badge
+                                            variant="outline"
+                                            className="cursor-pointer hover:bg-muted transition-colors pr-1.5"
+                                        >
+                                            {opt.name} {opt.price > 0 && `(+$${opt.price})`}
+                                        </Badge>
+                                    }
+                                >
+                                    <div className="space-y-4">
+                                        <FormOption
+                                            defaultValues={{ ...opt, price: `${opt.price}` }}
+                                            buttonTitle="Guardar"
+                                            loadingKey={LoadingsKeyEnum.UPDATE_OPTION}
+                                            handleSubmitButton={(data) => handleUpdateOption(opt.id, data)}
+                                        />
+                                        <div className="flex justify-end border-t pt-4">
+                                            <DeleteDialogConfirmation
+                                                handleContinue={() => handleDeleteOption(opt.id)}
+                                                description="¿Eliminar esta opción permanentemente?"
+                                            />
+                                        </div>
+                                    </div>
+                                </CustomDialog>
+                            </div>
+                        ))}
 
-                {/* Add Option Button */}
-                {isEditMode && (
-                    <CustomDialog
-                        open={isAddOptionOpen}
-                        setOpen={setIsAddOptionOpen}
-                        modalTitle="Agregar opción"
-                        modalDescription={`Agregar a ${og.name}`}
-                        trigger={
-                            <Badge
-                                variant="secondary"
-                                className="cursor-pointer hover:bg-primary/20 border-dashed border-primary/30 text-primary/70 gap-1 pl-1 pr-2"
-                            >
-                                <PlusIcon className="h-3 w-3" />
-                                <span className="text-[10px]">Agregar</span>
-                            </Badge>
-                        }
-                    >
-                        <FormOption
-                            buttonTitle="Agregar"
-                            handleSubmitButton={(data) => handleCreateOption(data, og.id)}
-                            loadingKey={LoadingsKeyEnum.CREATE_OPTION}
-                        />
-                    </CustomDialog>
+                        <CustomDialog
+                            open={isAddOptionOpen}
+                            setOpen={setIsAddOptionOpen}
+                            modalTitle="Agregar opción"
+                            modalDescription={`Agregar a ${og.name}`}
+                            trigger={
+                                <Badge
+                                    variant="secondary"
+                                    className="cursor-pointer hover:bg-primary/20 border-dashed border-primary/30 text-primary/70 gap-1 pl-1 pr-2"
+                                >
+                                    <PlusIcon className="h-3 w-3" />
+                                    <span className="text-[10px]">Agregar</span>
+                                </Badge>
+                            }
+                        >
+                            <FormOption
+                                buttonTitle="Agregar"
+                                handleSubmitButton={(data) => handleCreateOption(data, og.id)}
+                                loadingKey={LoadingsKeyEnum.CREATE_OPTION}
+                            />
+                        </CustomDialog>
+                    </>
                 )}
 
                 {og.options.length === 0 && !isEditMode && (
