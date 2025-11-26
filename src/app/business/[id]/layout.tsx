@@ -33,6 +33,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { cn } from "@/lib/utils";
+import CartDrawer from "@/components/CartDrawer";
 
 export default function BusinessLayout({
   children,
@@ -206,6 +207,7 @@ export default function BusinessLayout({
           {children}
         </div>
       </SidebarInset>
+      <CartDrawer />
     </SidebarProvider>
   );
 }
