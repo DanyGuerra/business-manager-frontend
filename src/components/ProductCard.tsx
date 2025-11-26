@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator";
 import OptionGroupSelector from "@/components/optionGroupSelector";
 import { useOptionGroupApi, OptionGroup } from "@/lib/useOptionGroupApi";
 import { useCartStore, CartItemOption } from "@/store/cartStore";
+import { Input } from "@/components/ui/input";
 
 type ProductCardProps = {
     product: Product;
@@ -166,9 +167,22 @@ export default function ProductCard({ product }: ProductCardProps) {
         }
     }
 
+    function onChangeQuantity(e: React.ChangeEvent<HTMLInputElement>) {
+        const value = e.target.value;
+
+        if (/^[0-9]*$/.test(value)) {
+            setQuantity(Number(value));
+        }
+    }
+
+    function onQuantityBlur(e: React.FocusEvent<HTMLInputElement>) {
+        if (quantity <= 0) {
+            setQuantity(1);
+        }
+    }
+
     return (
         <Card className="group relative flex flex-col h-full overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:border-primary/20 px-6">
-            {/* Edit Actions - Absolute Positioned */}
             {isEditMode && (
                 <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <CustomDialog
@@ -295,7 +309,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                     <div className="pt-4 mt-auto space-y-3">
                         <Separator className="opacity-50" />
                         <div className="flex items-center justify-between gap-4">
-                            <div className="flex items-center border rounded-md">
+                            <div className="flex items-center border rounded-md flex-1">
                                 <Button
                                     variant="ghost"
                                     size="icon"
@@ -305,7 +319,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 >
                                     <MinusIcon className="h-3 w-3" />
                                 </Button>
-                                <span className="w-8 text-center text-sm font-medium">{quantity}</span>
+                                <Input
+                                    type="text"
+                                    value={quantity}
+                                    onChange={onChangeQuantity}
+                                    onBlur={(e) => onQuantityBlur(e)}
+                                    className="h-8 border-0 p-0 text-center text-sm focus-visible:ring-0 shadow-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+
                                 <Button
                                     variant="ghost"
                                     size="icon"
