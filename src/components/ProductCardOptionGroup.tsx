@@ -144,7 +144,7 @@ export default function ProductCardOptionGroup({
         <div className="flex flex-col gap-3 py-3 border-b border-border/40 last:border-0" >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground">
+                    <span className={cn("text-sm font-semibold text-foreground", !og.available && "line-through text-muted-foreground")}>
                         {og.name}
                     </span>
                     <div className="flex gap-1">
@@ -200,12 +200,18 @@ export default function ProductCardOptionGroup({
                                     key={opt.id}
                                     variant={isSelected ? "default" : "outline"}
                                     className={cn(
-                                        "cursor-pointer px-2 py-1 text-xs transition-all hover:border-primary/50 select-none font-normal",
+                                        "px-2 py-1 text-xs transition-all select-none font-normal",
                                         isSelected
                                             ? "border-primary shadow-none"
-                                            : "text-muted-foreground bg-transparent border-dashed hover:bg-accent hover:text-accent-foreground hover:border-solid"
+                                            : "text-muted-foreground bg-transparent border-dashed hover:bg-accent hover:text-accent-foreground hover:border-solid",
+                                        (!og.available || !opt.available)
+                                            ? "opacity-50 cursor-not-allowed"
+                                            : "cursor-pointer hover:border-primary/50"
                                     )}
-                                    onClick={() => onSelect?.(opt.id, isMultiSelect)}
+                                    onClick={() => {
+                                        if (!og.available || !opt.available) return;
+                                        onSelect?.(opt.id, isMultiSelect);
+                                    }}
                                 >
                                     {opt.name}
                                     {opt.price > 0 && (

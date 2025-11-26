@@ -72,7 +72,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     function handleOptionSelect(groupId: string, optionId: string, isMulti: boolean) {
         setSelectedOptions(prev => {
             const currentSelections = prev[groupId] || [];
-            let newSelections;
+            let newSelections: string[];
 
             if (isMulti) {
                 if (currentSelections.includes(optionId)) {
@@ -86,7 +86,11 @@ export default function ProductCard({ product }: ProductCardProps) {
                     newSelections = [...currentSelections, optionId];
                 }
             } else {
-                newSelections = [optionId];
+                if (currentSelections.includes(optionId)) {
+                    newSelections = [];
+                } else {
+                    newSelections = [optionId];
+                }
             }
 
             return { ...prev, [groupId]: newSelections };
