@@ -10,11 +10,10 @@ import {
     SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
@@ -76,7 +75,7 @@ export default function CartDrawer() {
                                 {items.map((item) => (
                                     <div key={item.id} className="flex gap-4">
                                         <div className="h-20 w-20 rounded-md bg-muted flex-shrink-0 flex items-center justify-center">
-                                            <span className="text-2xl">📦</span>
+                                            <Package className="h-8 w-8" />
                                         </div>
 
                                         <div className="flex-1 flex flex-col justify-between">
@@ -102,7 +101,7 @@ export default function CartDrawer() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 rounded-none"
+                                                        className="h-8 w-8 rounded-none cursor-pointer"
                                                         onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                                     >
                                                         <MinusIcon className="h-3 w-3" />
@@ -111,7 +110,7 @@ export default function CartDrawer() {
                                                     <Button
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 rounded-none"
+                                                        className="h-8 w-8 rounded-none cursor-pointer"
                                                         onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                                     >
                                                         <PlusIcon className="h-3 w-3" />
@@ -121,7 +120,7 @@ export default function CartDrawer() {
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
-                                                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                    className="h-8 w-8 text-muted-foreground cursor-pointer hover:text-destructive"
                                                     onClick={() => removeFromCart(item.id)}
                                                 >
                                                     <Trash2Icon className="h-4 w-4" />
@@ -145,7 +144,7 @@ export default function CartDrawer() {
                                     <span>${totalPrice}</span>
                                 </div>
                             </div>
-                            <Button className="w-full h-12 text-base font-bold shadow-md" size="lg">
+                            <Button className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg">
                                 Checkout
                             </Button>
                         </div>
