@@ -26,8 +26,8 @@ import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation"
 import ProductCardOptionGroup from "./ProductCardOptionGroup";
 import { Separator } from "@/components/ui/separator";
 import OptionGroupSelector from "@/components/optionGroupSelector";
-import { useOptionGroupApi, OptionGroup } from "@/lib/useOptionGroupApi";
-import { useCartStore, CartItemOption } from "@/store/cartStore";
+import { useOptionGroupApi, OptionGroup, Option } from "@/lib/useOptionGroupApi";
+import { useCartStore } from "@/store/cartStore";
 import { Input } from "@/components/ui/input";
 
 type ProductCardProps = {
@@ -96,19 +96,13 @@ export default function ProductCard({ product }: ProductCardProps) {
     function handleAddToCart() {
         if (!isValidSelection) return;
 
-        const cartOptions: CartItemOption[] = [];
+        const cartOptions: Option[] = [];
         product.option_groups.forEach(group => {
             const selections = selectedOptions[group.id] || [];
             selections.forEach(optId => {
                 const option = group.options.find(o => o.id === optId);
                 if (option) {
-                    cartOptions.push({
-                        group_id: group.id,
-                        group_name: group.name,
-                        option_id: option.id,
-                        option_name: option.name,
-                        price: option.price
-                    });
+                    cartOptions.push(option);
                 }
             });
         });

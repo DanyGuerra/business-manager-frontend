@@ -3,25 +3,19 @@ import { persist } from 'zustand/middleware';
 import { Product } from '@/lib/useBusinessApi';
 import { Option } from '@/lib/useOptionGroupApi';
 
-export type CartItemOption = {
-    group_id: string;
-    group_name: string;
-    option_id: string;
-    option_name: string;
-    price: number;
-};
+
 
 export type CartItem = {
     id: string; // Unique ID for the cart item (product_id + options hash)
     product: Product;
-    selected_options: CartItemOption[];
+    selected_options: Option[];
     quantity: number;
     total_price: number;
 };
 
 type CartState = {
     items: CartItem[];
-    addToCart: (product: Product, selectedOptions: CartItemOption[], quantity: number) => void;
+    addToCart: (product: Product, selectedOptions: Option[], quantity: number) => void;
     removeFromCart: (cartItemId: string) => void;
     updateQuantity: (cartItemId: string, quantity: number) => void;
     clearCart: () => void;
@@ -40,7 +34,7 @@ export const useCartStore = create<CartState>()(
 
                 // Create a unique ID based on product and sorted options to group identical items
                 const optionsKey = selectedOptions
-                    .map(o => o.option_id)
+                    .map(o => o.id)
                     .sort()
                     .join('-');
                 const cartItemId = `${product.id}-${optionsKey}`;
@@ -49,13 +43,11 @@ export const useCartStore = create<CartState>()(
                     const existingItemIndex = state.items.findIndex(item => item.id === cartItemId);
 
                     if (existingItemIndex > -1) {
-                        // Update existing item
                         const newItems = [...state.items];
                         newItems[existingItemIndex].quantity += quantity;
                         newItems[existingItemIndex].total_price = newItems[existingItemIndex].quantity * unitPrice;
                         return { items: newItems };
                     } else {
-                        // Add new item
                         const newItem: CartItem = {
                             id: cartItemId,
                             product,
