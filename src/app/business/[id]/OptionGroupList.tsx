@@ -45,7 +45,6 @@ export default function OptionGroupList({
   const { businessId } = useBusinessStore();
   const optionGroupApi = useOptionGroupApi();
   const productOptionGroupApi = useOptionProductGroupApi();
-  const optionApi = useProductOptionApi();
   const { getBusiness } = useFetchBusiness();
 
   const closeDialog = () => setDialog(null);
@@ -92,11 +91,10 @@ export default function OptionGroupList({
   }, [dialog]);
 
   return (
-    <div className="space-y-4 mt-4">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b pb-2">
-        <h1 className="text-lg font-bold">Variantes del producto</h1>
+    <div className="">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
         {isEditMode && (
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-1 w-full sm:w-auto">
             <CustomDialog
               open={dialog === "addExistingGroup"}
               setOpen={(v) => setDialog(v ? "addExistingGroup" : null)}
@@ -128,7 +126,7 @@ export default function OptionGroupList({
       </div>
 
       {optionGroups.length > 0 ? (
-        <div className="grid gap-6">
+        <div className="grid gap-1">
           {optionGroups.map((og) => (
             <OptionGroupCard
               key={og.id}
@@ -138,7 +136,7 @@ export default function OptionGroupList({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg bg-muted/10 border-dashed">
+        <div className="flex flex-col items-center justify-center text-center border rounded-lg bg-muted/10 border-dashed">
           <p className="text-muted-foreground">No hay variantes configuradas para este producto</p>
         </div>
       )}

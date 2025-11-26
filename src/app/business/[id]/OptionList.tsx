@@ -11,9 +11,10 @@ import { useBusinessStore } from "@/store/businessStore";
 import { useEditModeStore } from "@/store/editModeStore";
 import { LoadingsKeyEnum } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
-import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type OptionListProps = {
   options: Option[];
@@ -79,26 +80,36 @@ export default function OptionList({
   return (
     <div className="flex flex-wrap gap-2 mt-1">
       {options.length > 0 ? (
-        options.map((opt) => (
-          <span
-            key={opt.id}
-            className="px-2 py-1 border rounded text-sm flex items-center gap-4"
-          >
-            <div
-              className={`${!opt.available ? "line-through text-muted-foreground" : ""
-                }`}
-            >
-              {opt.name} {opt.price > 0 && `+ $${opt.price}`}
-            </div>
-            {isEditMode && (
-              <span className="flex gap-1">
-                <CustomDialog
-                  open={open === opt.id}
-                  setOpen={(o) => (o ? setOpen(opt.id) : setOpen(null))}
-                  modalTitle="Editar opción"
-                  modalDescription={`Editar la opción "${opt.name}"`}
-                  icon={<Pencil />}
-                >
+        options.map((opt) => {
+          const badgeContent = (
+            <span className={cn("flex items-center gap-1.5", !opt.available && "opacity-50 line-through decoration-destructive/50")}>
+              {opt.name}
+              {opt.price > 0 && (
+                <span className="text-[10px] bg-background/20 px-1 rounded-sm">
+                  +${opt.price}
+                </span>
+              )}
+            </span>
+          );
+
+          if (isEditMode) {
+            return (
+              <CustomDialog
+                key={opt.id}
+                open={open === opt.id}
+                setOpen={(o) => (o ? setOpen(opt.id) : setOpen(null))}
+                modalTitle="Editar opción"
+                modalDescription={`Editar la opción "${opt.name}"`}
+                trigger={
+                  <Badge
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-secondary/80 transition-colors py-1 px-2.5 text-sm font-normal border-transparent hover:border-primary/20 border"
+                  >
+                    {badgeContent}
+                  </Badge>
+                }
+              >
+                <div className="space-y-4">
                   <FormOption
                     defaultValues={{ ...opt, price: `${opt.price}` }}
                     buttonTitle="Guardar"
@@ -107,18 +118,30 @@ export default function OptionList({
                       handleUpdateOption(opt.id, data)
                     }
                   />
-                </CustomDialog>
-                <DeleteDialogConfirmation
-                  description={`Esta acción eliminará permanentemente la opcion "${opt.name}"`}
-                  handleContinue={() => handleDeleteOption(opt.id)}
-                />
-              </span>
-            )}
-          </span>
-        ))
+                  <div className="flex justify-end border-t pt-4">
+                    <DeleteDialogConfirmation
+                      description={`Esta acción eliminará permanentemente la opcion "${opt.name}"`}
+                      handleContinue={() => handleDeleteOption(opt.id)}
+                    />
+                  </div>
+                </div>
+              </CustomDialog>
+            );
+          }
+
+          return (
+            <Badge
+              key={opt.id}
+              variant="outline"
+              className="py-1 px-2.5 text-sm font-normal text-muted-foreground bg-background"
+            >
+              {badgeContent}
+            </Badge>
+          );
+        })
       ) : (
-        <div className="w-full flex items-center justify-center text-xs text-gray-400 min-h-10">
-          <span>No hay opciones</span>
+        <div className="w-full flex items-center justify-center text-xs text-muted-foreground min-h-10 italic">
+          <span>No hay opciones disponibles</span>
         </div>
       )}
     </div>

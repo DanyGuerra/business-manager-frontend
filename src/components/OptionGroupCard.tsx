@@ -5,13 +5,6 @@ import { useEditModeStore } from "@/store/editModeStore";
 import { useLoadingStore } from "@/store/loadingStore";
 
 import { Badge } from "@/components/ui/badge";
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Pencil } from "lucide-react";
 import CustomDialog from "@/components/customDialog";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
@@ -167,15 +160,15 @@ export default function OptionGroupCard({
     }
 
     return (
-        <Card
+        <div
             key={og.id}
-            className="overflow-hidden transition-all hover:shadow-md border-muted/60"
+            className="border rounded-lg p-4 space-y-4"
         >
-            <CardHeader className="bg-muted/10 pb-4">
-                <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-1.5">
+            <div className="">
+                <div className="flex items-start justify-between gap-2">
+                    <div >
                         <div className="flex items-center gap-2 flex-wrap">
-                            <CardTitle className="text-lg font-semibold">{og.name}</CardTitle>
+                            <h3 className="text-base font-semibold">{og.name}</h3>
                             <Badge
                                 variant="outline"
                                 className={
@@ -187,7 +180,7 @@ export default function OptionGroupCard({
                                 {og.available ? "Disponible" : "No disponible"}
                             </Badge>
                         </div>
-                        <CardDescription className="flex items-center gap-3 text-xs sm:text-sm">
+                        <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground mt-1">
                             <div className="flex items-center gap-1.5 bg-background px-2 py-1 rounded-md border shadow-sm">
                                 <span className="font-medium text-foreground">Min:</span>
                                 <span>{og.min_options}</span>
@@ -196,7 +189,7 @@ export default function OptionGroupCard({
                                 <span className="font-medium text-foreground">Max:</span>
                                 <span>{og.max_options}</span>
                             </div>
-                        </CardDescription>
+                        </div>
                     </div>
                     {isEditMode && (
                         <div className="flex items-center gap-1">
@@ -226,44 +219,42 @@ export default function OptionGroupCard({
                         </div>
                     )}
                 </div>
-            </CardHeader>
-            <CardContent className="p-4 pt-4">
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                            Opciones
-                            <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-[10px]">
-                                {og.options.length}
-                            </span>
-                        </div>
-                        {isEditMode && (
-                            <CustomDialog
-                                modalTitle="Agregar una opción"
-                                modalDescription={`Agregar opción al grupo "${og.name}"`}
-                                textButtonTrigger="Agregar opción"
-                            >
-                                <FormOption
-                                    buttonTitle="Agregar"
-                                    handleSubmitButton={(data) => handleCreateOption(data, og.id)}
-                                    loadingKey={LoadingsKeyEnum.CREATE_OPTION}
-                                />
-                            </CustomDialog>
-                        )}
+            </div>
+
+            <div className="">
+                <div className="flex items-center justify-between">
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                        Opciones
+                        <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-[10px]">
+                            {og.options.length}
+                        </span>
                     </div>
-
-                    <OptionList
-                        options={og.options}
-                        onDelete={
-                            (optionId) => handleDeleteOption(optionId, og.id)
-
-                        }
-                        onUpdate={
-                            (optionId, data) => handleUpdateOption(optionId, data)
-
-                        }
-                    />
+                    {isEditMode && (
+                        <CustomDialog
+                            modalTitle="Agregar una opción"
+                            modalDescription={`Agregar opción al grupo "${og.name}"`}
+                        >
+                            <FormOption
+                                buttonTitle="Agregar"
+                                handleSubmitButton={(data) => handleCreateOption(data, og.id)}
+                                loadingKey={LoadingsKeyEnum.CREATE_OPTION}
+                            />
+                        </CustomDialog>
+                    )}
                 </div>
-            </CardContent>
-        </Card>
+
+                <OptionList
+                    options={og.options}
+                    onDelete={
+                        (optionId) => handleDeleteOption(optionId, og.id)
+
+                    }
+                    onUpdate={
+                        (optionId, data) => handleUpdateOption(optionId, data)
+
+                    }
+                />
+            </div>
+        </div>
     );
 }

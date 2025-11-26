@@ -100,7 +100,7 @@ export default function ProductList({ products, productGroupId }: ProductListPro
   return (
     <>
       {products.length ? (
-        <div className="flex flex-col space-y-3" >
+        <div className="flex flex-col" >
           {products.map((product) => (
             <Collapsible key={product.id} className="group/collapsible">
               <CollapsibleTrigger
@@ -133,7 +133,7 @@ export default function ProductList({ products, productGroupId }: ProductListPro
                 </div>
                 <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
               </CollapsibleTrigger>
-              <CollapsibleContent className="border-x border-b rounded-b-lg bg-card/50 px-4 py-4 -mt-1 pt-4 space-y-4 animate-in slide-in-from-top-2 fade-in-0">
+              <CollapsibleContent className="border-x border-b rounded-b-lg bg-card/50 px-4 py-4 space-y-4 animate-in slide-in-from-top-2 fade-in-0">
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex-1">
                     {product.description ? (
