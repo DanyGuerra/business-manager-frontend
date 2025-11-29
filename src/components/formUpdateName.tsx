@@ -22,7 +22,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useEffect } from "react";
 
 const updateNameSchema = z.object({
-    name: z.string().min(1, "El nombre es requerido"),
+    name: z.string().min(4, "El nombre debe tener al menos 4 caracteres"),
 });
 
 type FormUpdateNameProps = {

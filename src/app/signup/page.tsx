@@ -32,7 +32,7 @@ const loginSchema = z.object({
       /^[a-z0-9_-]+$/,
       "Username solo puede contener letras minúsculas, números y los símbolos _ o -."
     ),
-  name: z.string(),
+  name: z.string().min(4, "El nombre debe tener al menos 4 caracteres"),
   password: z.string().min(6, "La contrasena debe ser de almenos 6 caracteres"),
 });
 
