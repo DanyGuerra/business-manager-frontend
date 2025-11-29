@@ -32,7 +32,6 @@ export const useCartStore = create<CartState>()(
                 const optionsPrice = selectedOptions.reduce((acc, opt) => acc + opt.price, 0);
                 const unitPrice = product.base_price + optionsPrice;
 
-                // Create a unique ID based on product and sorted options to group identical items
                 const optionsKey = selectedOptions
                     .map(o => o.id)
                     .sort()

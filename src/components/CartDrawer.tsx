@@ -7,7 +7,6 @@ import {
     SheetHeader,
     SheetTitle,
     SheetTrigger,
-    SheetFooter,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package } from "lucide-react";
@@ -30,17 +29,18 @@ export default function CartDrawer() {
     const totalItems = getTotalItems();
     const totalPrice = getTotalPrice();
 
+    function handleCheckout() { }
+
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
+            <SheetTrigger asChild className="fixed bottom-0 right-0 z-50">
                 <Button
-                    size="icon"
-                    className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform cursor-pointer"
+                    className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform cursor-pointer rounded-full"
                 >
-                    <div className="relative">
-                        <ShoppingCartIcon className="h-6 w-6" />
+                    <div className="relative w-full h-full flex items-center justify-center">
+                        <ShoppingCartIcon />
                         {totalItems > 0 && (
-                            <span className="absolute top-3 -right-3 bg-destructive text-destructive-foreground text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-background">
+                            <span className="absolute top-0 left-0 bg-destructive text-destructive-foreground text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-background">
                                 {totalItems}
                             </span>
                         )}
@@ -159,8 +159,8 @@ export default function CartDrawer() {
                                         <span>${totalPrice}</span>
                                     </div>
                                 </div>
-                                <Button type="button" className="w-full h-12 text-base font-bold shadow-md" size="lg">
-                                    Checkout
+                                <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={handleCheckout}>
+                                    Confirmar pedido
                                 </Button>
                             </div>
                         </>
