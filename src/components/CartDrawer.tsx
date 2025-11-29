@@ -49,7 +49,7 @@ export default function CartDrawer() {
             </SheetTrigger>
             <SheetContent
                 side="bottom"
-                className="h-[85vh] sm:max-w-md sm:mx-auto rounded-t-[20px] flex flex-col p-0 gap-0 border-t-0 shadow-xl"
+                className="h-full sm:max-w-md sm:mx-auto rounded-t-[20px] flex flex-col p-0 gap-0 border-t-0 shadow-xl"
             >
                 <div className="flex flex-col h-full w-full">
                     <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted/50 shrink-0" />
@@ -75,8 +75,8 @@ export default function CartDrawer() {
                         </div>
                     ) : (
                         <>
-                            <ScrollArea className="flex-1 p-6">
-                                <div className="flex flex-col gap-6">
+                            <ScrollArea className="flex-1 min-h-0 w-full">
+                                <div className="flex flex-col gap-6 p-6">
                                     {items.map((item) => (
                                         <div key={item.id} className="flex gap-4">
                                             <div className="h-20 w-20 rounded-md bg-muted flex-shrink-0 flex items-center justify-center">
@@ -134,7 +134,7 @@ export default function CartDrawer() {
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                                        className="cursor-pointer h-8 w-8 text-muted-foreground hover:text-destructive text-destructive"
                                                         onClick={() => removeFromCart(item.id)}
                                                         aria-label={`Eliminar ${item.product.name} del carrito`}
                                                     >
