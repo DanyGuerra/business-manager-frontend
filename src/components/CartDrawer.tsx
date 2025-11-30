@@ -1,6 +1,6 @@
 "use client";
 
-import { useCartStore } from "@/store/cartStore";
+import { CartItem, useCartStore } from "@/store/cartStore";
 import {
     Sheet,
     SheetContent,
@@ -13,12 +13,16 @@ import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package } from "luci
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 
 export default function CartDrawer() {
     const { items, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCartStore();
     const [isOpen, setIsOpen] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
+    const [customerName, setCustomerName] = useState<string>("");
+    const [comments, setComments] = useState<string>("");
 
     useEffect(() => {
         setIsMounted(true);
@@ -29,7 +33,9 @@ export default function CartDrawer() {
     const totalItems = getTotalItems();
     const totalPrice = getTotalPrice();
 
-    function handleCheckout() { }
+    function handleCheckout(items: CartItem[], customerName: string | null, comments: string | null) {
+        console.log(items, customerName, comments);
+    }
 
     return (
         <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -148,6 +154,29 @@ export default function CartDrawer() {
                             </ScrollArea>
 
                             <div className="p-6 border-t bg-muted/10 space-y-4 shrink-0">
+                                <div className="space-y-3">
+                                    <div className="space-y-1">
+                                        <Label htmlFor="buyer-name" className="text-xs font-medium">Nombre del comprador (opcional)</Label>
+                                        <Input
+                                            id="buyer-name"
+                                            placeholder="Ej. Juan Pérez"
+                                            value={customerName}
+                                            onChange={(e) => setCustomerName(e.target.value)}
+                                            className="h-8 text-sm bg-background"
+                                        />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label htmlFor="comments" className="text-xs font-medium">Comentarios (opcional)</Label>
+                                        <Input
+                                            id="comments"
+                                            placeholder="Ej. Sin cebolla, salsa aparte..."
+                                            value={comments}
+                                            onChange={(e) => setComments(e.target.value)}
+                                            className="h-8 text-sm bg-background"
+                                        />
+                                    </div>
+                                </div>
+                                <Separator />
                                 <div className="space-y-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Subtotal</span>
@@ -159,7 +188,7 @@ export default function CartDrawer() {
                                         <span>${totalPrice}</span>
                                     </div>
                                 </div>
-                                <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={handleCheckout}>
+                                <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={() => handleCheckout(items, customerName, comments)}>
                                     Confirmar pedido
                                 </Button>
                             </div>
