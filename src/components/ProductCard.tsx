@@ -20,7 +20,7 @@ import { UpdateProductDto, useProductApi } from "@/lib/useProductApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { toast } from "sonner";
-import { toastSuccessStyle } from "@/lib/toastStyles";
+import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import ProductCardOptionGroup from "./ProductCardOptionGroup";
@@ -80,7 +80,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                 } else {
                     const group = product.option_groups.find(g => g.id === groupId);
                     if (group && currentSelections.length >= group.max_options) {
-                        toast.error(`Máximo ${group.max_options} opciones permitidas`);
+                        toast.error(`Máximo ${group.max_options} opciones permitidas`, {
+                            style: toastErrorStyle,
+                        });
                         return prev;
                     }
                     newSelections = [...currentSelections, optionId];
