@@ -21,13 +21,6 @@ import {
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import {
     Tabs,
     TabsList,
     TabsTrigger,
@@ -38,6 +31,8 @@ import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
+import ButtonLoading from "./buttonLoading";
 
 type OrderDetails = {
     customerName: string;
@@ -46,8 +41,9 @@ type OrderDetails = {
 }
 
 export default function CartDrawer() {
-    const { items, updateQuantity, removeFromCart, getTotalPrice, getTotalItems } = useCartStore();
+    const { items, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart } = useCartStore();
     const { businessId } = useBusinessStore();
+    const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
     const [isOpen, setIsOpen] = useState(false);
     const [orderDetails, setOrderDetails] = useState<OrderDetails>({
@@ -66,17 +62,19 @@ export default function CartDrawer() {
 
     async function handleCheckout(items: CartItem[]) {
         try {
+            startLoading(LoadingsKeyEnum.CREATE_ORDER);
             const { data: order } = await createOrder({
                 customer_name: orderDetails.customerName,
                 notes: orderDetails.comments,
                 consumption_type: orderDetails.consumptionType
             });
-            console.log(order);
-
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
-
+            clearCart();
+            setIsOpen(false);
         } catch (error) {
             handleApiError(error)
+        } finally {
+            stopLoading(LoadingsKeyEnum.CREATE_ORDER);
         }
     }
 
@@ -271,9 +269,7 @@ export default function CartDrawer() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={() => handleCheckout(items)}>
-                                        Confirmar pedido
-                                    </Button>
+                                    <ButtonLoading loadingState={loadings[LoadingsKeyEnum.CREATE_ORDER]} onClick={() => handleCheckout(items)} buttonTitle="Confirmar pedido" className="text-base font-bold" size="lg" />
                                     <DrawerClose asChild>
                                         <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md cursor-pointer mt-2">
                                             Cerrar
