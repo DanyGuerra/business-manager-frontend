@@ -17,6 +17,7 @@ export enum LoadingsKeyEnum {
   UPDATE_PRODUCT_GROUP_OPTION = "createProductGroup",
   LOGIN = "createBusiness",
   SIGNUP = "createBusiness",
+  CREATE_ORDER = "createOrder",
 }
 
 type LoadingState = {
