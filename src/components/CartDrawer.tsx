@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/drawer";
 
 import { Button } from "@/components/ui/button";
-import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, X } from "lucide-react";
+import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, X, User, MessageSquare, Utensils, ShoppingBag, Truck } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Tabs,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
 import { useState } from "react";
 import { ConsumptionType, CreateOrderDto, useOrdersApi } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
@@ -224,21 +229,37 @@ export default function CartDrawer() {
                                                 className="h-8 text-sm bg-background"
                                             />
                                         </div>
-                                        <div className="space-y-1">
+                                        <div className="">
                                             <Label htmlFor="consumption-type" className="text-xs font-medium">Tipo de consumo</Label>
-                                            <Select
+                                            <Tabs
                                                 value={orderDetails.consumptionType}
                                                 onValueChange={(value) => setOrderDetails(prev => ({ ...prev, consumptionType: value as ConsumptionType }))}
+                                                className="w-full"
                                             >
-                                                <SelectTrigger id="consumption-type" className="h-8 text-sm bg-background">
-                                                    <SelectValue placeholder="Seleccionar tipo" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value={ConsumptionType.DINE_IN}>Comer aquí</SelectItem>
-                                                    <SelectItem value={ConsumptionType.TAKE_AWAY}>Para llevar</SelectItem>
-                                                    <SelectItem value={ConsumptionType.DELIVERY}>Delivery</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                                <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
+                                                    <TabsTrigger
+                                                        value={ConsumptionType.DINE_IN}
+                                                        className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                                    >
+                                                        <Utensils className="h-3.5 w-3.5" />
+                                                        <span className="inline">Comer aqui</span>
+                                                    </TabsTrigger>
+                                                    <TabsTrigger
+                                                        value={ConsumptionType.TAKE_AWAY}
+                                                        className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                                    >
+                                                        <ShoppingBag className="h-3.5 w-3.5" />
+                                                        <span className="inline">Llevar</span>
+                                                    </TabsTrigger>
+                                                    <TabsTrigger
+                                                        value={ConsumptionType.DELIVERY}
+                                                        className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                                    >
+                                                        <Truck className="h-3.5 w-3.5" />
+                                                        <span className="inline">Entrega</span>
+                                                    </TabsTrigger>
+                                                </TabsList>
+                                            </Tabs>
                                         </div>
                                     </CollapsibleContent>
                                 </Collapsible>
@@ -249,9 +270,16 @@ export default function CartDrawer() {
                                         <span>${totalPrice}</span>
                                     </div>
                                 </div>
-                                <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={() => handleCheckout(items)}>
-                                    Confirmar pedido
-                                </Button>
+                                <div className="flex flex-col gap-1">
+                                    <Button type="button" className="w-full h-12 text-base font-bold shadow-md cursor-pointer" size="lg" onClick={() => handleCheckout(items)}>
+                                        Confirmar pedido
+                                    </Button>
+                                    <DrawerClose asChild>
+                                        <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md cursor-pointer mt-2">
+                                            Cerrar
+                                        </Button>
+                                    </DrawerClose>
+                                </div>
                             </div>
                         </>
                     )}
