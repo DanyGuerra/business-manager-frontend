@@ -26,7 +26,9 @@ import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation"
 import ProductCardOptionGroup from "./ProductCardOptionGroup";
 import { Separator } from "@/components/ui/separator";
 import OptionGroupSelector from "@/components/optionGroupSelector";
-import { useOptionGroupApi, OptionGroup, Option } from "@/lib/useOptionGroupApi";
+import FormProductOptionGroup, { ProductOptionGroupValues } from "@/components/FormProductOptionGroup";
+import { CreateOptionGroupDto, useOptionGroupApi, OptionGroup, Option } from "@/lib/useOptionGroupApi";
+import { useOptionProductGroupApi } from "@/lib/useOptionProductGroupApi";
 import { useCartStore } from "@/store/cartStore";
 import { Input } from "@/components/ui/input";
 
@@ -37,9 +39,11 @@ type ProductCardProps = {
 export default function ProductCard({ product }: ProductCardProps) {
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [isLinkGroupOpen, setIsLinkGroupOpen] = useState(false);
+    const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
     const { isEditMode } = useEditModeStore();
     const productApi = useProductApi();
     const optionGroupApi = useOptionGroupApi();
+    const optionProductGroupApi = useOptionProductGroupApi();
     const { startLoading, stopLoading } = useLoadingStore();
     const { businessId } = useBusinessStore();
     const { getBusiness } = useFetchBusiness();
@@ -167,6 +171,33 @@ export default function ProductCard({ product }: ProductCardProps) {
         }
     }
 
+    async function handleCreateOptionGroup(dataDto: ProductOptionGroupValues) {
+        try {
+            startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
+            const dto: CreateOptionGroupDto = {
+                ...dataDto,
+                min_options: Number(dataDto.min_options),
+                max_options: Number(dataDto.max_options),
+            };
+            const { data: newGroup } = await optionGroupApi.create(dto, businessId);
+
+            await optionProductGroupApi.create(
+                { option_group_id: newGroup.id, product_id: product.id },
+                businessId
+            );
+
+            await getBusiness(businessId);
+            toast.success("Variante creada y vinculada exitosamente", {
+                style: toastSuccessStyle,
+            });
+            setIsCreateGroupOpen(false);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
+        }
+    }
+
     function onChangeQuantity(e: React.ChangeEvent<HTMLInputElement>) {
         const value = e.target.value;
 
@@ -272,7 +303,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         )}
 
                         {isEditMode && (
-                            <div className="pt-2">
+                            <div className="pt-2 flex gap-2">
                                 <CustomDialog
                                     open={isLinkGroupOpen}
                                     setOpen={setIsLinkGroupOpen}
@@ -282,14 +313,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="w-full h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 handleOpenLinkDialog();
                                             }}
                                         >
                                             <PlusCircleIcon className="h-3.5 w-3.5" />
-                                            Vincular Variante
+                                            Vincular
                                         </Button>
                                     }
                                 >
@@ -297,6 +328,33 @@ export default function ProductCard({ product }: ProductCardProps) {
                                         setOpen={() => setIsLinkGroupOpen(false)}
                                         optionGroups={allOptionGroups}
                                         productId={product.id}
+                                    />
+                                </CustomDialog>
+
+                                <CustomDialog
+                                    open={isCreateGroupOpen}
+                                    setOpen={setIsCreateGroupOpen}
+                                    modalTitle="Crear variante"
+                                    modalDescription="Crea una nueva variante para este producto"
+                                    trigger={
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setIsCreateGroupOpen(true);
+                                            }}
+                                        >
+                                            <PlusIcon className="h-3.5 w-3.5" />
+                                            Crear
+                                        </Button>
+                                    }
+                                >
+                                    <FormProductOptionGroup
+                                        buttonTitle="Crear y Vincular"
+                                        loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
+                                        handleSubmitButton={handleCreateOptionGroup}
                                     />
                                 </CustomDialog>
                             </div>
