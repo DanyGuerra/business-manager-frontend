@@ -5,7 +5,7 @@ import {
     Drawer,
     DrawerContent,
     DrawerTrigger,
-    DrawerClose,
+    DrawerClose
 } from "@/components/ui/drawer";
 
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,8 @@ export default function CartDrawer() {
                 notes: orderDetails.comments,
                 consumption_type: orderDetails.consumptionType
             });
+            console.log(order);
+
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
             clearCart();
             setIsOpen(false);
@@ -79,7 +81,7 @@ export default function CartDrawer() {
     }
 
     return (
-        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+        <Drawer open={isOpen} onOpenChange={setIsOpen} >
             <DrawerTrigger asChild className="fixed bottom-0 right-0 z-50">
                 <Button
                     className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform cursor-pointer rounded-full"
@@ -94,7 +96,7 @@ export default function CartDrawer() {
                     </div>
                 </Button>
             </DrawerTrigger>
-            <DrawerContent className="h-full w-full sm:max-w-md p-0 border-l shadow-xl">
+            <DrawerContent className="w-full h-full sm:max-w-md p-0 border-l shadow-xl">
                 <div className="flex flex-col h-full w-full">
                     <div className="p-6 pt-4 pb-2 border-b shrink-0">
                         <div className="flex items-center gap-2 text-xl font-semibold">
@@ -104,7 +106,7 @@ export default function CartDrawer() {
                                 {totalItems} {totalItems === 1 ? "item" : "items"}
                             </Badge>
                             <DrawerClose asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2 cursor-pointer">
                                     <X className="h-4 w-4" />
                                 </Button>
                             </DrawerClose>
@@ -282,5 +284,6 @@ export default function CartDrawer() {
                 </div>
             </DrawerContent>
         </Drawer>
+
     );
 }
