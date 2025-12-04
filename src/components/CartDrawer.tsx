@@ -33,6 +33,7 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "./buttonLoading";
+import { userOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
 
 type OrderDetails = {
     customerName: string;
@@ -45,6 +46,7 @@ export default function CartDrawer() {
     const { businessId } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
+    const orderItemGroupsApi = userOrderItemGroupsApi();
     const [isOpen, setIsOpen] = useState(false);
     const [orderDetails, setOrderDetails] = useState<OrderDetails>({
         customerName: "",
@@ -68,7 +70,9 @@ export default function CartDrawer() {
                 notes: orderDetails.comments,
                 consumption_type: orderDetails.consumptionType
             });
-            console.log(order);
+            const { data } = await orderItemGroupsApi.createOrderItemGroup({
+                order_id: order.id,
+            }, businessId);
 
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
             clearCart();
