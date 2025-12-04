@@ -14,8 +14,9 @@ import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { Badge } from "./ui/badge";
-import { Layers } from "lucide-react";
+import { Layers, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "./ui/input";
 
 type OptionGroupSelectorProps = {
   optionGroups: OptionGroup[];
@@ -33,6 +34,7 @@ export default function OptionGroupSelector({
   const pgApi = useOptionProductGroupApi();
   const [selectedGroupOption, setSelectedGroupOption] =
     useState<OptionGroup | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
@@ -59,15 +61,29 @@ export default function OptionGroupSelector({
     }
   }
 
+  const filteredOptionGroups = optionGroups.filter((og) =>
+    og.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex flex-col w-full gap-4">
-      <ScrollArea className={cn("h-48 px-1", className)}>
-        {optionGroups.length > 0 ? (
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Buscar grupo de opciones..."
+          className="pl-9"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      <ScrollArea className={cn("h-[400px] px-1", className)}>
+        {filteredOptionGroups.length > 0 ? (
           <RadioGroup
             value={selectedGroupOption?.id ?? ""}
             className="flex flex-col gap-3 w-full"
           >
-            {optionGroups.map((og) => {
+            {filteredOptionGroups.map((og) => {
               const isSelected = selectedGroupOption?.id === og.id;
               return (
                 <Label
@@ -127,7 +143,7 @@ export default function OptionGroupSelector({
             })}
           </RadioGroup>
         ) : (
-          <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground gap-3">
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-3">
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
               <Layers className="h-6 w-6 opacity-50" />
             </div>
