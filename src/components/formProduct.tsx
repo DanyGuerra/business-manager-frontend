@@ -16,7 +16,17 @@ import ButtonLoading from "./buttonLoading";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { Switch } from "@/components/ui/switch";
 
-const createProductSchema = z.object({
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ProductGroup } from "@/lib/useBusinessApi";
+import { useMemo } from "react";
+
+const baseProductSchema = z.object({
   name: z.string().min(3, { message: "El nombre es obligatorio" }),
   description: z.string().optional(),
   base_price: z
@@ -25,13 +35,16 @@ const createProductSchema = z.object({
   available: z.boolean(),
 });
 
-export type ProductValues = z.infer<typeof createProductSchema>;
+export type ProductValues = z.infer<typeof baseProductSchema> & {
+  menuId?: string;
+};
 
 type PropsFormProduct = {
   buttonTitle: string;
   loadingKey: LoadingsKeyEnum;
-  defaultValues?: ProductValues;
+  defaultValues?: Partial<ProductValues>;
   handleSubmitButton: (data: ProductValues) => void;
+  menus?: ProductGroup[];
 };
 
 export default function FormProduct({
@@ -39,13 +52,27 @@ export default function FormProduct({
   loadingKey,
   handleSubmitButton,
   defaultValues,
+  menus,
 }: PropsFormProduct) {
+  const formSchema = useMemo(() => {
+    if (menus && menus.length > 0) {
+      return baseProductSchema.extend({
+        menuId: z.string().min(1, { message: "Debes seleccionar un menú" }),
+      });
+    }
+    return baseProductSchema.extend({
+      menuId: z.string().optional(),
+    });
+  }, [menus]);
+
   const form = useForm<ProductValues>({
-    resolver: zodResolver(createProductSchema),
-    defaultValues: defaultValues ?? {
-      name: "",
-      description: "",
-      available: true,
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: defaultValues?.name ?? "",
+      description: defaultValues?.description ?? "",
+      base_price: defaultValues?.base_price ?? "",
+      available: defaultValues?.available ?? true,
+      menuId: defaultValues?.menuId ?? "",
     },
   });
 
@@ -103,6 +130,36 @@ export default function FormProduct({
           )}
         />
 
+        {menus && menus.length > 0 && (
+          <FormField
+            control={form.control}
+            name="menuId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Menú</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecciona un menú" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {menus.map((menu) => (
+                      <SelectItem key={menu.id} value={menu.id}>
+                        {menu.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
+
         <FormField
           control={form.control}
           name="available"
@@ -122,9 +179,27 @@ export default function FormProduct({
           )}
         />
 
+        {menus && menus.length === 0 && (
+          <div className="rounded-md bg-yellow-50 p-4 mb-4">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">
+                  No hay menús disponibles
+                </h3>
+                <div className="mt-2 text-sm text-yellow-700">
+                  <p>
+                    Debes crear al menos un menú (grupo de productos) antes de
+                    poder crear un producto.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-center items-center">
           <ButtonLoading
-            disabled={!form.formState.isDirty}
+            disabled={!form.formState.isDirty || (menus !== undefined && menus.length === 0)}
             loadingState={loadings[loadingKey]}
             buttonTitle={buttonTitle}
           />

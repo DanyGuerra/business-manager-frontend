@@ -240,7 +240,9 @@ export default function ProductCard({ product }: ProductCardProps) {
                             defaultValues={{
                                 ...product,
                                 base_price: `${product.base_price}`,
+                                menuId: product.product_group.id,
                             }}
+                            menus={[product.product_group]}
                         />
                     </CustomDialog>
                     <DeleteDialogConfirmation
