@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import OptionList from "./OptionList";
 import CustomDialog from "@/components/customDialog";
-import { Edit2, ListPlusIcon } from "lucide-react";
+import { PlusCircle, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import FormProductOptionGroup, {
   ProductOptionGroupValues,
 } from "@/components/FormProductOptionGroup";
@@ -38,6 +38,8 @@ export default function OptionGroupList({
   productId,
 }: OptionGroupListProps) {
   const [dialog, setDialog] = useState<DialogType>(null);
+  const [isLinkGroupOpen, setIsLinkGroupOpen] = useState(false);
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const { isEditMode } = useEditModeStore();
   const [optionsGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   const { startLoading, stopLoading } = useLoadingStore();
@@ -80,9 +82,13 @@ export default function OptionGroupList({
       const { data } = await optionGroupApi.getByBusinessId(businessId);
       setOptionGroups(data);
     } catch (error) {
-      handleApiError(error);
     }
   }
+
+  const handleOpenLinkDialog = async () => {
+    await getOptionsGroupsById();
+    setIsLinkGroupOpen(true);
+  };
 
 
   useEffect(() => {
@@ -90,34 +96,61 @@ export default function OptionGroupList({
   }, [dialog]);
 
   return (
-    <div className="">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         {isEditMode && (
-          <div className="flex items-center gap-1 w-full sm:w-auto">
+          <div className="w-full flex items-center justify-center gap-2">
             <CustomDialog
-              open={dialog === "addExistingGroup"}
-              setOpen={(v) => setDialog(v ? "addExistingGroup" : null)}
-              modalTitle="Agregar variante del producto"
-              modalDescription="Agrega un grupo de opciones existente para este producto"
-              icon={<ListPlusIcon className="h-4 w-4" />}
+              open={isLinkGroupOpen}
+              setOpen={setIsLinkGroupOpen}
+              modalTitle="Vincular variante"
+              modalDescription="Selecciona un grupo de opciones existente"
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleOpenLinkDialog();
+                  }}
+                >
+                  <PlusCircle className="h-3.5 w-3.5" />
+                  Vincular
+                </Button>
+              }
             >
               <OptionGroupSelector
-                setOpen={() => closeDialog()}
+                setOpen={() => setIsLinkGroupOpen(false)}
                 optionGroups={optionsGroups}
                 productId={productId}
               />
             </CustomDialog>
 
             <CustomDialog
-              open={dialog === "createGroup"}
-              setOpen={(v) => setDialog(v ? "createGroup" : null)}
-              modalTitle="Crear variante del producto"
-              modalDescription="Crea un nuevo grupo de opciones para este producto"
+              open={isCreateGroupOpen}
+              setOpen={setIsCreateGroupOpen}
+              modalTitle="Crear variante"
+              modalDescription="Crea una nueva variante para este producto"
+              trigger={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsCreateGroupOpen(true);
+                  }}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Crear
+                </Button>
+              }
             >
               <FormProductOptionGroup
-                buttonTitle="Agregar"
-                handleSubmitButton={createOptionGroup}
+                buttonTitle="Crear y Vincular"
                 loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
+                handleSubmitButton={createOptionGroup}
               />
             </CustomDialog>
           </div>

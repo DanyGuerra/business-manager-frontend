@@ -225,7 +225,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                             <Button
                                 variant="secondary"
                                 size="icon"
-                                className="h-8 w-8 shadow-sm hover:bg-background"
+                                className="h-8 w-8 shadow-sm hover:bg-background cursor-pointer"
                             >
                                 <Edit2Icon className="h-4 w-4" />
                             </Button>
@@ -305,7 +305,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                         )}
 
                         {isEditMode && (
-                            <div className="pt-2 flex gap-2">
+                            <div className="w-full flex items-center align-center gap-2">
                                 <CustomDialog
                                     open={isLinkGroupOpen}
                                     setOpen={setIsLinkGroupOpen}

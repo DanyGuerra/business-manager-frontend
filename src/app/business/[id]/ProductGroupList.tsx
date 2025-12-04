@@ -8,10 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ProductGroup } from "@/lib/useBusinessApi";
+import Link from "next/link";
 
 import CustomDialog from "@/components/customDialog";
 import ProductList from "./ProductList";
-import { Edit2Icon, PlusIcon } from "lucide-react";
+import { Edit2Icon, PlusIcon, ArrowUpRight } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
@@ -120,16 +121,22 @@ export default function ProductGroupList({
           >
             <CardHeader className="bg-muted/20">
               <div className="flex items-start justify-between gap-1">
-                <div className="">
-                  <CardTitle className="text-lg font-bold">
-                    {group.name}
-                  </CardTitle>
+                <Link
+                  href={`/business/${businessId}/menus/${group.id}`}
+                  className="group/link flex flex-col items-center gap-2 transition-colors hover:text-primary w-fit"
+                >
+                  <div className="flex items-center align-start gap-2">
+                    <CardTitle className="text-lg font-bold">
+                      {group.name}
+                    </CardTitle>
+                    <ArrowUpRight className="h-4 w-4 opacity-0 -translate-x-2 transition-all group-hover/link:opacity-100 group-hover/link:translate-x-0" />
+                  </div>
                   {group.description && (
                     <CardDescription className="text-sm line-clamp-2">
                       {group.description}
                     </CardDescription>
                   )}
-                </div>
+                </Link>
                 {isEditMode && (
                   <div className="flex items-center gap-1 shrink-0">
                     <CustomDialog

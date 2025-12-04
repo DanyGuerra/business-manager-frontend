@@ -31,7 +31,7 @@ export default function CustomDialog({
   onOpenChange = () => { },
   open: controlledOpen,
   setOpen: controlledSetOpen,
-  icon = <PlusIcon />,
+  icon = <PlusIcon className="cursor-pointer" />,
   textButtonTrigger,
   trigger,
 }: CustomDialogProps) {

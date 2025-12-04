@@ -165,7 +165,7 @@ export default function ProductCardOptionGroup({
                             modalTitle="Editar grupo"
                             modalDescription={`Editar ${og.name}`}
                             trigger={
-                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted">
+                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted cursor-pointer">
                                     <Edit2Icon className="h-3 w-3" />
                                 </Button>
                             }
