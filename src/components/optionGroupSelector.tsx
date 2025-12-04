@@ -15,17 +15,20 @@ import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { Badge } from "./ui/badge";
 import { Layers } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 type OptionGroupSelectorProps = {
   optionGroups: OptionGroup[];
   productId: string;
   setOpen: (open: boolean) => void;
+  className?: string;
 };
 
 export default function OptionGroupSelector({
   optionGroups = [],
   productId,
   setOpen,
+  className,
 }: OptionGroupSelectorProps) {
   const pgApi = useOptionProductGroupApi();
   const [selectedGroupOption, setSelectedGroupOption] =
@@ -57,8 +60,8 @@ export default function OptionGroupSelector({
   }
 
   return (
-    <section className="flex flex-col w-full gap-4 h-[500px]">
-      <ScrollArea className="flex-1 -mx-1 px-1">
+    <div className="flex flex-col w-full gap-4">
+      <ScrollArea className={cn("h-48 px-1", className)}>
         {optionGroups.length > 0 ? (
           <RadioGroup
             value={selectedGroupOption?.id ?? ""}
@@ -144,6 +147,6 @@ export default function OptionGroupSelector({
           Agregar grupo
         </Button>
       </div>
-    </section>
+    </div>
   );
 }

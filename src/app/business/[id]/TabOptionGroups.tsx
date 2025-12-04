@@ -44,6 +44,9 @@ export default function TabOptionGroups() {
     }
   }
 
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCreateEmptyOpen, setIsCreateEmptyOpen] = useState(false);
+
   async function createOptionGroup(dataDto: ProductOptionGroupValues) {
     try {
       startLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
@@ -57,6 +60,8 @@ export default function TabOptionGroups() {
       toast.success("Grupo de opciones creado correctamente", {
         style: toastSuccessStyle,
       });
+      setIsCreateOpen(false);
+      setIsCreateEmptyOpen(false);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -77,6 +82,8 @@ export default function TabOptionGroups() {
         </h2>
         {isEditMode && (
           <CustomDialog
+            open={isCreateOpen}
+            setOpen={setIsCreateOpen}
             modalTitle="Crear variante del producto"
             modalDescription="Crea un nuevo grupo de opciones para este producto"
           >
@@ -129,6 +136,8 @@ export default function TabOptionGroups() {
           </p>
 
           <CustomDialog
+            open={isCreateEmptyOpen}
+            setOpen={setIsCreateEmptyOpen}
             modalTitle="Crear grupo de opciones"
             modalDescription="Crea un nuevo grupo de opciones para tus productos"
             textButtonTrigger="Crear grupo de opciones"

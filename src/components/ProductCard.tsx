@@ -213,7 +213,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     }
 
     return (
-        <Card className="group relative flex flex-col h-full overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:border-primary/20 px-6">
+        <Card className="group relative flex flex-col overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg hover:border-primary/20 px-6">
             {isEditMode && (
                 <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
                     <CustomDialog

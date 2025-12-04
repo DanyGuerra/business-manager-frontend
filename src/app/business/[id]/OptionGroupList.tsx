@@ -18,7 +18,6 @@ import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import OptionGroupSelector from "@/components/optionGroupSelector";
-import { useProductOptionApi } from "@/lib/useOptionApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
