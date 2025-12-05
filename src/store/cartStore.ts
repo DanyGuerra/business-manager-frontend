@@ -6,8 +6,9 @@ import { Option } from '@/lib/useOptionGroupApi';
 
 
 export type CartItem = {
-    id: string; // Unique ID for the cart item (product_id + options hash)
+    cart_item_id: string; // Unique ID for the cart item (product_id + options hash)
     product: Product;
+    product_id: string;
     selected_options: Option[];
     quantity: number;
     total_price: number;
@@ -39,7 +40,7 @@ export const useCartStore = create<CartState>()(
                 const cartItemId = `${product.id}-${optionsKey}`;
 
                 set((state) => {
-                    const existingItemIndex = state.items.findIndex(item => item.id === cartItemId);
+                    const existingItemIndex = state.items.findIndex(item => item.cart_item_id === cartItemId);
 
                     if (existingItemIndex > -1) {
                         const newItems = [...state.items];
@@ -48,8 +49,9 @@ export const useCartStore = create<CartState>()(
                         return { items: newItems };
                     } else {
                         const newItem: CartItem = {
-                            id: cartItemId,
+                            cart_item_id: cartItemId,
                             product,
+                            product_id: product.id,
                             selected_options: selectedOptions,
                             quantity,
                             total_price: quantity * unitPrice,
@@ -61,7 +63,7 @@ export const useCartStore = create<CartState>()(
 
             removeFromCart: (cartItemId) => {
                 set((state) => ({
-                    items: state.items.filter((item) => item.id !== cartItemId),
+                    items: state.items.filter((item) => item.cart_item_id !== cartItemId),
                 }));
             },
 
@@ -73,7 +75,7 @@ export const useCartStore = create<CartState>()(
 
                 set((state) => {
                     const newItems = state.items.map((item) => {
-                        if (item.id === cartItemId) {
+                        if (item.cart_item_id === cartItemId) {
                             const unitPrice = item.total_price / item.quantity;
                             return {
                                 ...item,

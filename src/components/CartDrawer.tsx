@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/drawer";
 
 import { Button } from "@/components/ui/button";
-import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, X, User, MessageSquare, Utensils, ShoppingBag, Truck } from "lucide-react";
+import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, Utensils, ShoppingBag, Truck } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
@@ -63,6 +63,8 @@ export default function CartDrawer() {
     }
 
     async function handleCheckout(items: CartItem[]) {
+        console.log(items);
+
         try {
             startLoading(LoadingsKeyEnum.CREATE_ORDER);
             const { data: order } = await createOrder({
@@ -86,22 +88,22 @@ export default function CartDrawer() {
 
     return (
         <Drawer open={isOpen} onOpenChange={setIsOpen} >
-            <DrawerTrigger asChild className="fixed bottom-0 right-0 z-50">
+            <DrawerTrigger asChild className="fixed bottom-4 right-4 z-50">
                 <Button
                     className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform cursor-pointer rounded-full"
                 >
                     <div className="relative w-full h-full flex items-center justify-center">
                         <ShoppingCartIcon />
                         {totalItems > 0 && (
-                            <span className="absolute top-0 left-0 bg-destructive text-destructive-foreground text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-background">
+                            <span className="absolute -top-3 -left-3 bg-red-500 text-white text-[12px] font-bold h-6 w-6 flex items-center justify-center rounded-full">
                                 {totalItems}
                             </span>
                         )}
                     </div>
                 </Button>
             </DrawerTrigger>
-            <DrawerContent className="w-full h-full sm:max-w-md p-0 border-l shadow-xl">
-                <div className="flex flex-col h-full w-full">
+            <DrawerContent className="flex flex items-center justify-center w-full h-full p-0 border-l shadow-xl">
+                <div className="flex flex-col h-full sm:w-[70%] md:w-[60%] lg:w-[50%] w-full">
                     <div className="p-6 pt-4 pb-2 border-b shrink-0">
                         <div className="flex items-center gap-2 text-xl font-semibold">
                             <ShoppingCartIcon className="h-5 w-5" />
@@ -109,11 +111,6 @@ export default function CartDrawer() {
                             <Badge variant="secondary" className="ml-auto text-sm font-normal">
                                 {totalItems} {totalItems === 1 ? "item" : "items"}
                             </Badge>
-                            <DrawerClose asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 ml-2 cursor-pointer">
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </DrawerClose>
                         </div>
                     </div>
 
@@ -132,7 +129,7 @@ export default function CartDrawer() {
                             <ScrollArea className="flex-1 min-h-0 w-full">
                                 <div className="flex flex-col gap-6 p-6">
                                     {items.map((item) => (
-                                        <div key={item.id} className="flex gap-4">
+                                        <div key={item.cart_item_id} className="flex gap-4">
                                             <div className="h-20 w-20 rounded-md bg-muted flex-shrink-0 flex items-center justify-center">
                                                 <Package className="h-8 w-8" />
                                             </div>
@@ -166,7 +163,7 @@ export default function CartDrawer() {
                                                             variant="ghost"
                                                             size="icon"
                                                             className="h-8 w-8 rounded-none"
-                                                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                            onClick={() => updateQuantity(item.cart_item_id, item.quantity - 1)}
                                                             aria-label={`Disminuir cantidad de ${item.product.name}`}
                                                         >
                                                             <MinusIcon className="h-3 w-3" />
@@ -177,7 +174,7 @@ export default function CartDrawer() {
                                                             variant="ghost"
                                                             size="icon"
                                                             className="h-8 w-8 rounded-none"
-                                                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                            onClick={() => updateQuantity(item.cart_item_id, item.quantity + 1)}
                                                             aria-label={`Aumentar cantidad de ${item.product.name}`}
                                                         >
                                                             <PlusIcon className="h-3 w-3" />
@@ -189,7 +186,7 @@ export default function CartDrawer() {
                                                         variant="ghost"
                                                         size="icon"
                                                         className="cursor-pointer h-8 w-8 text-muted-foreground hover:text-destructive text-destructive"
-                                                        onClick={() => removeFromCart(item.id)}
+                                                        onClick={() => removeFromCart(item.cart_item_id)}
                                                         aria-label={`Eliminar ${item.product.name} del carrito`}
                                                     >
                                                         <Trash2Icon className="h-4 w-4" />
