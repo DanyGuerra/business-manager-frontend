@@ -30,6 +30,7 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "@/components/buttonLoading";
 import { InputPassword } from "@/components/inputPassword";
 import { handleApiError } from "@/utils/handleApiError";
+import { useUserStore } from "@/store/useUserStore";
 
 const loginSchema = z.object({
   email: z.email("Ingresa un correo electronico valido"),
@@ -40,7 +41,9 @@ type LoginValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const { loadings, startLoading, stopLoading } = useLoadingStore();
+  const { setUser, setIsLoading } = useUserStore();
   const { setAccessToken } = useAuth();
+  const authApi = useAuthApi();
   const router = useRouter();
   const businessApi = useAuthApi();
 
@@ -54,18 +57,23 @@ export default function Login() {
 
   async function onSubmit(dataUser: LoginValues) {
     startLoading(LoadingsKeyEnum.LOGIN);
+    setIsLoading(true)
     try {
-      const { data } = await businessApi.login(dataUser);
+      const { data: { access_token } } = await businessApi.login(dataUser);
+      const { data: userData } = await authApi.getMe();
+      setAccessToken(access_token);
+      setUser(userData);
 
-      setAccessToken(data.access_token);
       toast.success("Inicio de sesión exitoso", {
         style: toastSuccessStyle,
       });
+
       router.push("/profile");
     } catch (error) {
       handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.LOGIN);
+      setIsLoading(false)
     }
   }
 

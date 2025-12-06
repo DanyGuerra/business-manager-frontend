@@ -19,45 +19,29 @@ import {
   Lock
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthApi } from "@/lib/useAuthApi";
-import { User } from "@/app/types/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FormUpdateName from "@/components/formUpdateName";
 import FormUpdatePassword from "@/components/formUpdatePassword";
+import { useUser } from "@/hooks/useUser";
 
 export default function ProfilePage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
-  const [user, setUser] = useState<User | null>(null);
+  const { user, setUser, isLoading } = useUser();
   const businessApi = useBusinessApi();
-  const authApi = useAuthApi();
-  const { startLoading, stopLoading } = useLoadingStore();
+  const { startLoading, stopLoading, loadings } = useLoadingStore();
   const [open, setOpen] = useState<boolean>(false);
   const [openPassword, setOpenPassword] = useState<boolean>(false);
   const [openName, setOpenName] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   async function getBusiness() {
     try {
-      setIsLoading(true);
+      startLoading(LoadingsKeyEnum.GET_BUSINESS);
       const { data } = await businessApi.getMyBusinesses();
       setBusinesses(data);
     } catch (error) {
       handleApiError(error);
     } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function getUser() {
-    try {
-      setIsLoadingUser(true);
-      const { data } = await authApi.getMe();
-      setUser(data);
-    } catch (error) {
-      handleApiError(error);
-    } finally {
-      setIsLoadingUser(false);
+      stopLoading(LoadingsKeyEnum.GET_BUSINESS);
     }
   }
 
@@ -77,7 +61,6 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getBusiness();
-    getUser();
   }, []);
 
   return (
@@ -89,7 +72,7 @@ export default function ProfilePage() {
             Gestiona tu información personal
           </p>
         </div>
-        {isLoadingUser ? (
+        {isLoading ? (
           <Card>
             <CardHeader className="flex flex-row items-center gap-4">
               <Skeleton className="h-16 w-16 rounded-full" />
@@ -205,7 +188,7 @@ export default function ProfilePage() {
       </section>
 
       {
-        isLoading ? (
+        loadings[LoadingsKeyEnum.GET_BUSINESS] ? (
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="flex flex-col space-y-3">
