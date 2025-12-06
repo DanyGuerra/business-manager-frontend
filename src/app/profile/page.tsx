@@ -61,7 +61,7 @@ export default function ProfilePage() {
     }
   }
 
-  async function handleSubmit(dataCreate: CreateBusinessValues) {
+  async function handleCreateBusiness(dataCreate: CreateBusinessValues) {
     try {
       startLoading(LoadingsKeyEnum.CREATE_BUSINESS);
       await businessApi.createBusiness(dataCreate);
@@ -187,6 +187,8 @@ export default function ProfilePage() {
         <CustomDialog
           modalTitle="Crear negocio"
           modalDescription="Ingresa los datos para registrar un nuevo negocio"
+          open={open}
+          setOpen={setOpen}
           trigger={
             <Button className="w-full sm:w-auto gap-2 cursor-pointer">
               <Plus className="h-4 w-4" />
@@ -196,7 +198,7 @@ export default function ProfilePage() {
         >
           <FormBusiness
             buttonTitle="Crear negocio"
-            handleSubmitButton={handleSubmit}
+            handleSubmitButton={handleCreateBusiness}
             loadingKey={LoadingsKeyEnum.CREATE_BUSINESS}
           />
         </CustomDialog>
