@@ -37,7 +37,7 @@ export default function FormBusiness({
 }: PropsFormBusiness) {
   const form = useForm<CreateBusinessValues>({
     resolver: zodResolver(createBusinessSchema),
-    defaultValues,
+    defaultValues: { ...defaultValues, address: defaultValues?.address || "" },
   });
 
   const { loadings } = useLoadingStore();
