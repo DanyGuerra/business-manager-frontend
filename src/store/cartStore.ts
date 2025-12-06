@@ -15,21 +15,22 @@ export type CartItem = {
 };
 
 type CartState = {
-    items: CartItem[];
-    addToCart: (product: Product, selectedOptions: Option[], quantity: number) => void;
-    removeFromCart: (cartItemId: string) => void;
-    updateQuantity: (cartItemId: string, quantity: number) => void;
-    clearCart: () => void;
-    getTotalPrice: () => number;
-    getTotalItems: () => number;
+    carts: Record<string, CartItem[]>;
+    addToCart: (businessId: string, product: Product, selectedOptions: Option[], quantity: number) => void;
+    removeFromCart: (businessId: string, cartItemId: string) => void;
+    updateQuantity: (businessId: string, cartItemId: string, quantity: number) => void;
+    clearCart: (businessId: string) => void;
+    getTotalPrice: (businessId: string) => number;
+    getTotalItems: (businessId: string) => number;
+    getItems: (businessId: string) => CartItem[];
 };
 
 export const useCartStore = create<CartState>()(
     persist(
         (set, get) => ({
-            items: [],
+            carts: {},
 
-            addToCart: (product, selectedOptions, quantity) => {
+            addToCart: (businessId, product, selectedOptions, quantity) => {
                 const optionsPrice = selectedOptions.reduce((acc, opt) => acc + opt.price, 0);
                 const unitPrice = product.base_price + optionsPrice;
 
@@ -40,13 +41,14 @@ export const useCartStore = create<CartState>()(
                 const cartItemId = `${product.id}-${optionsKey}`;
 
                 set((state) => {
-                    const existingItemIndex = state.items.findIndex(item => item.cart_item_id === cartItemId);
+                    const currentCart = state.carts[businessId] || [];
+                    const existingItemIndex = currentCart.findIndex(item => item.cart_item_id === cartItemId);
 
+                    let newCart;
                     if (existingItemIndex > -1) {
-                        const newItems = [...state.items];
-                        newItems[existingItemIndex].quantity += quantity;
-                        newItems[existingItemIndex].total_price = newItems[existingItemIndex].quantity * unitPrice;
-                        return { items: newItems };
+                        newCart = [...currentCart];
+                        newCart[existingItemIndex].quantity += quantity;
+                        newCart[existingItemIndex].total_price = newCart[existingItemIndex].quantity * unitPrice;
                     } else {
                         const newItem: CartItem = {
                             cart_item_id: cartItemId,
@@ -56,25 +58,36 @@ export const useCartStore = create<CartState>()(
                             quantity,
                             total_price: quantity * unitPrice,
                         };
-                        return { items: [...state.items, newItem] };
+                        newCart = [...currentCart, newItem];
                     }
+
+                    return {
+                        carts: {
+                            ...state.carts,
+                            [businessId]: newCart
+                        }
+                    };
                 });
             },
 
-            removeFromCart: (cartItemId) => {
+            removeFromCart: (businessId, cartItemId) => {
                 set((state) => ({
-                    items: state.items.filter((item) => item.cart_item_id !== cartItemId),
+                    carts: {
+                        ...state.carts,
+                        [businessId]: (state.carts[businessId] || []).filter((item) => item.cart_item_id !== cartItemId)
+                    }
                 }));
             },
 
-            updateQuantity: (cartItemId, quantity) => {
+            updateQuantity: (businessId, cartItemId, quantity) => {
                 if (quantity <= 0) {
-                    get().removeFromCart(cartItemId);
+                    get().removeFromCart(businessId, cartItemId);
                     return;
                 }
 
                 set((state) => {
-                    const newItems = state.items.map((item) => {
+                    const currentCart = state.carts[businessId] || [];
+                    const newCart = currentCart.map((item) => {
                         if (item.cart_item_id === cartItemId) {
                             const unitPrice = item.total_price / item.quantity;
                             return {
@@ -85,19 +98,36 @@ export const useCartStore = create<CartState>()(
                         }
                         return item;
                     });
-                    return { items: newItems };
+
+                    return {
+                        carts: {
+                            ...state.carts,
+                            [businessId]: newCart
+                        }
+                    };
                 });
             },
 
-            clearCart: () => set({ items: [] }),
+            clearCart: (businessId) => set((state) => ({
+                carts: {
+                    ...state.carts,
+                    [businessId]: []
+                }
+            })),
 
-            getTotalPrice: () => {
-                return get().items.reduce((acc, item) => acc + item.total_price, 0);
+            getTotalPrice: (businessId) => {
+                const cart = get().carts[businessId] || [];
+                return cart.reduce((acc, item) => acc + item.total_price, 0);
             },
 
-            getTotalItems: () => {
-                return get().items.reduce((acc, item) => acc + item.quantity, 0);
+            getTotalItems: (businessId) => {
+                const cart = get().carts[businessId] || [];
+                return cart.reduce((acc, item) => acc + item.quantity, 0);
             },
+
+            getItems: (businessId) => {
+                return get().carts[businessId] || [];
+            }
         }),
         {
             name: 'shopping-cart-storage',

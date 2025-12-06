@@ -117,7 +117,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             });
         });
 
-        addToCart(product, cartOptions, quantity);
+        addToCart(businessId, product, cartOptions, quantity);
         toast.success("Producto agregado al carrito", { style: toastSuccessStyle });
 
         setSelectedOptions({});

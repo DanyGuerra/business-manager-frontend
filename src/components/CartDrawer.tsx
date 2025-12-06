@@ -42,7 +42,7 @@ type OrderDetails = {
 }
 
 export default function CartDrawer() {
-    const { items, updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart } = useCartStore();
+    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getItems } = useCartStore();
     const { businessId } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
@@ -54,8 +54,9 @@ export default function CartDrawer() {
         consumptionType: ConsumptionType.DINE_IN
     });
 
-    const totalItems = getTotalItems();
-    const totalPrice = getTotalPrice();
+    const items = getItems(businessId);
+    const totalItems = getTotalItems(businessId);
+    const totalPrice = getTotalPrice(businessId);
 
     async function createOrder(data: Partial<CreateOrderDto>) {
         return await ordersApi.createOrder(data, businessId);
@@ -77,7 +78,7 @@ export default function CartDrawer() {
             }, businessId);
 
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
-            clearCart();
+            clearCart(businessId);
             setIsOpen(false);
         } catch (error) {
             handleApiError(error)
@@ -163,7 +164,7 @@ export default function CartDrawer() {
                                                             variant="ghost"
                                                             size="icon"
                                                             className="h-8 w-8 rounded-none"
-                                                            onClick={() => updateQuantity(item.cart_item_id, item.quantity - 1)}
+                                                            onClick={() => updateQuantity(businessId, item.cart_item_id, item.quantity - 1)}
                                                             aria-label={`Disminuir cantidad de ${item.product.name}`}
                                                         >
                                                             <MinusIcon className="h-3 w-3" />
@@ -174,7 +175,7 @@ export default function CartDrawer() {
                                                             variant="ghost"
                                                             size="icon"
                                                             className="h-8 w-8 rounded-none"
-                                                            onClick={() => updateQuantity(item.cart_item_id, item.quantity + 1)}
+                                                            onClick={() => updateQuantity(businessId, item.cart_item_id, item.quantity + 1)}
                                                             aria-label={`Aumentar cantidad de ${item.product.name}`}
                                                         >
                                                             <PlusIcon className="h-3 w-3" />
@@ -186,7 +187,7 @@ export default function CartDrawer() {
                                                         variant="ghost"
                                                         size="icon"
                                                         className="cursor-pointer h-8 w-8 text-muted-foreground hover:text-destructive text-destructive"
-                                                        onClick={() => removeFromCart(item.cart_item_id)}
+                                                        onClick={() => removeFromCart(businessId, item.cart_item_id)}
                                                         aria-label={`Eliminar ${item.product.name} del carrito`}
                                                     >
                                                         <Trash2Icon className="h-4 w-4" />
