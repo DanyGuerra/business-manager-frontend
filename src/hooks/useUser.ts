@@ -35,7 +35,6 @@ export function useUser() {
                 stopLoading(LoadingsKeyEnum.GET_USER);
             }
         })();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isChecked, user]);
 
     return { user, isLoading, logout, setUser };

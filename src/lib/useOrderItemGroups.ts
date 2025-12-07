@@ -2,6 +2,34 @@ import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 import { Order } from "./useOrdersApi";
+import { Option } from "./useOptionGroupApi";
+import { Product } from "./useBusinessApi";
+
+export interface OrderItemOption {
+    id: string;
+    price: string;
+    productOption: Option[]
+}
+
+export interface OrderItemOptionDetail {
+    name: string;
+    price: number;
+    product_option_id: string;
+    order_item_option_id: string;
+}
+
+type OptionGroupName = string;
+
+export interface OrderItem {
+    id: string;
+    quantity: number;
+    is_ready: boolean;
+    product: Partial<Product>
+    item_total: string;
+    created_at: string;
+    updated_at: string;
+    grouped_options: Record<OptionGroupName, OrderItemOptionDetail[]>;
+}
 
 interface CreateOrderItemGroupDto {
     order_id: string,
@@ -10,10 +38,11 @@ interface CreateOrderItemGroupDto {
 
 export interface OrderItemGroup {
     id: string
-    order: Order
     name: string
     subtotal: string
+    items: OrderItem[]
     created_at: string
+    deleted_at: string
 }
 
 export function userOrderItemGroupsApi() {

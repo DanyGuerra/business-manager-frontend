@@ -1,7 +1,7 @@
 import { ApiResponse, User } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
-import { Business } from "./useBusinessApi";
+import { OrderItemGroup } from "./useOrderItemGroups";
 
 export enum ConsumptionType {
     DINE_IN = 'dine_in',
@@ -31,22 +31,33 @@ export type CreateOrderDto = {
 export interface Order {
     id: string
     customer_name: string
-    business: Business
-    user: User
     total: string
-    amount_paid: any
-    change: any
+    amount_paid: string | null
+    change: string | null
     status: string
     paid: boolean
-    delivered_at: any
-    scheduled_at: any
+    delivered_at: string | null
+    scheduled_at: string | null
     consumption_type: string
     notes: string
     created_at: string
     updated_at: string
+    itemGroups: OrderItemGroup[]
+    orderLabels: any[]
+    deleted_at: string | null
 }
 
 
+
+export type CreateFullOrderItemDto = {
+    product_id: string;
+    selected_options_ids: string[];
+    quantity: number;
+}
+
+export type CreateFullOrderDto = CreateOrderDto & {
+    items: CreateFullOrderItemDto[];
+}
 
 export function useOrdersApi() {
     const api = useAxios();
@@ -58,6 +69,17 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-
+        createFullOrder: (data: CreateFullOrderDto, businessId: string) =>
+            api
+                .post<ApiResponse<Order>>("/orders/full", data, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
+        getOrdersByBusinessId: (businessId: string) =>
+            api
+                .get<ApiResponse<Order[]>>("/orders/business", {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
     };
 }

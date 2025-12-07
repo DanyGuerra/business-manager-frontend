@@ -136,7 +136,7 @@ export default function BusinessLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <div className="flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-6">
           <div className="w-full">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:space-y-0 pb-2">
               <div className="flex flex-col gap-2">
