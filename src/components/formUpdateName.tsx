@@ -83,7 +83,7 @@ export default function FormUpdateName({
                     )}
                 />
                 <div className="flex items-center justify-end">
-                    <Button className="cursor-pointer" type="submit" disabled={loadings["UPDATE_NAME"] || !form.formState.isDirty}>
+                    <Button type="submit" disabled={loadings["UPDATE_NAME"] || !form.formState.isDirty}>
                         {loadings["UPDATE_NAME"] && (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}

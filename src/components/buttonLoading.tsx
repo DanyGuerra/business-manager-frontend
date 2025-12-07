@@ -21,7 +21,7 @@ export default function ButtonLoading({
   return (
     <Button
       type="submit"
-      className={`w-full cursor-pointer ${className}`}
+      className={`w-full ${className}`}
       disabled={disabled || loadingState}
       onClick={onClick}
       size={size}

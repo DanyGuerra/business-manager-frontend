@@ -45,7 +45,7 @@ export default function Header() {
           ) : user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full cursor-pointer">
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                   <Avatar className="h-10 w-10">
                     <AvatarImage
                       src={`https://avatar.vercel.sh/${user.email}`}
@@ -80,7 +80,7 @@ export default function Header() {
             </DropdownMenu>
           ) : (
             <Link href="/login">
-              <Button className="cursor-pointer">Iniciar sesión</Button>
+              <Button>Iniciar sesión</Button>
             </Link>
           )}
         </div>

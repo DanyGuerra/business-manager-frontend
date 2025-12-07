@@ -22,13 +22,13 @@ type DeleteDialogConfirmationProps = {
 export function DeleteDialogConfirmation({
   title = "¿Estás completamente seguro?",
   description,
-  handleCancel = () => {},
+  handleCancel = () => { },
   handleContinue,
 }: DeleteDialogConfirmationProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="icon" className="size-7 cursor-pointer">
+        <Button variant="outline" size="icon" className="size-7">
           <Trash2Icon className="text-red-400"></Trash2Icon>
         </Button>
       </AlertDialogTrigger>

@@ -157,7 +157,7 @@ export default function OptionGroupSelector({
       <div className="pt-2 border-t mt-auto">
         <Button
           disabled={!selectedGroupOption}
-          className="w-full h-11 text-base shadow-sm cursor-pointer"
+          className="w-full h-11 text-base shadow-sm"
           onClick={handleAddOptionGroup}
         >
           Agregar grupo

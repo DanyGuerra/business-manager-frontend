@@ -54,12 +54,12 @@ export default function CustomDialog({
         {trigger ? (
           trigger
         ) : textButtonTrigger ? (
-          <Button className="cursor-pointer">{textButtonTrigger}</Button>
+          <Button>{textButtonTrigger}</Button>
         ) : (
           <Button
             variant="outline"
             size="icon"
-            className="size-7 cursor-pointer"
+            className="size-7"
           >
             {icon}
           </Button>

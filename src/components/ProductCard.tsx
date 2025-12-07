@@ -225,7 +225,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                             <Button
                                 variant="secondary"
                                 size="icon"
-                                className="h-8 w-8 shadow-sm hover:bg-background cursor-pointer"
+                                className="h-8 w-8 shadow-sm hover:bg-background"
                             >
                                 <Edit2Icon className="h-4 w-4" />
                             </Button>
@@ -315,7 +315,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 handleOpenLinkDialog();
@@ -342,7 +342,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                                            className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2"
                                             onClick={(e) => {
                                                 e.preventDefault();
                                                 setIsCreateGroupOpen(true);
@@ -372,7 +372,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-none cursor-pointer"
+                                    className="h-8 w-8 rounded-none"
                                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                     disabled={quantity <= 1}
                                 >
@@ -389,14 +389,14 @@ export default function ProductCard({ product }: ProductCardProps) {
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 rounded-none cursor-pointer"
+                                    className="h-8 w-8 rounded-none"
                                     onClick={() => setQuantity(quantity + 1)}
                                 >
                                     <PlusIcon className="h-3 w-3" />
                                 </Button>
                             </div>
                             <Button
-                                className="flex-1 gap-2 cursor-pointer"
+                                className="flex-1 gap-2"
                                 disabled={!isValidSelection}
                                 onClick={handleAddToCart}
                             >

@@ -77,7 +77,7 @@ export default function CartDrawer() {
         <Drawer open={isOpen} onOpenChange={setIsOpen} >
             <DrawerTrigger asChild className="fixed bottom-4 right-4 z-50">
                 <Button
-                    className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform cursor-pointer rounded-full"
+                    className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform rounded-full"
                 >
                     <div className="relative w-full h-full flex items-center justify-center">
                         <ShoppingCartIcon />
@@ -107,7 +107,7 @@ export default function CartDrawer() {
                                 <ShoppingCartIcon className="h-8 w-8 opacity-50" />
                             </div>
                             <p className="text-lg font-medium">Tu carrito está vacío</p>
-                            <Button className="cursor-pointer" type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
                                 Seguir comprando
                             </Button>
                         </div>
@@ -172,7 +172,7 @@ export default function CartDrawer() {
                                                         type="button"
                                                         variant="ghost"
                                                         size="icon"
-                                                        className="cursor-pointer h-8 w-8 text-muted-foreground hover:text-destructive text-destructive"
+                                                        className="h-8 w-8 text-muted-foreground hover:text-destructive text-destructive"
                                                         onClick={() => removeFromCart(businessId, item.cart_item_id)}
                                                         aria-label={`Eliminar ${item.product.name} del carrito`}
                                                     >
@@ -262,7 +262,7 @@ export default function CartDrawer() {
                                 <div className="flex flex-col gap-1">
                                     <ButtonLoading loadingState={loadings[LoadingsKeyEnum.CREATE_ORDER]} onClick={() => handleConfirmOrder(items)} buttonTitle="Confirmar pedido" className="text-base font-bold" size="lg" />
                                     <DrawerClose asChild>
-                                        <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md cursor-pointer mt-2">
+                                        <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md mt-2">
                                             Cerrar
                                         </Button>
                                     </DrawerClose>
