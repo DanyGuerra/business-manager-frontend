@@ -54,7 +54,7 @@ export default function TabProducts({
 
             await productApi.createProduct([productDto], businessId);
             await getProducts();
-            await getBusiness(businessId); // Refresh business to update menus if needed
+            await getBusiness(businessId);
             toast.success("Producto creado exitosamente", { style: toastSuccessStyle });
         } catch (error) {
             handleApiError(error);

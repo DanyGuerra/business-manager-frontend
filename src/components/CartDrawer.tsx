@@ -35,52 +35,38 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import ButtonLoading from "./buttonLoading";
 import { userOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
 
-type OrderDetails = {
-    customerName: string;
-    comments: string;
-    consumptionType: ConsumptionType;
-}
+
 
 export default function CartDrawer() {
-    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getItems } = useCartStore();
+    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getItems, getOrderDetails, setOrderDetails } = useCartStore();
     const { businessId } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
-    const orderItemGroupsApi = userOrderItemGroupsApi();
     const [isOpen, setIsOpen] = useState(false);
-    const [orderDetails, setOrderDetails] = useState<OrderDetails>({
-        customerName: "",
-        comments: "",
-        consumptionType: ConsumptionType.DINE_IN
-    });
 
     const items = getItems(businessId);
     const totalItems = getTotalItems(businessId);
     const totalPrice = getTotalPrice(businessId);
 
-    async function createOrder(data: Partial<CreateOrderDto>) {
-        return await ordersApi.createOrder(data, businessId);
-
-    }
-
-    async function handleCheckout(items: CartItem[]) {
-        console.log(items);
-
+    async function handleConfirmOrder(items: CartItem[]) {
         try {
             startLoading(LoadingsKeyEnum.CREATE_ORDER);
-            const { data: order } = await createOrder({
-                customer_name: orderDetails.customerName,
-                notes: orderDetails.comments,
-                consumption_type: orderDetails.consumptionType
-            });
-            const { data } = await orderItemGroupsApi.createOrderItemGroup({
-                order_id: order.id,
+            const details = getOrderDetails(businessId);
+            await ordersApi.createFullOrder({
+                customer_name: details.customerName,
+                notes: details.comments,
+                consumption_type: details.consumptionType,
+                items: items.map((item) => ({
+                    product_id: item.product_id,
+                    selected_options_ids: item.selected_options_ids,
+                    quantity: item.quantity,
+                })),
             }, businessId);
-
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
             clearCart(businessId);
             setIsOpen(false);
         } catch (error) {
+            console.error(error);
             handleApiError(error)
         } finally {
             stopLoading(LoadingsKeyEnum.CREATE_ORDER);
@@ -121,7 +107,7 @@ export default function CartDrawer() {
                                 <ShoppingCartIcon className="h-8 w-8 opacity-50" />
                             </div>
                             <p className="text-lg font-medium">Tu carrito está vacío</p>
-                            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                            <Button className="cursor-pointer" type="button" variant="outline" onClick={() => setIsOpen(false)}>
                                 Seguir comprando
                             </Button>
                         </div>
@@ -216,8 +202,8 @@ export default function CartDrawer() {
                                             <Input
                                                 id="buyer-name"
                                                 placeholder="Ej. Juan Pérez"
-                                                value={orderDetails.customerName}
-                                                onChange={(e) => setOrderDetails(prev => ({ ...prev, customerName: e.target.value }))}
+                                                value={getOrderDetails(businessId).customerName}
+                                                onChange={(e) => setOrderDetails(businessId, { customerName: e.target.value })}
                                                 className="h-8 text-sm bg-background"
                                             />
                                         </div>
@@ -226,16 +212,17 @@ export default function CartDrawer() {
                                             <Input
                                                 id="comments"
                                                 placeholder="Ej. Sin cebolla, salsa aparte..."
-                                                value={orderDetails.comments}
-                                                onChange={(e) => setOrderDetails(prev => ({ ...prev, comments: e.target.value }))}
+                                                value={getOrderDetails(businessId).comments}
+                                                onChange={(e) => setOrderDetails(businessId, { comments: e.target.value })}
                                                 className="h-8 text-sm bg-background"
                                             />
                                         </div>
                                         <div className="">
                                             <Label htmlFor="consumption-type" className="text-xs font-medium">Tipo de consumo</Label>
                                             <Tabs
-                                                value={orderDetails.consumptionType}
-                                                onValueChange={(value) => setOrderDetails(prev => ({ ...prev, consumptionType: value as ConsumptionType }))}
+                                                defaultValue={ConsumptionType.TAKE_AWAY}
+                                                value={getOrderDetails(businessId).consumptionType}
+                                                onValueChange={(value) => setOrderDetails(businessId, { consumptionType: value as ConsumptionType })}
                                                 className="w-full"
                                             >
                                                 <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
@@ -273,7 +260,7 @@ export default function CartDrawer() {
                                     </div>
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <ButtonLoading loadingState={loadings[LoadingsKeyEnum.CREATE_ORDER]} onClick={() => handleCheckout(items)} buttonTitle="Confirmar pedido" className="text-base font-bold" size="lg" />
+                                    <ButtonLoading loadingState={loadings[LoadingsKeyEnum.CREATE_ORDER]} onClick={() => handleConfirmOrder(items)} buttonTitle="Confirmar pedido" className="text-base font-bold" size="lg" />
                                     <DrawerClose asChild>
                                         <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md cursor-pointer mt-2">
                                             Cerrar

@@ -364,7 +364,6 @@ export default function ProductCard({ product }: ProductCardProps) {
                     </div>
                 </div>
 
-                {/* Add to Cart Section */}
                 {!isEditMode && product.available && (
                     <div className="pt-4 mt-auto space-y-3">
                         <Separator className="opacity-50" />
