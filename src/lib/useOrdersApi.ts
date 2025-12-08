@@ -55,8 +55,13 @@ export type CreateFullOrderItemDto = {
     quantity: number;
 }
 
-export type CreateFullOrderDto = CreateOrderDto & {
+export type GroupItemsDto = {
+    group_name: string;
     items: CreateFullOrderItemDto[];
+}
+
+export type CreateFullOrderDto = CreateOrderDto & {
+    group_items: GroupItemsDto[];
 }
 
 export function useOrdersApi() {
