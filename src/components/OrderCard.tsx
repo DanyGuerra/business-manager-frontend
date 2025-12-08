@@ -1,14 +1,20 @@
 
-import { Order, OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
+import { Order, OrderStatus, ConsumptionType, useOrdersApi } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, FileText, Calendar } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, FileText, Calendar, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
+import CustomDialog from "./customDialog";
+import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
+import { useEditModeStore } from "@/store/editModeStore";
+import { useBusinessStore } from "@/store/businessStore";
 
 interface OrderCardProps {
     order: Order;
+    onDelete: (orderId: string, businessId: string) => void;
 }
 
 const getStatusColor = (status: string) => {
@@ -67,7 +73,10 @@ const getConsumptionLabel = (type: string) => {
     }
 };
 
-export function OrderCard({ order }: OrderCardProps) {
+export function OrderCard({ order, onDelete }: OrderCardProps) {
+    const { isEditMode } = useEditModeStore();
+    const { businessId } = useBusinessStore();
+
     const date = new Date(order.created_at);
     const timeString = date.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -76,8 +85,11 @@ export function OrderCard({ order }: OrderCardProps) {
         : "Ahora";
 
     return (
-        <Card className="w-full hover:shadow-md transition-shadow duration-200 border-l-[3px] group relative overflow-hidden">
-            <CardHeader className="p-3 pb-2 space-y-0">
+        <Card className={`w-full pt-8 hover:shadow-md transition-shadow duration-200 border-l-[3px] group relative overflow-hidden ${isEditMode ? 'border-dashed border-2' : ''}`}
+            style={!isEditMode ? { borderLeftColor: getStatusColor(order.status).replace('bg-', '').replace('hover:', '').split(' ')[0].replace('500', '600') } : undefined}>
+            {!isEditMode && <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${getStatusColor(order.status)}`} />}
+
+            <CardHeader className="p-3 pb-2 space-y-0 relative">
                 <div className="flex justify-between items-start">
                     <div className="flex flex-col gap-2">
                         <div>
@@ -100,9 +112,34 @@ export function OrderCard({ order }: OrderCardProps) {
                             </div>
                         </div>
                     </div>
-                    <Badge variant="outline" className={`${getStatusColor(order.status)}/10 text-foreground border-0 text-[11px] px-2 py-0.5 h-5 font-semibold capitalize`}>
-                        {getStatusLabel(order.status)}
-                    </Badge>
+
+                    {isEditMode ? (
+                        <div className="flex items-center gap-2 absolute top-2 right-2">
+                            <CustomDialog
+                                modalTitle="Editar orden"
+                                modalDescription="Modifica los detalles de la orden"
+                                trigger={
+                                    <Button variant="outline" size="icon" className="h-7 w-7">
+                                        <Pencil className="h-3.5 w-3.5" />
+                                    </Button>
+                                }
+                            >
+                                <div className="p-4"></div>
+                            </CustomDialog>
+
+                            <DeleteDialogConfirmation
+                                title="Eliminar orden"
+                                description="¿Estás seguro de que deseas eliminar esta orden? Esta acción no se puede deshacer."
+                                handleContinue={async () => {
+                                    onDelete(order.id, businessId);
+                                }}
+                            />
+                        </div>
+                    ) : (
+                        <Badge variant="outline" className={`${getStatusColor(order.status)}/10 text-foreground border-0 text-[11px] px-2 py-0.5 h-5 font-semibold capitalize`}>
+                            {getStatusLabel(order.status)}
+                        </Badge>
+                    )}
                 </div>
             </CardHeader>
 
@@ -135,9 +172,14 @@ export function OrderCard({ order }: OrderCardProps) {
                                                         <Badge
                                                             key={`${groupName}-${i}`}
                                                             variant="outline"
-                                                            className="rounded-full px-2 py-0.5 h-auto min-h-[20px] font-medium bg-primary/10 text-primary border-primary/20 shadow-sm hover:bg-primary/15 transition-colors"
+                                                            className="flex items-baseline rounded-full px-2 py-0.5 h-auto min-h-[20px] font-medium bg-primary/10 text-primary border-primary/20 shadow-sm hover:bg-primary/15 transition-colors"
                                                         >
                                                             {opt.name}
+                                                            {opt.price > 0 && (
+                                                                <span className="ml-1 text-[10px] font-bold text-primary/60">
+                                                                    + {formatCurrency(opt.price)}
+                                                                </span>
+                                                            )}
                                                         </Badge>
                                                     ))}
                                                 </div>
@@ -163,13 +205,13 @@ export function OrderCard({ order }: OrderCardProps) {
 
             <Separator className="opacity-40" />
 
-            <CardFooter className="p-3 pt-2 bg-muted/5 flex justify-between items-center text-xs">
-                <div className="flex flex-col gap-1 text-muted-foreground">
-                    <div className="flex items-center gap-1.5">
+            <CardFooter className="p-3 pt-2 bg-muted/5 flex justify-between items-center text-xs gap-8">
+                <div className="flex flex-col gap-1 text-muted-foreground flex-1">
+                    <div className="flex items-center gap-1.5 w-full">
                         <User className="h-3.5 w-3.5" />
-                        <span className="font-medium truncate max-w-[100px]">{order.customer_name || "Cliente"}</span>
+                        <span className="font-medium">{order.customer_name || "Cliente"}</span>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 w-full">
                         {getConsumptionIcon(order.consumption_type)}
                         <span className="font-medium">{getConsumptionLabel(order.consumption_type)}</span>
                     </div>

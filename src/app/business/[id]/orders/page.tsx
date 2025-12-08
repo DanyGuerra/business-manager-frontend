@@ -4,8 +4,11 @@ import { useOrdersApi, Order } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { useEffect, useState } from "react";
 import { OrderCard } from "@/components/OrderCard";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, ShoppingBag, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
+import { handleApiError } from "@/utils/handleApiError";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 
 export default function OrdersPage() {
   const { businessId } = useBusinessStore();
@@ -24,6 +27,17 @@ export default function OrdersPage() {
       setLoading(false);
     }
   }
+
+  const handleOrderDelete = async (orderId: string, businessId: string) => {
+    try {
+      await ordersApi.deleteOrder(orderId, businessId);
+      getOrders();
+      toast.success("Orden eliminada correctamente", { style: toastSuccessStyle });
+
+    } catch (error) {
+      handleApiError(error);
+    }
+  };
 
   useEffect(() => {
     getOrders();
@@ -44,14 +58,13 @@ export default function OrdersPage() {
 
       <div className="flex-1 p-6 overflow-auto">
         {loading && orders.length === 0 ? (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-[60vh] items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : orders.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground space-y-4">
             <div className="p-4 bg-muted rounded-full">
-              <Loader2 className="h-8 w-8 opacity-0" />
-              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clipboard-list text-muted-foreground/50"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></svg>
+              <ShoppingBag />
             </div>
             <div className="text-center">
               <p className="text-lg font-medium text-foreground">No hay pedidos</p>
@@ -61,7 +74,7 @@ export default function OrdersPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {orders.map(order => (
-              <OrderCard key={order.id} order={order} />
+              <OrderCard key={order.id} order={order} onDelete={handleOrderDelete} />
             ))}
           </div>
         )}
