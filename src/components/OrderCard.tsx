@@ -85,7 +85,7 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
         : "Ahora";
 
     return (
-        <Card className={`w-full pt-8 hover:shadow-md transition-shadow duration-200 border-l-[3px] group relative overflow-hidden ${isEditMode ? 'border-dashed border-2' : ''}`}
+        <Card className={`w-full pt-8 hover:shadow-md transition-shadow duration-200 border-l-[3px] group relative overflow-hidden ${isEditMode ? 'border-dashed border-2 border-primary/40' : ''}`}
             style={!isEditMode ? { borderLeftColor: getStatusColor(order.status).replace('bg-', '').replace('hover:', '').split(' ')[0].replace('500', '600') } : undefined}>
             {!isEditMode && <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${getStatusColor(order.status)}`} />}
 
