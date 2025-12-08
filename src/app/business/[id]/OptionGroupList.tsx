@@ -109,7 +109,7 @@ export default function OptionGroupList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2"
                   onClick={(e) => {
                     e.preventDefault();
                     handleOpenLinkDialog();
@@ -136,7 +136,7 @@ export default function OptionGroupList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2 cursor-pointer"
+                  className="flex-1 h-8 text-xs text-muted-foreground hover:text-primary border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 gap-2"
                   onClick={(e) => {
                     e.preventDefault();
                     setIsCreateGroupOpen(true);

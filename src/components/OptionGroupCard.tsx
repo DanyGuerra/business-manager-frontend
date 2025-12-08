@@ -26,6 +26,7 @@ import {
     useOptionGroupApi,
 } from "@/lib/useOptionGroupApi";
 import { useOptionProductGroupApi } from "@/lib/useOptionProductGroupApi";
+import { cn } from "@/lib/utils";
 
 export type DialogType =
     | null
@@ -162,7 +163,7 @@ export default function OptionGroupCard({
     return (
         <div
             key={og.id}
-            className="border rounded-lg p-4 space-y-4"
+            className={cn("group border rounded-lg p-4 space-y-4", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}
         >
             <div className="">
                 <div className="flex items-start justify-between gap-2">
@@ -192,7 +193,7 @@ export default function OptionGroupCard({
                         </div>
                     </div>
                     {isEditMode && (
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 transition-opacity duration-200">
                             <CustomDialog
                                 modalTitle="Editar grupo de opciones"
                                 modalDescription={`Editar grupo de opcioones "${og.name}"`}

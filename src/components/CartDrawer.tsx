@@ -134,7 +134,7 @@ export default function CartDrawer() {
                                                                 <Badge
                                                                     key={opt.id}
                                                                     variant="outline"
-                                                                    className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground border-dashed"
+                                                                    className="text-[10px] px-1.5 py-0 h-5 font-normal border-2 border-primary/30"
                                                                 >
                                                                     {opt.name}
                                                                 </Badge>

@@ -141,7 +141,7 @@ export default function ProductCardOptionGroup({
     }
 
     return (
-        <div className="flex flex-col gap-3 py-3 border-b border-border/40 last:border-0" >
+        <div className="flex flex-col gap-1.5 border-b border-border/40 last:border-0" >
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <span className={cn("text-sm font-semibold text-foreground", !og.available && "line-through text-muted-foreground")}>
@@ -158,7 +158,7 @@ export default function ProductCardOptionGroup({
                 </div>
 
                 {isEditMode && (
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-1 transition-opacity">
                         <CustomDialog
                             open={isEditGroupOpen}
                             setOpen={setIsEditGroupOpen}
@@ -192,7 +192,7 @@ export default function ProductCardOptionGroup({
 
             <div className={cn("flex flex-wrap gap-2", !isEditMode && "flex-wrap")}>
                 {!isEditMode ? (
-                    <div className="flex flex-wrap gap-2 pb-4">
+                    <div className="flex flex-wrap gap-2 pb-1">
                         {og.options.map((opt) => {
                             const isSelected = selectedOptions.includes(opt.id);
                             return (
@@ -200,10 +200,10 @@ export default function ProductCardOptionGroup({
                                     key={opt.id}
                                     variant={isSelected ? "default" : "outline"}
                                     className={cn(
-                                        "px-2 py-1 text-xs transition-all select-none font-normal",
+                                        "flex items-center transition-all select-none font-normal border-primary/30",
                                         isSelected
                                             ? "border-primary shadow-none"
-                                            : "text-muted-foreground bg-transparent border-dashed hover:bg-accent hover:text-accent-foreground hover:border-solid",
+                                            : "bg-transparent border-solid bg-accent text-accent-foreground",
                                         (!og.available || !opt.available)
                                             ? "opacity-50 cursor-not-allowed"
                                             : "cursor-pointer hover:border-primary/50"
@@ -213,7 +213,7 @@ export default function ProductCardOptionGroup({
                                         onSelect?.(opt.id, isMultiSelect);
                                     }}
                                 >
-                                    {opt.name}
+                                    <span>{opt.name}</span>
                                     {opt.price > 0 && (
                                         <span className="ml-1 text-[10px] opacity-70">
                                             +${opt.price}
@@ -235,7 +235,7 @@ export default function ProductCardOptionGroup({
                                     trigger={
                                         <Badge
                                             variant="outline"
-                                            className="cursor-pointer hover:bg-muted transition-colors pr-1.5"
+                                            className="cursor-pointer hover:bg-muted transition-colors pr-1.5 border-dashed border-1 border-primary/60"
                                         >
                                             {opt.name} {opt.price > 0 && `(+$${opt.price})`}
                                         </Badge>
@@ -263,7 +263,7 @@ export default function ProductCardOptionGroup({
                             open={isAddOptionOpen}
                             setOpen={setIsAddOptionOpen}
                             modalTitle="Agregar opción"
-                            modalDescription={`Agregar a ${og.name}`}
+                            modalDescription={`Agregar a "${og.name}"`}
                             trigger={
                                 <Badge
                                     variant="secondary"

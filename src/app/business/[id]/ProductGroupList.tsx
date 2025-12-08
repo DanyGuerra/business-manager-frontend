@@ -27,6 +27,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useBusinessStore } from "@/store/businessStore";
+import { cn } from "@/lib/utils";
 
 type ProductGroupListProps = {
   productGroups: ProductGroup[];
@@ -117,7 +118,7 @@ export default function ProductGroupList({
         return (
           <Card
             key={group.id}
-            className="overflow-hidden transition-all hover:shadow-md border-muted/60 flex flex-col h-full"
+            className={cn("group overflow-hidden transition-all hover:shadow-md border-muted/60 flex flex-col h-full", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}
           >
             <CardHeader className="bg-muted/20">
               <div className="flex items-start justify-between gap-1">
@@ -138,7 +139,7 @@ export default function ProductGroupList({
                   )}
                 </Link>
                 {isEditMode && (
-                  <div className="flex items-center gap-1 shrink-0">
+                  <div className="flex items-center gap-1 shrink-0 transition-opacity duration-200  ">
                     <CustomDialog
                       modalTitle="Editar menú"
                       modalDescription="Edita el menú de productos"

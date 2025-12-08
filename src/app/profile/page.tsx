@@ -123,7 +123,7 @@ export default function ProfilePage() {
               <CustomDialog
                 open={openPassword}
                 setOpen={setOpenPassword}
-                modalDescription="Ingresa tu contraseña actual y la nueva contraseña" modalTitle="Cambiar contraseña" trigger={<Button className='cursor-pointer' variant="outline">
+                modalDescription="Ingresa tu contraseña actual y la nueva contraseña" modalTitle="Cambiar contraseña" trigger={<Button variant="outline">
                   <Lock className="h-4 w-4" />
                   Cambiar contraseña
                 </Button>}>
@@ -173,7 +173,7 @@ export default function ProfilePage() {
           open={open}
           setOpen={setOpen}
           trigger={
-            <Button className="w-full sm:w-auto gap-2 cursor-pointer">
+            <Button className="w-full sm:w-auto gap-2">
               <Plus className="h-4 w-4" />
               Crear negocio
             </Button>
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             <p className="text-muted-foreground max-w-sm mb-6">
               Comienza creando tu primer negocio para empezar a gestionar tus productos y ventas.
             </p>
-            <Button onClick={() => setOpen(true)} variant="outline" className="gap-2 cursor-pointer">
+            <Button onClick={() => setOpen(true)} variant="outline" className="gap-2">
               <Plus className="h-4 w-4" />
               Crear mi primer negocio
             </Button>
