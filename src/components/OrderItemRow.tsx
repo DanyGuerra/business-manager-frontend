@@ -1,24 +1,46 @@
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { OrderItem } from "@/lib/useOrderItemGroups";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
 
 interface OrderItemRowProps {
     item: OrderItem;
 }
 
 export function OrderItemRow({ item }: OrderItemRowProps) {
+    const [isReady, setIsReady] = useState<boolean>(false);
+
     return (
-        <div className="flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0">
-            <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/5 text-xs font-bold text-primary shadow-sm mt-0.5">
+        <div className={cn(
+            "flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
+            isReady && "opacity-60"
+        )}>
+            <div
+                onClick={() => setIsReady((prev) => !prev)}
+                className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold shadow-sm mt-0.5 cursor-pointer transition-all duration-200 select-none c",
+                    isReady
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
+                )}
+            >
                 {item.quantity}
             </div>
 
             <div className="flex flex-col flex-1 min-w-0 gap-1">
                 <div className="flex justify-between items-start gap-2">
-                    <span className="font-medium text-sm text-foreground leading-tight">
+                    <span className={cn(
+                        "font-medium text-sm text-foreground leading-tight transition-all duration-200",
+                        isReady && "line-through text-muted-foreground"
+                    )}>
                         {item.product.name}
                     </span>
-                    <span className="text-xs font-bold text-foreground/90 whitespace-nowrap">
+                    <span className={cn(
+                        "text-xs font-bold text-foreground/90 whitespace-nowrap transition-all duration-200",
+                        isReady && "text-muted-foreground line-through"
+                    )}>
                         {formatCurrency(item.item_total)}
                     </span>
                 </div>
