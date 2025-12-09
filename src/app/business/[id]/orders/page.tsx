@@ -4,7 +4,7 @@ import { useOrdersApi, Order } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { useEffect, useState } from "react";
 import { OrderCard } from "@/components/OrderCard";
-import { Loader2, RefreshCw, ShoppingBag, ShoppingCart } from "lucide-react";
+import { Loader2, RefreshCw, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";

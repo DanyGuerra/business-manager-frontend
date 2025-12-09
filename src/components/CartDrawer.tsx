@@ -57,7 +57,7 @@ export default function CartDrawer() {
                 customer_name: orderDetails.customerName,
                 notes: orderDetails.comments,
                 consumption_type: orderDetails.consumptionType,
-                group_items: groups.map(group => ({
+                group_items: groups.map((group) => ({
                     group_name: group.group_name,
                     items: group.items.map((item) => ({
                         product_id: item.product_id,

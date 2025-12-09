@@ -8,16 +8,16 @@ interface OrderItemGroupProps {
 
 export function OrderItemGroup({ group }: OrderItemGroupProps) {
     return (
-        <>
+        <div className="border-b border-primary last:border-0 last:pb-0">
             {group.items.map((item, index) => (
-                <div key={item.id + index} className="flex items-start gap-2.5 pb-2 border-b border/9 last:border-0 last:pb-0">
+                <div key={item.id + index} className="flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0">
                     <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border border-primary/20 bg-primary/5 text-xs font-bold text-primary shadow-sm mt-0.5">
                         {item.quantity}
                     </div>
 
-                    <div className="flex flex-col flex-1 min-w-0 gap-0.5">
+                    <div className="flex flex-col flex-1 min-w-0 gap-1">
                         <div className="flex justify-between items-start gap-2">
-                            <span className="font-semibold text-base text-foreground leading-tight">
+                            <span className="font-medium text-sm text-foreground leading-tight">
                                 {item.product.name}
                             </span>
                             <span className="text-xs font-bold text-foreground/90 whitespace-nowrap">
@@ -52,6 +52,6 @@ export function OrderItemGroup({ group }: OrderItemGroupProps) {
                     </div>
                 </div>
             ))}
-        </>
+        </div>
     );
 }

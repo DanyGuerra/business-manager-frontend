@@ -56,7 +56,7 @@ export type CreateFullOrderItemDto = {
 }
 
 export type GroupItemsDto = {
-    group_name: string;
+    group_name: string | null;
     items: CreateFullOrderItemDto[];
 }
 

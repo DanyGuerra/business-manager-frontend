@@ -24,7 +24,7 @@ export type OrderDetails = {
 
 export type CartGroup = {
     group_id: string;
-    group_name: string;
+    group_name: string | null;
     items: CartItem[];
 };
 
@@ -40,7 +40,7 @@ type CartState = {
     clearCart: (businessId: string) => void;
 
     // Group Management
-    addGroup: (businessId: string) => void;
+    addGroup: (businessId: string, name?: string) => void;
     removeGroup: (businessId: string, groupId: string) => void;
     updateGroupName: (businessId: string, groupId: string, name: string) => void;
     selectGroup: (businessId: string, groupId: string) => void;
@@ -102,12 +102,12 @@ export const useCartStore = create<CartState>()(
                 }));
             },
 
-            addGroup: (businessId) => {
+            addGroup: (businessId, name) => {
                 set((state) => {
                     const currentGroups = state.carts[businessId] || [];
                     const newGroup: CartGroup = {
                         group_id: crypto.randomUUID(),
-                        group_name: `Bolsa ${currentGroups.length + 1}`,
+                        group_name: name ?? null,
                         items: []
                     };
                     return {
@@ -173,14 +173,12 @@ export const useCartStore = create<CartState>()(
                         const newGroupId = crypto.randomUUID();
                         currentGroups = [{
                             group_id: newGroupId,
-                            group_name: "Bolsa 1",
+                            group_name: null,
                             items: []
                         }];
                         newSelectedGroupId = newGroupId;
                     }
 
-                    // Determine target group
-                    // Priority: explicit target > currently selected > last created
                     let groupIndex = -1;
 
                     if (targetGroupId) {
@@ -195,11 +193,9 @@ export const useCartStore = create<CartState>()(
                         groupIndex = currentGroups.length - 1;
                     }
 
-                    // Safety check if somehow currentGroups is empty (though handled above)
                     if (groupIndex === -1) groupIndex = 0;
 
                     const targetGroup = currentGroups[groupIndex];
-                    // Also ensure we keep/update selection to where we added
                     newSelectedGroupId = targetGroup.group_id;
 
                     const existingItemIndex = targetGroup.items.findIndex(item => item.cart_item_id === cartItemId);
