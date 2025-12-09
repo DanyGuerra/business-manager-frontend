@@ -144,25 +144,28 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                 </div>
             </CardHeader>
 
-            <Separator className="bg-primary h-[3px]" />
+            <Separator className="bg-primary/40 h-[3px]" />
 
             <CardContent className="p-3 text-sm">
                 <div className="flex flex-col gap-3">
                     {order.itemGroups.map((group, index) => (
-                        <div key={group.id} className="flex flex-col">
-                            {index > 0 && <Separator className="my-3 bg-muted" />}
-                            <OrderItemGroup group={group} />
-                            <div className="flex justify-end items-center mt-2 pt-2 border-t border-dashed border-muted/60">
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">
-                                        Subtotal {group.name}
-                                    </span>
-                                    <span className="text-sm font-bold text-foreground">
-                                        {formatCurrency(group.subtotal)}
-                                    </span>
+                        <>
+                            <div key={group.id} className="flex flex-col">
+                                {index > 0 && <Separator className="my-3 bg-muted" />}
+                                <OrderItemGroup group={group} />
+                                <div className="flex justify-end items-center mt-2 pt-2 border-t border-dashed border-muted/60">
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">
+                                            Subtotal {group.name}
+                                        </span>
+                                        <Badge variant="default" className="text-xs font-semibold">
+                                            {formatCurrency(group.subtotal)}
+                                        </Badge>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                            <Separator className="bg-primary /90 h-[3px]" />
+                        </>
                     ))}
 
                     {order.notes && (
@@ -177,8 +180,6 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                 </div>
             </CardContent>
 
-            <Separator className="bg-primary/80 h-[1px]" />
-
             <CardFooter className="p-3 pt-2 bg-muted/5 flex justify-between items-center text-xs gap-8">
                 <div className="flex flex-col gap-1 text-muted-foreground flex-1">
                     <div className="flex items-center gap-1.5 w-full">
@@ -190,14 +191,14 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                         <span className="font-medium">{getConsumptionLabel(order.consumption_type)}</span>
                     </div>
                 </div>
-                <div className="flex flex-col items-end">
+                <div className="flex flex-col items-end gap-1">
                     <span className="text-[10px] font-semibold text-muted-foreground uppercase">Total</span>
-                    <span className="font-bold text-lg text-primary leading-none">
+                    <Badge variant="default" className="text-sm font-bold">
                         {formatCurrency(order.total)}
-                    </span>
+                    </Badge>
                 </div>
             </CardFooter>
-        </Card>
+        </Card >
     );
 }
 
