@@ -4,7 +4,6 @@ import { Product } from '@/lib/useBusinessApi';
 import { Option } from '@/lib/useOptionGroupApi';
 import { ConsumptionType } from '@/lib/useOrdersApi';
 
-
 type BusinessId = string;
 
 export type CartItem = {
@@ -32,6 +31,7 @@ export type CartGroup = {
 type CartState = {
     carts: Record<BusinessId, CartGroup[]>; // Store groups
     orderDetails: Record<BusinessId, OrderDetails>; // Store global details
+    selectedGroups: Record<BusinessId, string | null>; // Store selected group ID per business
 
     // Actions
     addToCart: (businessId: string, product: Product, selectedOptions: Option[], quantity: number, groupId?: string) => void;
@@ -43,6 +43,7 @@ type CartState = {
     addGroup: (businessId: string) => void;
     removeGroup: (businessId: string, groupId: string) => void;
     updateGroupName: (businessId: string, groupId: string, name: string) => void;
+    selectGroup: (businessId: string, groupId: string) => void;
 
     // Details Management
     setOrderDetails: (businessId: string, details: Partial<OrderDetails>) => void;
@@ -52,6 +53,7 @@ type CartState = {
     getTotalItems: (businessId: string) => number;
     getGroups: (businessId: string) => CartGroup[];
     getOrderDetails: (businessId: string) => OrderDetails;
+    getSelectedGroupId: (businessId: string) => string | null;
 };
 
 const DEFAULT_ORDER_DETAILS: OrderDetails = {
@@ -65,6 +67,7 @@ export const useCartStore = create<CartState>()(
         (set, get) => ({
             carts: {},
             orderDetails: {},
+            selectedGroups: {},
 
             getGroups: (businessId) => {
                 return get().carts[businessId] || [];
@@ -72,6 +75,10 @@ export const useCartStore = create<CartState>()(
 
             getOrderDetails: (businessId) => {
                 return get().orderDetails[businessId] || DEFAULT_ORDER_DETAILS;
+            },
+
+            getSelectedGroupId: (businessId) => {
+                return get().selectedGroups[businessId] || null;
             },
 
             setOrderDetails: (businessId, details) => {
@@ -82,6 +89,15 @@ export const useCartStore = create<CartState>()(
                             ...(state.orderDetails[businessId] || DEFAULT_ORDER_DETAILS),
                             ...details
                         }
+                    }
+                }));
+            },
+
+            selectGroup: (businessId, groupId) => {
+                set((state) => ({
+                    selectedGroups: {
+                        ...state.selectedGroups,
+                        [businessId]: groupId
                     }
                 }));
             },
@@ -98,18 +114,36 @@ export const useCartStore = create<CartState>()(
                         carts: {
                             ...state.carts,
                             [businessId]: [...currentGroups, newGroup]
+                        },
+                        selectedGroups: {
+                            ...state.selectedGroups,
+                            [businessId]: newGroup.group_id
                         }
                     };
                 });
             },
 
             removeGroup: (businessId, groupId) => {
-                set((state) => ({
-                    carts: {
-                        ...state.carts,
-                        [businessId]: (state.carts[businessId] || []).filter(g => g.group_id !== groupId)
+                set((state) => {
+                    const remainingGroups = (state.carts[businessId] || []).filter(g => g.group_id !== groupId);
+                    let newSelectedGroupId = state.selectedGroups[businessId];
+
+                    // If deleted group was selected, select the last available one or null
+                    if (newSelectedGroupId === groupId) {
+                        newSelectedGroupId = remainingGroups.length > 0 ? remainingGroups[remainingGroups.length - 1].group_id : null;
                     }
-                }));
+
+                    return {
+                        carts: {
+                            ...state.carts,
+                            [businessId]: remainingGroups
+                        },
+                        selectedGroups: {
+                            ...state.selectedGroups,
+                            [businessId]: newSelectedGroupId
+                        }
+                    };
+                });
             },
 
             updateGroupName: (businessId, groupId, name) => {
@@ -133,24 +167,41 @@ export const useCartStore = create<CartState>()(
 
                 set((state) => {
                     let currentGroups = state.carts[businessId] || [];
+                    let newSelectedGroupId = state.selectedGroups[businessId];
 
                     if (currentGroups.length === 0) {
+                        const newGroupId = crypto.randomUUID();
                         currentGroups = [{
-                            group_id: crypto.randomUUID(),
+                            group_id: newGroupId,
                             group_name: "Bolsa 1",
                             items: []
                         }];
+                        newSelectedGroupId = newGroupId;
                     }
 
-                    let groupIndex = 0;
+                    // Determine target group
+                    // Priority: explicit target > currently selected > last created
+                    let groupIndex = -1;
+
                     if (targetGroupId) {
                         groupIndex = currentGroups.findIndex(g => g.group_id === targetGroupId);
-                        if (groupIndex === -1) groupIndex = 0;
-                    } else {
+                    }
+
+                    if (groupIndex === -1 && newSelectedGroupId) {
+                        groupIndex = currentGroups.findIndex(g => g.group_id === newSelectedGroupId);
+                    }
+
+                    if (groupIndex === -1) {
                         groupIndex = currentGroups.length - 1;
                     }
 
+                    // Safety check if somehow currentGroups is empty (though handled above)
+                    if (groupIndex === -1) groupIndex = 0;
+
                     const targetGroup = currentGroups[groupIndex];
+                    // Also ensure we keep/update selection to where we added
+                    newSelectedGroupId = targetGroup.group_id;
+
                     const existingItemIndex = targetGroup.items.findIndex(item => item.cart_item_id === cartItemId);
 
                     let newItems = [...targetGroup.items];
@@ -181,6 +232,10 @@ export const useCartStore = create<CartState>()(
                         carts: {
                             ...state.carts,
                             [businessId]: newGroups
+                        },
+                        selectedGroups: {
+                            ...state.selectedGroups,
+                            [businessId]: newSelectedGroupId
                         }
                     };
                 });
@@ -243,6 +298,10 @@ export const useCartStore = create<CartState>()(
                 orderDetails: {
                     ...state.orderDetails,
                     [businessId]: DEFAULT_ORDER_DETAILS
+                },
+                selectedGroups: {
+                    ...state.selectedGroups,
+                    [businessId]: null
                 }
             })),
 
@@ -263,7 +322,7 @@ export const useCartStore = create<CartState>()(
             },
         }),
         {
-            name: 'shopping-cart-storage-v3', // Changed storage key to ensure fresh start
+            name: 'shopping-cart-storage-v3',
         }
     )
 );
