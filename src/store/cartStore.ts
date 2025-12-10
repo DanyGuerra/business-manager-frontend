@@ -17,9 +17,10 @@ export type CartItem = {
 };
 
 export type OrderDetails = {
-    customerName: string;
-    comments: string;
-    consumptionType: ConsumptionType;
+    customer_name: string;
+    notes: string;
+    scheduled_at: string;
+    consumption_type: ConsumptionType;
 };
 
 export type CartGroup = {
@@ -57,9 +58,10 @@ type CartState = {
 };
 
 const DEFAULT_ORDER_DETAILS: OrderDetails = {
-    customerName: "",
-    comments: "",
-    consumptionType: ConsumptionType.TAKE_AWAY
+    customer_name: "",
+    notes: "",
+    scheduled_at: "",
+    consumption_type: ConsumptionType.TAKE_AWAY
 };
 
 export const useCartStore = create<CartState>()(

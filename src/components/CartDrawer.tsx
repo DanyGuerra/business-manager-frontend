@@ -1,38 +1,23 @@
 "use client";
 
-import { CartItem, useCartStore } from "@/store/cartStore";
+import { useCartStore } from "@/store/cartStore";
 import {
     Drawer,
     DrawerContent,
     DrawerTrigger,
-    DrawerClose
 } from "@/components/ui/drawer";
 
 import { Button } from "@/components/ui/button";
 import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, Utensils, ShoppingBag, Truck } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-    Tabs,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
 import { useState } from "react";
-import { ConsumptionType, CreateOrderDto, useOrdersApi } from "@/lib/useOrdersApi";
+import { useOrdersApi } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
-import ButtonLoading from "./buttonLoading";
 import { CartOrderSummary } from "@/components/CartOrderSummary";
 import { CartItemRow } from "@/components/CartItemRow";
 
@@ -54,9 +39,8 @@ export default function CartDrawer() {
             startLoading(LoadingsKeyEnum.CREATE_ORDER);
 
             const payload = {
-                customer_name: orderDetails.customerName,
-                notes: orderDetails.comments,
-                consumption_type: orderDetails.consumptionType,
+                ...orderDetails,
+                scheduled_at: orderDetails.scheduled_at || undefined,
                 group_items: groups.map((group) => ({
                     group_name: group.group_name,
                     items: group.items.map((item) => ({

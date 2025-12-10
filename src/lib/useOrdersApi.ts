@@ -22,8 +22,8 @@ export type CreateOrderDto = {
     amount_paid?: number,
     status?: OrderStatus,
     paid?: boolean,
-    delivered_at?: Date,
-    scheduled_at?: Date,
+    delivered_at?: Date | string,
+    scheduled_at?: Date | string,
     consumption_type?: ConsumptionType,
     notes?: string | null,
 }
