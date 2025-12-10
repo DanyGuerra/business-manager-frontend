@@ -45,6 +45,11 @@ export interface OrderItemGroup {
     deleted_at: string
 }
 
+interface UpdateOrderItemDto {
+    is_ready?: boolean
+    quantity?: number
+}
+
 export function userOrderItemGroupsApi() {
     const api = useAxios();
 
@@ -55,6 +60,11 @@ export function userOrderItemGroupsApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-
+        updateOrderItem: (itemId: string, data: UpdateOrderItemDto, businessId: string) =>
+            api
+                .put<ApiResponse<OrderItem>>(`/order-item/${itemId}`, data, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
     };
 }

@@ -2,7 +2,7 @@
 import { Order, OrderStatus, ConsumptionType, useOrdersApi } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, FileText, Calendar, Pencil, Trash2 } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +11,7 @@ import CustomDialog from "./customDialog";
 import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useBusinessStore } from "@/store/businessStore";
-import { OrderItemGroup } from "./OrderItemGroup";
+import { OrderGroups } from "./OrderGroups";
 
 interface OrderCardProps {
     order: Order;
@@ -147,37 +147,7 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
             <Separator className="bg-primary/40 h-[3px]" />
 
             <CardContent className="p-3 text-sm">
-                <div className="flex flex-col gap-3">
-                    {order.itemGroups.map((group, index) => (
-                        <>
-                            <div key={group.id} className="flex flex-col">
-                                {index > 0 && <Separator className="my-3 bg-muted" />}
-                                <OrderItemGroup group={group} />
-                                <div className="flex justify-end items-center mt-2 pt-2 border-t border-dashed border-muted/60">
-                                    <div className="flex items-baseline gap-2">
-                                        <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">
-                                            Subtotal {group.name}
-                                        </span>
-                                        <Badge variant="default" className="text-xs font-semibold">
-                                            {formatCurrency(group.subtotal)}
-                                        </Badge>
-                                    </div>
-                                </div>
-                            </div>
-                            <Separator className="bg-primary /90 h-[3px]" />
-                        </>
-                    ))}
-
-                    {order.notes && (
-                        <div className="mt-2 flex gap-2 bg-amber-50/80 dark:bg-amber-950/20 p-2 rounded-md border border-amber-200/50 dark:border-amber-900/40">
-                            <FileText className="h-4 w-4 text-amber-600 dark:text-amber-500 shrink-0" />
-                            <div className="flex flex-col">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Nota</span>
-                                <p className="text-xs text-foreground/80 leading-snug">{order.notes}</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <OrderGroups order={order} />
             </CardContent>
 
             <CardFooter className="p-3 pt-2 bg-muted/5 flex justify-between items-center text-xs gap-8">

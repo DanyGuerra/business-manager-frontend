@@ -1,24 +1,39 @@
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
-import { OrderItem } from "@/lib/useOrderItemGroups";
+import { OrderItem, userOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
+import { useBusinessStore } from "@/store/businessStore";
+import { handleApiError } from "@/utils/handleApiError";
 
 interface OrderItemRowProps {
     item: OrderItem;
 }
 
 export function OrderItemRow({ item }: OrderItemRowProps) {
-    const [isReady, setIsReady] = useState<boolean>(false);
+    const [isReady, setIsReady] = useState<boolean>(item.is_ready);
+    const { updateOrderItem } = userOrderItemGroupsApi();
+    const { businessId } = useBusinessStore();
+
+    const handleToggleReady = async () => {
+        const newState = !isReady;
+        setIsReady(newState);
+
+        try {
+            await updateOrderItem(item.id, { is_ready: newState }, businessId);
+        } catch (error) {
+            setIsReady(!newState);
+            handleApiError(error);
+        }
+    };
 
     return (
         <div className={cn(
             "flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
-            isReady && "opacity-60"
+            isReady && "opacity-40"
         )}>
             <div
-                onClick={() => setIsReady((prev) => !prev)}
+                onClick={handleToggleReady}
                 className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold shadow-sm mt-0.5 cursor-pointer transition-all duration-200 select-none c",
                     isReady
@@ -48,7 +63,7 @@ export function OrderItemRow({ item }: OrderItemRowProps) {
                     <div className="flex flex-col gap-1 mt-1 text-[12px]">
                         {Object.entries(item.grouped_options).map(([groupName, options]) => (
                             <div key={groupName} className="flex flex-wrap items-center gap-1.5">
-                                <span className="text-muted-foreground/60">{groupName}:</span>
+                                <span className="text-primary/90">{groupName}:</span>
                                 <div className="flex flex-wrap gap-1">
                                     {options.map((opt, i) => (
                                         <Badge
