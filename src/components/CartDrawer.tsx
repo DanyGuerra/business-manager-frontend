@@ -2,13 +2,13 @@
 
 import { useCartStore } from "@/store/cartStore";
 import {
-    Drawer,
-    DrawerContent,
-    DrawerTrigger,
-} from "@/components/ui/drawer";
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+} from "@/components/ui/sheet";
 
 import { Button } from "@/components/ui/button";
-import { ShoppingCartIcon, MinusIcon, PlusIcon, Trash2Icon, Package, ChevronsUpDown, Utensils, ShoppingBag, Truck } from "lucide-react";
+import { ShoppingCartIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
@@ -56,7 +56,6 @@ export default function CartDrawer() {
             clearCart(businessId);
             setIsOpen(false);
         } catch (error) {
-            console.error(error);
             handleApiError(error)
         } finally {
             stopLoading(LoadingsKeyEnum.CREATE_ORDER);
@@ -64,11 +63,9 @@ export default function CartDrawer() {
     }
 
     return (
-        <Drawer open={isOpen} onOpenChange={setIsOpen} >
-            <DrawerTrigger asChild className="fixed bottom-4 right-4 z-50">
-                <Button
-                    className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform rounded-full"
-                >
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild className="fixed bottom-4 right-4 z-50">
+                <Button className="h-16 w-16 shadow-lg z-50 animate-in zoom-in duration-300 hover:scale-105 transition-transform rounded-full">
                     <div className="relative w-full h-full flex items-center justify-center">
                         <ShoppingCartIcon />
                         {totalItems > 0 && (
@@ -78,10 +75,11 @@ export default function CartDrawer() {
                         )}
                     </div>
                 </Button>
-            </DrawerTrigger>
-            <DrawerContent className="flex flex items-center justify-center w-full h-full p-0 border-l shadow-xl">
-                <div className="flex flex-col h-full sm:w-[70%] md:w-[60%] lg:w-[50%] w-full">
-                    <div className="p-6 pt-4 pb-2 border-b shrink-0">
+            </SheetTrigger>
+
+            <SheetContent side="right" className="w-full sm:max-w-[500px] sm:w-[70%] md:w-[60%] lg:w-[50%] p-0 border-l shadow-xl flex flex-col h-full bg-background z-[100]">
+                <div className="flex flex-col h-full w-full mx-auto">
+                    <div className="p-6 pt-10 pb-2 border-b shrink-0">
                         <div className="flex items-center gap-2 text-xl font-semibold">
                             <ShoppingCartIcon className="h-5 w-5" />
                             Tu Carrito
@@ -108,7 +106,7 @@ export default function CartDrawer() {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <h3 className="font-medium text-sm">Tus Bolsas</h3>
-                                            <p className="text-xs text-muted-foreground">Selecciona una bolsa para agregar items</p>
+                                            <p className="text-xs text-muted-foreground">Selecciona una bolsa para agregar productos</p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {groups.length > 0 && (
@@ -148,7 +146,6 @@ export default function CartDrawer() {
                                                             e.stopPropagation();
                                                             removeGroup(businessId, group.group_id);
                                                         }}
-                                                        title="Eliminar bolsa"
                                                     >
                                                         <Trash2Icon className="h-3.5 w-3.5" />
                                                     </Button>
@@ -202,7 +199,7 @@ export default function CartDrawer() {
                         </>
                     )}
                 </div>
-            </DrawerContent>
-        </Drawer>
+            </SheetContent>
+        </Sheet>
     );
 }

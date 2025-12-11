@@ -18,15 +18,17 @@ import {
 import { ChevronsUpDown, Utensils, ShoppingBag, Truck, ChevronDownIcon, Trash2Icon } from "lucide-react";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { OrderDetails } from "@/store/cartStore";
-import { DrawerClose } from "@/components/ui/drawer";
 import ButtonLoading from "./buttonLoading";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { SheetClose } from "@/components/ui/sheet";
 import { Calendar } from "./ui/calendar";
+import { toast } from "sonner";
 
 import * as React from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { toastErrorStyle } from "@/lib/toastStyles";
 
 interface CartOrderSummaryProps {
     businessId: string;
@@ -69,7 +71,7 @@ export function CartOrderSummary({
     };
 
     return (
-        <div className="p-6 border-t bg-muted/10 space-y-4 shrink-0">
+        <div className="p-6 border-t bg-muted/90 space-y-4 shrink-0">
             <Collapsible className="space-y-2">
                 <div className="flex items-center justify-between px-1">
                     <span className="text-sm font-medium">Detalles del pedido</span>
@@ -202,24 +204,64 @@ export function CartOrderSummary({
             </Collapsible>
             <Separator />
             <div className="space-y-2">
-                <div className="flex justify-between font-bold text-lg">
+                <div className="flex items-center justify-between gap-4">
+                    <Label htmlFor="amount-paid" className="text-xs font-medium">Paga con</Label>
+                    <div className="relative w-28">
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                        <Input
+                            id="amount-paid"
+                            type="number"
+                            min="0"
+                            placeholder="0.00"
+                            value={orderDetails.amount_paid ?? ""}
+                            onChange={(e) => {
+                                const val = parseFloat(e.target.value);
+                                if (val < 0) return;
+                                setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
+                            }}
+                            className={cn(
+                                "pl-5 h-7 text-xs bg-background text-right",
+                                orderDetails.amount_paid !== undefined && orderDetails.amount_paid < totalPrice && "border-destructive focus-visible:ring-destructive"
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {orderDetails.amount_paid !== undefined && (
+                    <div className="flex justify-between font-medium text-xs">
+                        <span>Cambio</span>
+                        <span className={cn(
+                            ((orderDetails.amount_paid ?? 0) - totalPrice) < 0 ? "text-destructive" : "text-green-600"
+                        )}>
+                            ${((orderDetails.amount_paid ?? 0) - totalPrice).toFixed(2)}
+                        </span>
+                    </div>
+                )}
+
+                <div className="flex justify-between font-bold text-base border-t border-dashed pt-2">
                     <span>Total</span>
                     <span>${totalPrice}</span>
                 </div>
             </div>
-            <div className="flex flex-col gap-1">
-                <ButtonLoading
-                    loadingState={isLoading}
-                    onClick={onConfirm}
-                    buttonTitle="Confirmar pedido"
-                    className="text-base font-bold"
-                    size="lg"
-                />
-                <DrawerClose asChild>
-                    <Button variant="outline" className="w-full h-12 text-base font-bold shadow-md mt-2">
+            <div className="grid grid-cols-2 gap-2">
+                <SheetClose asChild>
+                    <Button variant="outline" className="w-full h-10 text-sm font-bold shadow-sm">
                         Cerrar
                     </Button>
-                </DrawerClose>
+                </SheetClose>
+                <ButtonLoading
+                    loadingState={isLoading}
+                    onClick={() => {
+                        if (!orderDetails.amount_paid || orderDetails.amount_paid < totalPrice) {
+                            toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
+                            return;
+                        }
+                        onConfirm();
+                    }}
+                    buttonTitle="Confirmar"
+                    className="text-sm font-bold h-10"
+                    size="default"
+                />
             </div>
         </div>
     );

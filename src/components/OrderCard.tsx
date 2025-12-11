@@ -1,9 +1,9 @@
 
-import { Order, OrderStatus, ConsumptionType, useOrdersApi } from "@/lib/useOrdersApi";
+import { Order, OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, Trash2 } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
@@ -162,10 +162,31 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                     </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase">Total</span>
-                    <Badge variant="default" className="text-sm font-bold">
-                        {formatCurrency(order.total)}
-                    </Badge>
+                    {order.amount_paid && (
+                        <div className="flex flex-col items-end text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                                <span>Paga con:</span>
+                                <span className="font-medium text-foreground">{formatCurrency(order.amount_paid)}</span>
+                            </div>
+                            {order.change && (
+                                <div className="flex items-center gap-1">
+                                    <span>Cambio:</span>
+                                    <span className={cn(
+                                        "font-medium",
+                                        parseFloat(order.change) < 0 ? "text-destructive" : "text-green-600"
+                                    )}>
+                                        {formatCurrency(order.change)}
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <div className="flex flex-col items-end gap-0.5">
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase">Total</span>
+                        <Badge variant="default" className="text-sm font-bold">
+                            {formatCurrency(order.total)}
+                        </Badge>
+                    </div>
                 </div>
             </CardFooter>
         </Card >
