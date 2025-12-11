@@ -20,7 +20,7 @@ export enum OrderStatus {
 
 export type CreateOrderDto = {
     customer_name?: string | null,
-    amount_paid?: number,
+    amount_paid?: number | null,
     status?: OrderStatus,
     paid?: boolean,
     delivered_at?: Date | string,

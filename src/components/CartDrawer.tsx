@@ -41,14 +41,16 @@ export default function CartDrawer() {
             const payload = {
                 ...orderDetails,
                 scheduled_at: orderDetails.scheduled_at || undefined,
-                group_items: groups.map((group) => ({
-                    group_name: group.group_name,
-                    items: group.items.map((item) => ({
-                        product_id: item.product_id,
-                        selected_options_ids: item.selected_options_ids,
-                        quantity: item.quantity,
-                    })),
-                }))
+                group_items: groups
+                    .filter((group) => group.items.length > 0)
+                    .map((group) => ({
+                        group_name: group.group_name,
+                        items: group.items.map((item) => ({
+                            product_id: item.product_id,
+                            selected_options_ids: item.selected_options_ids,
+                            quantity: item.quantity,
+                        })),
+                    }))
             };
 
             await ordersApi.createFullOrder(payload, businessId);

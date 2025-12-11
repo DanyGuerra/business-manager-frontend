@@ -60,8 +60,8 @@ export default function Login() {
     setIsLoading(true)
     try {
       const { data: { access_token } } = await businessApi.login(dataUser);
-      const { data: userData } = await authApi.getMe();
       setAccessToken(access_token);
+      const { data: userData } = await authApi.getMe();
       setUser(userData);
 
       toast.success("Inicio de sesión exitoso", {

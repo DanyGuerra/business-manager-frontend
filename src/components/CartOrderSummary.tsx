@@ -23,6 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { SheetClose } from "@/components/ui/sheet";
 import { Calendar } from "./ui/calendar";
 import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 import * as React from "react";
 import { format } from "date-fns";
@@ -203,40 +204,59 @@ export function CartOrderSummary({
                 </CollapsibleContent>
             </Collapsible>
             <Separator />
-            <div className="space-y-2">
-                <div className="flex items-center justify-between gap-4">
-                    <Label htmlFor="amount-paid" className="text-xs font-medium">Paga con</Label>
-                    <div className="relative w-28">
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
-                        <Input
-                            id="amount-paid"
-                            type="number"
-                            min="0"
-                            placeholder="0.00"
-                            value={orderDetails.amount_paid ?? ""}
-                            onChange={(e) => {
-                                const val = parseFloat(e.target.value);
-                                if (val < 0) return;
-                                setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
-                            }}
-                            className={cn(
-                                "pl-5 h-7 text-xs bg-background text-right",
-                                orderDetails.amount_paid !== undefined && orderDetails.amount_paid < totalPrice && "border-destructive focus-visible:ring-destructive"
-                            )}
-                        />
-                    </div>
+            <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                    <Label htmlFor="pay-later-switch" className="text-xs font-medium">Pagar despues</Label>
+                    <Switch
+                        defaultChecked={false}
+                        id="pay-later-switch"
+                        checked={orderDetails.amount_paid === null}
+                        onCheckedChange={(checked) => {
+                            if (checked) {
+                                setOrderDetails(businessId, { amount_paid: null });
+                            } else {
+                                setOrderDetails(businessId, { amount_paid: totalPrice });
+                            }
+                        }}
+                    />
                 </div>
 
-                {orderDetails.amount_paid !== undefined && (
-                    <div className="flex justify-between font-medium text-xs">
-                        <span>Cambio</span>
-                        <span className={cn(
-                            ((orderDetails.amount_paid ?? 0) - totalPrice) < 0 ? "text-destructive" : "text-green-600"
-                        )}>
-                            ${((orderDetails.amount_paid ?? 0) - totalPrice).toFixed(2)}
-                        </span>
+                <div className={cn("space-y-2 transition-opacity duration-200", orderDetails.amount_paid === null && "opacity-50 pointer-events-none")}>
+                    <div className="flex items-center justify-between gap-4">
+                        <Label htmlFor="amount-paid" className="text-xs font-medium">Paga con</Label>
+                        <div className="relative w-28">
+                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
+                            <Input
+                                id="amount-paid"
+                                type="number"
+                                min="0"
+                                placeholder="0.00"
+                                disabled={orderDetails.amount_paid === null}
+                                value={orderDetails.amount_paid ?? ""}
+                                onChange={(e) => {
+                                    const val = parseFloat(e.target.value);
+                                    if (val < 0) return;
+                                    setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
+                                }}
+                                className={cn(
+                                    "pl-5 h-7 text-xs bg-background text-right",
+                                    orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid < totalPrice && "border-destructive focus-visible:ring-destructive"
+                                )}
+                            />
+                        </div>
                     </div>
-                )}
+
+                    {orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (
+                        <div className="flex justify-between font-medium text-xs">
+                            <span>Cambio</span>
+                            <span className={cn(
+                                (orderDetails.amount_paid - totalPrice) < 0 ? "text-destructive" : "text-green-600"
+                            )}>
+                                ${(orderDetails.amount_paid - totalPrice).toFixed(2)}
+                            </span>
+                        </div>
+                    )}
+                </div>
 
                 <div className="flex justify-between font-bold text-base border-t border-dashed pt-2">
                     <span>Total</span>
@@ -252,7 +272,13 @@ export function CartOrderSummary({
                 <ButtonLoading
                     loadingState={isLoading}
                     onClick={() => {
-                        if (!orderDetails.amount_paid || orderDetails.amount_paid < totalPrice) {
+                        // Allow if Pay Later (null)
+                        if (orderDetails.amount_paid === null) {
+                            onConfirm();
+                            return;
+                        }
+                        // Validate if undefined (empty) or insufficient
+                        if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice) {
                             toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
                             return;
                         }

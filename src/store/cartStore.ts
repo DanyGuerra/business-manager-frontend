@@ -21,7 +21,7 @@ export type OrderDetails = {
     notes: string;
     scheduled_at: string;
     consumption_type: ConsumptionType;
-    amount_paid?: number;
+    amount_paid?: number | null;
 };
 
 export type CartGroup = {
@@ -132,7 +132,6 @@ export const useCartStore = create<CartState>()(
                     const remainingGroups = (state.carts[businessId] || []).filter(g => g.group_id !== groupId);
                     let newSelectedGroupId = state.selectedGroups[businessId];
 
-                    // If deleted group was selected, select the last available one or null
                     if (newSelectedGroupId === groupId) {
                         newSelectedGroupId = remainingGroups.length > 0 ? remainingGroups[remainingGroups.length - 1].group_id : null;
                     }

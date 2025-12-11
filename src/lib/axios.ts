@@ -36,11 +36,12 @@ export function useAxios() {
     };
 
     const requestInterceptor = api.interceptors.request.use((config) => {
-      if (tokenRef.current) {
+      const token = tokenRef.current || localStorage.getItem("accessToken");
+      if (token) {
         if (!config.headers || !(config.headers instanceof AxiosHeaders)) {
           config.headers = new AxiosHeaders();
         }
-        config.headers.Authorization = `Bearer ${tokenRef.current}`;
+        config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     });
@@ -50,7 +51,11 @@ export function useAxios() {
       async (error) => {
         const originalRequest = error.config;
 
-        if (error.response?.status === 401 && !originalRequest._retry) {
+        if (
+          error.response?.status === 401 &&
+          !originalRequest._retry &&
+          !originalRequest.url?.includes("auth/login")
+        ) {
           if (isRefreshing) {
             return new Promise((resolve, reject) => {
               failedQueue.push({ resolve, reject });
