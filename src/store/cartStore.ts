@@ -39,6 +39,7 @@ type CartState = {
     addToCart: (businessId: string, product: Product, selectedOptions: Option[], quantity: number, groupId?: string) => void;
     removeFromCart: (businessId: string, groupId: string, cartItemId: string) => void;
     updateQuantity: (businessId: string, groupId: string, cartItemId: string, quantity: number) => void;
+    moveItem: (businessId: string, fromGroupId: string, toGroupId: string, cartItemId: string) => void;
     clearCart: (businessId: string) => void;
 
     // Group Management
@@ -254,6 +255,30 @@ export const useCartStore = create<CartState>()(
                     });
                     return { carts: { ...state.carts, [businessId]: newGroups } };
                 });
+            },
+
+            moveItem: (businessId, fromGroupId, toGroupId, cartItemId) => {
+                if (fromGroupId === toGroupId) return;
+
+                const currentGroups = get().carts[businessId] || [];
+                const sourceGroup = currentGroups.find(g => g.group_id === fromGroupId);
+                const targetGroup = currentGroups.find(g => g.group_id === toGroupId);
+
+                if (!sourceGroup || !targetGroup) return;
+
+                const itemToMove = sourceGroup.items.find(i => i.cart_item_id === cartItemId);
+                if (!itemToMove) return;
+
+                get().removeFromCart(businessId, fromGroupId, cartItemId);
+
+
+                get().addToCart(
+                    businessId,
+                    itemToMove.product,
+                    itemToMove.selected_options,
+                    itemToMove.quantity,
+                    toGroupId
+                );
             },
 
             updateQuantity: (businessId, groupId, cartItemId, quantity) => {

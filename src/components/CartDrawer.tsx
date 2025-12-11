@@ -21,8 +21,23 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { CartOrderSummary } from "@/components/CartOrderSummary";
 import { CartItemRow } from "@/components/CartItemRow";
 
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    verticalListSortingStrategy,
+    useSortable
+} from '@dnd-kit/sortable';
+
 export default function CartDrawer() {
-    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup } = useCartStore();
+    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup, moveItem } = useCartStore();
     const { businessId } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
@@ -33,6 +48,34 @@ export default function CartDrawer() {
     const totalPrice = getTotalPrice(businessId);
     const orderDetails = getOrderDetails(businessId);
     const selectedGroupId = getSelectedGroupId(businessId);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor)
+    );
+
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (!over) return;
+
+        const activeId = active.id as string;
+        const overId = over.id as string;
+
+        const activeGroup = groups.find(g => g.items.some(i => i.cart_item_id === activeId));
+        if (!activeGroup) return;
+
+        let targetGroupId = groups.find(g => g.group_id === overId)?.group_id;
+
+        if (!targetGroupId) {
+            const overGroup = groups.find(g => g.items.some(i => i.cart_item_id === overId));
+            if (overGroup) targetGroupId = overGroup.group_id;
+        }
+
+        if (targetGroupId && activeGroup.group_id !== targetGroupId) {
+            moveItem(businessId, activeGroup.group_id, targetGroupId, activeId);
+        }
+    };
 
     async function handleConfirmOrder() {
         try {
@@ -103,92 +146,59 @@ export default function CartDrawer() {
                         </div>
                     ) : (
                         <>
-                            <ScrollArea className="flex-1 min-h-0 w-full">
-                                <div className="flex flex-col gap-6 p-6">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="font-medium text-sm">Tus Bolsas</h3>
-                                            <p className="text-xs text-muted-foreground">Selecciona una bolsa para agregar productos</p>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            {groups.length > 0 && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-7 text-xs text-muted-foreground hover:text-destructive gap-2"
-                                                    onClick={() => clearCart(businessId)}
-                                                >
-                                                    <Trash2Icon className="h-3.5 w-3.5" />
-                                                    Vaciar
-                                                </Button>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {groups.map((group) => {
-                                        const isSelected = selectedGroupId === group.group_id;
-                                        const groupTotal = group.items.reduce((acc, item) => acc + item.total_price, 0);
-
-                                        return (
-                                            <div
-                                                key={group.group_id}
-                                                className={`space-y-4 border rounded-lg p-3 transition-colors cursor-pointer ${isSelected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/50'}`}
-                                                onClick={() => selectGroup(businessId, group.group_id)}
-                                            >
-                                                <div className="flex items-center justify-between pb-2 border-b border-dashed">
-                                                    <Badge variant={isSelected ? "default" : "outline"}>
-                                                        {group.group_name}
-                                                        {isSelected && " (Seleccionada)"}
-                                                    </Badge>
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                            >
+                                <ScrollArea className="flex-1 min-h-0 w-full">
+                                    <div className="flex flex-col gap-6 p-6">
+                                        <div className="flex items-center justify-between">
+                                            <div>
+                                                <h3 className="font-medium text-sm">Tus Bolsas</h3>
+                                                <p className="text-xs text-muted-foreground">Selecciona una bolsa para agregar productos</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                {groups.length > 0 && (
                                                     <Button
                                                         variant="ghost"
-                                                        size="icon"
-                                                        className="h-6 w-6 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            removeGroup(businessId, group.group_id);
-                                                        }}
+                                                        size="sm"
+                                                        className="h-7 text-xs text-muted-foreground hover:text-destructive gap-2"
+                                                        onClick={() => clearCart(businessId)}
                                                     >
                                                         <Trash2Icon className="h-3.5 w-3.5" />
+                                                        Vaciar
                                                     </Button>
-                                                </div>
-
-                                                {group.items.length === 0 ? (
-                                                    <p className="text-xs text-muted-foreground italic pl-2">Bolsa vacía - Agrega productos para verlos aquí</p>
-                                                ) : (
-                                                    group.items.map((item) => (
-                                                        <CartItemRow
-                                                            key={item.cart_item_id}
-                                                            item={item}
-                                                            businessId={businessId}
-                                                            groupId={group.group_id}
-                                                            updateQuantity={updateQuantity}
-                                                            removeFromCart={removeFromCart}
-                                                        />
-                                                    ))
-                                                )}
-
-                                                {group.items.length > 0 && (
-                                                    <div className="flex justify-end pt-3 mt-3 border-t border-dashed">
-                                                        <span className="text-sm font-medium text-muted-foreground">
-                                                            Subtotal: <span className="text-foreground font-bold">${groupTotal}</span>
-                                                        </span>
-                                                    </div>
                                                 )}
                                             </div>
-                                        );
-                                    })}
+                                        </div>
 
-                                    <Button
-                                        onClick={() => addGroup(businessId)}
-                                        variant="secondary"
-                                        className="w-full gap-2 border-dashed border-2"
-                                    >
-                                        <PlusIcon className="h-4 w-4" />
-                                        Nueva Bolsa
-                                    </Button>
-                                </div>
-                            </ScrollArea>
+                                        <div className="flex flex-col gap-4">
+                                            {groups.map((group) => (
+                                                <SortableGroup
+                                                    key={group.group_id}
+                                                    group={group}
+                                                    selectedGroupId={selectedGroupId}
+                                                    selectGroup={selectGroup}
+                                                    removeGroup={removeGroup}
+                                                    businessId={businessId}
+                                                    updateQuantity={updateQuantity}
+                                                    removeFromCart={removeFromCart}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        <Button
+                                            onClick={() => addGroup(businessId)}
+                                            variant="secondary"
+                                            className="w-full gap-2 border-dashed border-2"
+                                        >
+                                            <PlusIcon className="h-4 w-4" />
+                                            Nueva Bolsa
+                                        </Button>
+                                    </div>
+                                </ScrollArea>
+                            </DndContext>
 
                             <CartOrderSummary
                                 businessId={businessId}
@@ -203,5 +213,76 @@ export default function CartDrawer() {
                 </div>
             </SheetContent>
         </Sheet>
+    );
+}
+
+function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, businessId, updateQuantity, removeFromCart }: any) {
+    const { setNodeRef } = useSortable({
+        id: group.group_id,
+        data: {
+            type: 'group',
+            group
+        }
+    });
+
+    const isSelected = selectedGroupId === group.group_id;
+    const groupTotal = group.items.reduce((acc: number, item: any) => acc + item.total_price, 0);
+
+    return (
+        <div
+            ref={setNodeRef}
+            className={`space-y-4 border rounded-lg p-3 transition-colors cursor-pointer ${isSelected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/50'}`}
+            onClick={() => selectGroup(businessId, group.group_id)}
+        >
+            <div className="flex items-center justify-between pb-2 border-b border-dashed">
+                <Badge variant={isSelected ? "default" : "outline"}>
+                    {group.group_name}
+                    {isSelected && " (Seleccionada)"}
+                </Badge>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive/70 hover:text-destructive hover:bg-destructive/10"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        removeGroup(businessId, group.group_id);
+                    }}
+                >
+                    <Trash2Icon className="h-3.5 w-3.5" />
+                </Button>
+            </div>
+
+            <SortableContext
+                items={group.items.map((i: any) => i.cart_item_id)}
+                strategy={verticalListSortingStrategy}
+            >
+                <div className="space-y-2 min-h-[50px]">
+                    {group.items.length === 0 ? (
+                        <p className="text-center text-xs text-muted-foreground italic pl-2 py-4">
+                            Bolsa vacía - Arrastra productos aquí
+                        </p>
+                    ) : (
+                        group.items.map((item: any) => (
+                            <CartItemRow
+                                key={item.cart_item_id}
+                                item={item}
+                                businessId={businessId}
+                                groupId={group.group_id}
+                                updateQuantity={updateQuantity}
+                                removeFromCart={removeFromCart}
+                            />
+                        ))
+                    )}
+                </div>
+            </SortableContext>
+
+            {group.items.length > 0 && (
+                <div className="flex justify-end pt-3 mt-3 border-t border-dashed">
+                    <span className="text-sm font-medium text-muted-foreground">
+                        Subtotal: <span className="text-foreground font-bold">${groupTotal}</span>
+                    </span>
+                </div>
+            )}
+        </div>
     );
 }

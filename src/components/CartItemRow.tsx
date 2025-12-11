@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, MinusIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import { Package, MinusIcon, PlusIcon, Trash2Icon, GripVerticalIcon } from "lucide-react";
 import { CartItem } from "@/store/cartStore";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 interface CartItemRowProps {
     item: CartItem;
@@ -18,10 +20,29 @@ export function CartItemRow({
     updateQuantity,
     removeFromCart
 }: CartItemRowProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id: item.cart_item_id, data: { type: 'item', item } });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.5 : 1,
+    };
+
     return (
-        <div className="flex gap-4">
-            <div className="h-8 w-8 rounded-md bg-muted flex-shrink-0 flex items-center justify-center">
-                <Package className="h-5 w-5" />
+        <div ref={setNodeRef} style={style} className="flex gap-4">
+            <div
+                {...attributes}
+                {...listeners}
+                className="h-8 w-8 rounded-md bg-muted flex-shrink-0 flex items-center justify-center cursor-grab active:cursor-grabbing hover:bg-muted/80"
+            >
+                <GripVerticalIcon className="h-4 w-4 text-muted-foreground/50" />
             </div>
 
             <div className="flex-1 flex flex-col justify-between">
