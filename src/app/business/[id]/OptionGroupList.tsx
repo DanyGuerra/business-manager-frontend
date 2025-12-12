@@ -20,13 +20,13 @@ import { toastSuccessStyle } from "@/lib/toastStyles";
 import OptionGroupSelector from "@/components/optionGroupSelector";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
-import { useEditModeStore } from "@/store/editModeStore";
 import OptionGroupCard from "@/components/OptionGroupCard";
 
 type OptionGroupListProps = {
   optionGroups: OptionGroup[];
   productId: string;
   productGroupId: string;
+  isEditMode: boolean;
 };
 
 import { DialogType as CardDialogType } from "@/components/OptionGroupCard";
@@ -36,11 +36,11 @@ type DialogType = CardDialogType | "addExistingGroup";
 export default function OptionGroupList({
   optionGroups,
   productId,
+  isEditMode,
 }: OptionGroupListProps) {
   const [dialog, setDialog] = useState<DialogType>(null);
   const [isLinkGroupOpen, setIsLinkGroupOpen] = useState(false);
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
-  const { isEditMode } = useEditModeStore();
   const [optionsGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
@@ -168,7 +168,7 @@ export default function OptionGroupList({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center text-center border rounded-lg bg-muted/10 border-dashed">
+        <div className="flex flex-col items-center justify-center text-center border rounded-lg bg-muted/10 border-dashed px-2 py-6">
           <p className="text-muted-foreground">No hay variantes configuradas para este producto</p>
         </div>
       )}

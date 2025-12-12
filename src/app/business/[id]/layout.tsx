@@ -7,9 +7,10 @@ import { useBusinessStore } from "@/store/businessStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoadingStore } from "@/store/loadingStore";
 import { Separator } from "@/components/ui/separator";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useEditModeStore } from "@/store/editModeStore";
-import { Edit2Icon, FilePenIcon, Store, MapPin } from "lucide-react";
+import { Edit2Icon, Store, MapPin } from "lucide-react";
 import {
   SidebarInset,
   SidebarProvider,
@@ -137,8 +138,8 @@ export default function BusinessLayout({
           </Breadcrumb>
         </header>
         <div className="flex flex-col gap-6">
-          <div className="w-full">
-            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:space-y-0 pb-2">
+          <div className="w-full sticky top-[7.5rem] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-2 border-b">
+            <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:space-y-0">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -185,21 +186,16 @@ export default function BusinessLayout({
                     <Separator orientation="vertical" className="h-6 mx-1" />
                   </div>
                 )}
-                <Toggle
-                  className={cn(
-                    "cursor-pointer gap-2 transition-all duration-300",
-                    "hover:scale-105 hover:shadow-md",
-                    "data-[state=on]:bg-primary/10 data-[state=on]:text-primary data-[state=on]:border-primary/50",
-                    !isEditMode &&
-                    "bg-background border-2 border-dashed border-primary/60 hover:border-primary hover:bg-primary/5 shadow-sm animate-pulse hover:animate-none"
-                  )}
-                  pressed={isEditMode}
-                  onPressedChange={(state) => setEditMode(state)}
-                  aria-label="Toggle edit mode"
-                >
-                  <FilePenIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline font-medium">Modo edición</span>
-                </Toggle>
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="edit-mode-global"
+                    checked={isEditMode}
+                    onCheckedChange={setEditMode}
+                  />
+                  <Label htmlFor="edit-mode-global" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Modo edición
+                  </Label>
+                </div>
               </div>
             </div>
           </div>

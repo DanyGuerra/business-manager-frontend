@@ -129,8 +129,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         productId: string,
         businessId: string
     ) {
+        const { menuId, ...rest } = data;
         const dataUpdate: UpdateProductDto = {
-            ...data,
+            ...rest,
             description: data.description ?? "",
             base_price: Number(data.base_price),
         };
@@ -215,7 +216,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     return (
         <Card className={cn("group relative flex flex-col overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg px-6", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}>
             {isEditMode && (
-                <div className="absolute top-3 right-3 z-20 flex items-center gap-1 transition-opacity duration-200">
+                <div className="absolute top-3 right-3 flex items-center gap-1 transition-opacity duration-200">
                     <CustomDialog
                         open={isEditOpen}
                         setOpen={setIsEditOpen}

@@ -1,15 +1,7 @@
 "use client";
 
 import { Product } from "@/lib/useBusinessApi";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import OptionGroupList from "./OptionGroupList";
 import CustomDialog from "@/components/customDialog";
-import { Edit2Icon, ChevronDown } from "lucide-react";
-import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { toast } from "sonner";
 import { CreateProductDto, UpdateProductDto, useProductApi } from "@/lib/useProductApi";
@@ -22,6 +14,9 @@ import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useEditModeStore } from "@/store/editModeStore";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Edit2Icon, PackageIcon, PlusIcon, Trash2Icon } from "lucide-react";
+import ProductDetailSheet from "./ProductDetailSheet";
 
 type ProductListProps = {
   products: Product[];
@@ -29,7 +24,7 @@ type ProductListProps = {
 };
 export default function ProductList({ products, productGroupId }: ProductListProps) {
   const productApi = useProductApi();
-  const [open, setOpen] = useState<boolean>(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
   const { getBusiness } = useFetchBusiness();
@@ -77,8 +72,9 @@ export default function ProductList({ products, productGroupId }: ProductListPro
     productId: string,
     businessId: string
   ) {
+    const { menuId, ...rest } = data;
     const dataUpdate: UpdateProductDto = {
-      ...data,
+      ...rest,
       description: data.description ?? "",
       base_price: Number(data.base_price),
     };
@@ -92,7 +88,7 @@ export default function ProductList({ products, productGroupId }: ProductListPro
     } catch (error) {
       handleApiError(error);
     } finally {
-      setOpen(false);
+      setSelectedProductId(null);
       stopLoading(LoadingsKeyEnum.UPDATE_PRODUCT);
     }
   }
@@ -100,110 +96,100 @@ export default function ProductList({ products, productGroupId }: ProductListPro
   return (
     <>
       {products.length ? (
-        <div className="flex flex-col" >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {products.map((product) => (
-            <Collapsible key={product.id} className="group/collapsible">
-              <CollapsibleTrigger
-                className={cn(
-                  "flex items-center cursor-pointer justify-between w-full p-4 rounded-lg border bg-card hover:bg-accent/50 transition-all duration-200 text-left group-hover/collapsible:shadow-sm",
-                  !product.available && "opacity-75 bg-muted/50"
+            <div
+              key={product.id}
+              className="group relative flex flex-col h-full rounded-xl border bg-card p-5 hover:shadow-lg transition-all duration-300"
+            >
+              {!product.available && (
+                <div className="absolute top-3 right-3">
+                  <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
+                    No disponible
+                  </Badge>
+                </div>
+              )}
+
+              <div className="mb-4 pr-16">
+                <h3 className={cn(
+                  "font-semibold text-lg leading-tight mb-1",
+                  !product.available && "text-muted-foreground line-through decoration-muted-foreground/50"
+                )}>
+                  {product.name}
+                </h3>
+                <p className="font-bold text-xl text-primary">
+                  ${product.base_price}
+                </p>
+              </div>
+
+              <div className="flex-1 mb-6">
+                {product.description ? (
+                  <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
+                    {product.description}
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground italic">
+                    Sin descripción
+                  </p>
                 )}
-              >
-                <div className="flex items-center gap-4 flex-1">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          "font-semibold text-base",
-                          !product.available && "text-muted-foreground line-through"
-                        )}
-                      >
-                        {product.name}
-                      </span>
-                      {!product.available && (
-                        <Badge variant="destructive" className="text-[10px] h-5 px-1.5">
-                          No disponible
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="font-bold text-primary">
-                      ${product.base_price}
-                    </div>
-                  </div>
-                </div>
-                <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]/collapsible:rotate-180" />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="border-x border-b rounded-b-lg bg-card/50 px-4 py-4 space-y-4 animate-in slide-in-from-top-2 fade-in-0">
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                  <div className="flex-1">
-                    {product.description ? (
-                      <div className="space-y-1">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                          Descripción
-                        </span>
-                        <p className="text-sm text-foreground/90 leading-relaxed">
-                          {product.description}
-                        </p>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-muted-foreground italic">
-                        Sin descripción
-                      </span>
-                    )}
-                  </div>
+              </div>
 
-                  {isEditMode && (
-                    <div className="flex items-center gap-2 shrink-0 self-start sm:self-center bg-background p-1 rounded-md border shadow-sm">
-                      <CustomDialog
-                        open={open}
-                        setOpen={setOpen}
-                        modalTitle="Editar producto"
-                        modalDescription="Edita el producto seleccionado"
-                        icon={<Edit2Icon className="h-4 w-4" />}
-                      >
-                        <FormProduct
-                          buttonTitle="Guardar cambios"
-                          handleSubmitButton={(data) =>
-                            handleEditProduct(data, product.id, businessId)
-                          }
-                          loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT}
-                          defaultValues={{
-                            ...product,
-                            base_price: `${product.base_price}`,
-                          }}
-                        />
-                      </CustomDialog>
-                      <div className="w-px h-4 bg-border" />
-                      <DeleteDialogConfirmation
-                        handleContinue={() => handleDeleteProduct(product.id)}
-                        description="Esta acción no podrá ser revertida y eliminará completamente el producto seleccionado"
+              <div className="flex flex-col gap-2 mt-auto">
+                <ProductDetailSheet product={product} />
+
+                {isEditMode && (
+                  <div className="flex items-center gap-2 pt-2 border-t mt-2">
+                    <CustomDialog
+                      open={selectedProductId === product.id}
+                      setOpen={(isOpen) =>
+                        setSelectedProductId(isOpen ? product.id : null)
+                      }
+                      modalTitle="Editar producto"
+                      modalDescription="Edita el producto seleccionado"
+                      icon={<Edit2Icon className="h-3.5 w-3.5" />}
+                    >
+                      <FormProduct
+                        buttonTitle="Guardar cambios"
+                        handleSubmitButton={(data) =>
+                          handleEditProduct(data, product.id, businessId)
+                        }
+                        loadingKey={LoadingsKeyEnum.UPDATE_PRODUCT}
+                        defaultValues={{
+                          ...product,
+                          base_price: `${product.base_price}`,
+                        }}
                       />
-                    </div>
-                  )}
-                </div>
+                    </CustomDialog>
 
-                <div className="pt-2 border-t">
-                  <OptionGroupList
-                    productId={product.id}
-                    optionGroups={product.option_groups}
-                    productGroupId={product.id}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 ml-auto"
+                    >
+                      <Trash2Icon className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center min-h-[200px] p-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
-          <h3 className="text-lg font-medium">No hay productos</h3>
-          <p className="text-sm text-muted-foreground mt-1 mb-4">
-            Este menú aún no tiene productos agregados.
+        <div className="flex flex-col items-center justify-center min-h-[300px] p-8 text-center border-2 border-dashed rounded-xl bg-muted/5">
+          <div className="h-12 w-12 rounded-full bg-muted/20 flex items-center justify-center mb-4">
+            <PackageIcon className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-lg font-semibold mb-1">No hay productos</h3>
+          <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-6">
+            Comienza agregando productos a este grupo para armar tu menú.
           </p>
 
           <CustomDialog
             modalTitle="Agregar producto"
             modalDescription="Agrega un producto para tu menú"
-            textButtonTrigger="Agregar producto"
+            textButtonTrigger="Agregar primer producto"
+            icon={<PlusIcon className="h-4 w-4 mr-2" />}
           >
             <FormProduct
               buttonTitle="Guardar"

@@ -72,7 +72,7 @@ export default function FormProduct({
       description: defaultValues?.description ?? "",
       base_price: defaultValues?.base_price ?? "",
       available: defaultValues?.available ?? true,
-      menuId: defaultValues?.menuId ?? "",
+      menuId: (defaultValues as any)?.menuId ?? "",
     },
   });
 

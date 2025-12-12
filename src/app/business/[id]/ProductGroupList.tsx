@@ -113,12 +113,12 @@ export default function ProductGroupList({
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 gap-5">
       {productGroups.map((group) => {
         return (
           <Card
             key={group.id}
-            className={cn("group overflow-hidden transition-all hover:shadow-md border-muted/60 flex flex-col h-full", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}
+            className={cn("group overflow-hidden transition-all hover:shadow-md border-muted bg-muted flex flex-col h-full", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}
           >
             <CardHeader className="bg-muted/20">
               <div className="flex items-start justify-between gap-1">
@@ -168,7 +168,7 @@ export default function ProductGroupList({
               </div>
             </CardHeader>
             <CardContent className="p-4 pt-2 flex-1 flex flex-col gap-4">
-              <div className="flex items-center justify-between border-b">
+              <div className="flex items-center justify-between border-b pb-4">
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                     Productos
