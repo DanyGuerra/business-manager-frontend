@@ -58,16 +58,27 @@ export function CartOrderSummary({
 
         const newDate = currentDate ? new Date(currentDate) : new Date();
         newDate.setFullYear(date.getFullYear(), date.getMonth(), date.getDate());
+
+        if (!currentDate) {
+            const now = new Date();
+            newDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+        }
+
         setOrderDetails(businessId, { scheduled_at: newDate.toISOString() });
     };
 
     const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const time = e.target.value;
         if (!time) return;
+
         const [hours, minutes] = time.split(':').map(Number);
         const newDate = currentDate ? new Date(currentDate) : new Date();
+
         newDate.setHours(hours);
         newDate.setMinutes(minutes);
+        newDate.setSeconds(0);
+        newDate.setMilliseconds(0);
+
         setOrderDetails(businessId, { scheduled_at: newDate.toISOString() });
     };
 
@@ -131,7 +142,7 @@ export function CartOrderSummary({
                                         <ChevronDownIcon className="h-4 w-4 opacity-50" />
                                     </Button>
                                 </PopoverTrigger>
-                                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
                                     <Calendar
                                         mode="single"
                                         selected={currentDate}
@@ -272,12 +283,10 @@ export function CartOrderSummary({
                 <ButtonLoading
                     loadingState={isLoading}
                     onClick={() => {
-                        // Allow if Pay Later (null)
                         if (orderDetails.amount_paid === null) {
                             onConfirm();
                             return;
                         }
-                        // Validate if undefined (empty) or insufficient
                         if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice) {
                             toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
                             return;

@@ -12,10 +12,16 @@ import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderGroups } from "./OrderGroups";
+import FormOrder, { OrderValues } from "./FormOrder";
+import { useOrdersApi } from "@/lib/useOrdersApi";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
+import { toast } from "sonner";
+import { handleApiError } from "@/utils/handleApiError";
+import { useState } from "react";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 
 interface OrderCardProps {
     order: Order;
-    onDelete: (orderId: string, businessId: string) => void;
 }
 
 const getStatusColor = (status: string) => {
@@ -74,9 +80,33 @@ const getConsumptionLabel = (type: string) => {
     }
 };
 
-export function OrderCard({ order, onDelete }: OrderCardProps) {
+import { useOrdersStore } from "@/store/ordersStore";
+
+export function OrderCard({ order }: OrderCardProps) {
     const { isEditMode } = useEditModeStore();
     const { businessId } = useBusinessStore();
+    const ordersApi = useOrdersApi();
+    const { updateOrder, removeOrder } = useOrdersStore();
+    const { startLoading, stopLoading } = useLoadingStore();
+
+    const [open, setOpen] = useState(false);
+
+    async function handleUpdateOrder(data: OrderValues) {
+        try {
+            startLoading(LoadingsKeyEnum.UPDATE_ORDER);
+            await ordersApi.updateOrder(order.id, data, businessId);
+            updateOrder(order.id, {
+                ...data,
+                scheduled_at: data.scheduled_at?.toISOString() ?? null
+            });
+            toast.success("Orden actualizada correctamente", { style: toastSuccessStyle });
+            setOpen(false);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.UPDATE_ORDER);
+        }
+    }
 
     const date = new Date(order.created_at);
     const timeString = date.toLocaleString('es-MX', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -117,6 +147,8 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                     {isEditMode ? (
                         <div className="flex items-center gap-2 absolute top-2 right-2">
                             <CustomDialog
+                                open={open}
+                                setOpen={setOpen}
                                 modalTitle="Editar orden"
                                 modalDescription="Modifica los detalles de la orden"
                                 trigger={
@@ -125,14 +157,31 @@ export function OrderCard({ order, onDelete }: OrderCardProps) {
                                     </Button>
                                 }
                             >
-                                <div className="p-4"></div>
+                                <FormOrder
+                                    buttonTitle="Guardar cambios"
+                                    loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                                    handleSubmitButton={handleUpdateOrder}
+                                    onSuccess={() => setOpen(false)}
+                                    defaultValues={{
+                                        customer_name: order.customer_name,
+                                        notes: order.notes,
+                                        consumption_type: order.consumption_type as ConsumptionType,
+                                        scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
+                                    }}
+                                />
                             </CustomDialog>
 
                             <DeleteDialogConfirmation
                                 title="Eliminar orden"
                                 description="¿Estás seguro de que deseas eliminar esta orden? Esta acción no se puede deshacer."
                                 handleContinue={async () => {
-                                    onDelete(order.id, businessId);
+                                    try {
+                                        await ordersApi.deleteOrder(order.id, businessId);
+                                        removeOrder(order.id);
+                                        toast.success("Orden eliminada correctamente", { style: toastSuccessStyle });
+                                    } catch (error) {
+                                        handleApiError(error);
+                                    }
                                 }}
                             />
                         </div>

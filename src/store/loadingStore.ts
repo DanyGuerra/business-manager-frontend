@@ -20,6 +20,7 @@ export enum LoadingsKeyEnum {
   LOGIN = "createBusiness",
   SIGNUP = "createBusiness",
   CREATE_ORDER = "createOrder",
+  UPDATE_ORDER = "updateOrder",
 }
 
 type LoadingState = {

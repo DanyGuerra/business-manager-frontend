@@ -6,14 +6,12 @@ import { useEffect, useState } from "react";
 import { OrderCard } from "@/components/OrderCard";
 import { Loader2, RefreshCw, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { handleApiError } from "@/utils/handleApiError";
-import { toastSuccessStyle } from "@/lib/toastStyles";
+import { useOrdersStore } from "@/store/ordersStore";
 
 export default function OrdersPage() {
   const { businessId } = useBusinessStore();
   const ordersApi = useOrdersApi();
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { orders, setOrders } = useOrdersStore();
   const [loading, setLoading] = useState(true);
 
   async function getOrders() {
@@ -27,17 +25,6 @@ export default function OrdersPage() {
       setLoading(false);
     }
   }
-
-  const handleOrderDelete = async (orderId: string, businessId: string) => {
-    try {
-      await ordersApi.deleteOrder(orderId, businessId);
-      getOrders();
-      toast.success("Orden eliminada correctamente", { style: toastSuccessStyle });
-
-    } catch (error) {
-      handleApiError(error);
-    }
-  };
 
   useEffect(() => {
     getOrders();
@@ -74,7 +61,7 @@ export default function OrdersPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
             {orders.map(order => (
-              <OrderCard key={order.id} order={order} onDelete={handleOrderDelete} />
+              <OrderCard key={order.id} order={order} />
             ))}
           </div>
         )}
