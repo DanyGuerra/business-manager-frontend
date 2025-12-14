@@ -72,9 +72,9 @@ export default function ProductList({ products, productGroupId }: ProductListPro
     productId: string,
     businessId: string
   ) {
-    const { menuId, ...rest } = data;
     const dataUpdate: UpdateProductDto = {
-      ...rest,
+      name: data.name,
+      available: data.available,
       description: data.description ?? "",
       base_price: Number(data.base_price),
     };
@@ -133,6 +133,34 @@ export default function ProductList({ products, productGroupId }: ProductListPro
                   </p>
                 )}
               </div>
+
+              {product.option_groups && product.option_groups.length > 0 && (
+                <div className="mb-4 space-y-1.5 border-t pt-3">
+                  {product.option_groups.map((group) => (
+                    <div key={group.id} className="text-xs leading-snug">
+                      <span className="font-semibold text-foreground/90 mr-1">
+                        {group.name}:
+                      </span>
+                      <span className="text-muted-foreground">
+                        {group.options && group.options.length > 0
+                          ? group.options.map((opt, index) => (
+                            <span
+                              key={opt.id}
+                              className={cn(
+                                !opt.available &&
+                                "line-through opacity-50 decoration-muted-foreground"
+                              )}
+                            >
+                              {opt.name}
+                              {index < group.options.length - 1 && ", "}
+                            </span>
+                          ))
+                          : "Sin opciones"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="flex flex-col gap-2 mt-auto">
                 <ProductDetailSheet product={product} />
