@@ -2,6 +2,7 @@ import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 import { OrderItemGroup } from "./useOrderItemGroups";
+import { useMemo } from "react";
 
 export enum ConsumptionType {
     DINE_IN = 'dine_in',
@@ -94,7 +95,7 @@ export type GetOrdersParams = {
 export function useOrdersApi() {
     const api = useAxios();
 
-    return {
+    return useMemo(() => ({
         createOrder: (data: CreateOrderDto, businessId: string) =>
             api
                 .post<ApiResponse<Order>>("/orders", data, {
@@ -126,5 +127,5 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-    }
+    }), [api]);
 }
