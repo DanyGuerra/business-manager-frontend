@@ -2,8 +2,7 @@
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Edit2Icon } from "lucide-react";
-import { useState } from "react";
+import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import OptionGroupList from "./OptionGroupList";
 import { Product } from "@/lib/useBusinessApi";
@@ -20,7 +19,7 @@ export default function ProductDetailSheet({ product }: ProductDetailSheetProps)
 
     return (
         <Sheet>
-            <SheetTrigger asChild>
+            {isEditMode && <SheetTrigger asChild>
                 <Button
                     variant="outline"
                     className="w-full justify-between group/btn hover:border-primary/50 hover:bg-primary/5"
@@ -28,7 +27,7 @@ export default function ProductDetailSheet({ product }: ProductDetailSheetProps)
                     <span>Gestionar opciones</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover/btn:translate-x-1" />
                 </Button>
-            </SheetTrigger>
+            </SheetTrigger>}
             <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
                 <SheetHeader className="mb-6 flex flex-row items-center justify-between space-y-0">
                     <div className="flex flex-col gap-1">

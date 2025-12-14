@@ -6,7 +6,6 @@ import { Product } from "@/lib/useBusinessApi";
 import ProductCardList from "@/app/business/[id]/ProductCardList";
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleApiError } from "@/utils/handleApiError";
-import { useEditModeStore } from "@/store/editModeStore";
 import CustomDialog from "@/components/customDialog";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
@@ -25,7 +24,6 @@ export default function TabProducts({
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const productApi = useProductApi();
-    const { isEditMode } = useEditModeStore();
     const { startLoading, stopLoading } = useLoadingStore();
     const { business } = useBusinessStore();
     const { getBusiness } = useFetchBusiness();

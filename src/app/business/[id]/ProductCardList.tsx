@@ -10,7 +10,7 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
-import ProductCard from "@/components/ProductCard";
+import ProductListItem from "./ProductListItem";
 
 
 type ProductCardListProps = {
@@ -54,7 +54,7 @@ export default function ProductCardList({ products, productGroupId }: ProductCar
             {products.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {products.map((product) => (
-                        <ProductCard key={product.id} product={product} />
+                        <ProductListItem key={product.id} product={product} />
                     ))}
                 </div>
             ) : (
