@@ -5,6 +5,12 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
+import { useEditModeStore } from "@/store/editModeStore";
+import { toast } from "sonner";
+import { toastSuccessStyle } from "@/lib/toastStyles";
+import { useOrdersApi } from "@/lib/useOrdersApi";
+import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
+import { useGetOrders } from "@/app/hooks/useGetOrders";
 
 interface OrderItemRowProps {
     item: OrderItem;
@@ -13,7 +19,10 @@ interface OrderItemRowProps {
 export function OrderItemRow({ item }: OrderItemRowProps) {
     const [isReady, setIsReady] = useState<boolean>(item.is_ready);
     const { updateOrderItem } = userOrderItemGroupsApi();
+    const { deleteOrderItem } = useOrdersApi();
     const { businessId } = useBusinessStore();
+    const { isEditMode } = useEditModeStore();
+    const { getOrders } = useGetOrders();
 
     const handleToggleReady = async () => {
         const newState = !isReady;
@@ -27,11 +36,32 @@ export function OrderItemRow({ item }: OrderItemRowProps) {
         }
     };
 
+    const handleDelete = async (id: string, idBusiness: string) => {
+        try {
+            await deleteOrderItem(id, idBusiness);
+            toast.success("Item eliminado correctamente", { style: toastSuccessStyle });
+            getOrders()
+        } catch (error) {
+            handleApiError(error);
+        }
+    };
+
     return (
         <div className={cn(
             "flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
             isReady && "opacity-40"
         )}>
+            <div className="flex justify-stretch items-center gap-2">
+                {isEditMode && (
+
+                    <DeleteDialogConfirmation
+                        handleContinue={() => handleDelete(item.id, businessId)}
+                        title="Eliminar item"
+                        description="¿Estás seguro de eliminar este item?"
+                    ></DeleteDialogConfirmation >
+
+                )}
+            </div>
             <div
                 onClick={handleToggleReady}
                 className={cn(
@@ -85,6 +115,6 @@ export function OrderItemRow({ item }: OrderItemRowProps) {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

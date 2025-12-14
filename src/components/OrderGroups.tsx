@@ -1,16 +1,38 @@
-import { Order } from "@/lib/useOrdersApi";
+import { Order, useOrdersApi } from "@/lib/useOrdersApi";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, ChevronDown } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { OrderItemGroup } from "./OrderItemGroup";
+import { useBusinessStore } from "@/store/businessStore";
+import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
+import { toast } from "sonner";
+import { toastSuccessStyle } from "@/lib/toastStyles";
+import { handleApiError } from "@/utils/handleApiError";
+import { useEditModeStore } from "@/store/editModeStore";
+import { useGetOrders } from "@/app/hooks/useGetOrders";
 
 interface OrderDetailsProps {
     order: Order;
 }
 
 export function OrderGroups({ order }: OrderDetailsProps) {
+    const { deleteOrderItemGroup } = useOrdersApi();
+    const { businessId } = useBusinessStore();
+    const { isEditMode } = useEditModeStore();
+    const { getOrders } = useGetOrders();
+
+    const handleDeleteGroup = async (groupId: string) => {
+        try {
+            await deleteOrderItemGroup(groupId, businessId);
+            toast.success("Grupo eliminado correctamente", { style: toastSuccessStyle });
+            getOrders()
+        } catch (error) {
+            handleApiError(error);
+        }
+    };
+
     return (
         <div className="flex flex-col gap-4">
             {order.itemGroups.map((group) => (
@@ -30,6 +52,17 @@ export function OrderGroups({ order }: OrderDetailsProps) {
                                     <Badge variant="outline" className="text-xs font-semibold">
                                         {formatCurrency(group.subtotal)}
                                     </Badge>
+
+                                    {isEditMode && (
+                                        <div onClick={(e) => e.stopPropagation()}>
+                                            <DeleteDialogConfirmation
+                                                title="Eliminar grupo"
+                                                description="¿Estás seguro de que deseas eliminar este grupo y todos sus ítems?"
+                                                handleContinue={() => handleDeleteGroup(group.id)}
+                                            />
+                                        </div>
+                                    )}
+
                                     <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
                                         <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                                         <span className="sr-only">Toggle {group.name}</span>

@@ -115,6 +115,12 @@ export function useOrdersApi() {
                     params,
                 })
                 .then((res) => res.data),
+        deleteOrderItemGroup: (groupId: string, businessId: string) =>
+            api
+                .delete<ApiResponse<void>>(`/orders/group/${groupId}`, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
         deleteOrder: (orderId: string, businessId: string) =>
             api
                 .delete<ApiResponse<void>>(`/orders/${orderId}`, {
@@ -124,6 +130,12 @@ export function useOrdersApi() {
         updateOrder: (orderId: string, data: Partial<CreateOrderDto>, businessId: string) =>
             api
                 .patch<ApiResponse<Order>>(`/orders/${orderId}`, data, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
+        deleteOrderItem: (itemId: string, businessId: string) =>
+            api
+                .delete<ApiResponse<Order>>(`/orders/item/${itemId}`, {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),

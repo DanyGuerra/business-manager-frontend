@@ -1,7 +1,6 @@
 import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
-import { Order } from "./useOrdersApi";
 import { Option } from "./useOptionGroupApi";
 import { Product } from "./useBusinessApi";
 

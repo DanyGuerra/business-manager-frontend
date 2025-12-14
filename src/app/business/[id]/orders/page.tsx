@@ -1,9 +1,7 @@
 'use client';
-import { format } from "date-fns";
 
-import { useOrdersApi, ConsumptionType, OrderStatus, GetOrdersParams } from "@/lib/useOrdersApi";
-import { useBusinessStore } from "@/store/businessStore";
-import { useCallback, useEffect, useState } from "react";
+import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
+import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { OrderCard } from "@/components/OrderCard";
 import { Loader2, RefreshCw, ShoppingBag, Filter, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,73 +23,14 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { DateTimePicker } from "@/components/DateTimePicker";
-import { toast } from "sonner";
-import { toastErrorStyle } from "@/lib/toastStyles";
 
 export default function OrdersPage() {
-    const { businessId } = useBusinessStore();
-    const ordersApi = useOrdersApi();
-    const { orders, setOrders, pagination, filters, setFilters, resetFilters, setLimit } = useOrdersStore();
-    const [loading, setLoading] = useState(true);
+    const { orders, pagination, filters, setFilters, resetFilters, setLimit } = useOrdersStore();
+    const { getOrders, loading } = useGetOrders();
 
     const { status, consumptionType, sort, startDate, endDate } = filters;
     const { page, limit } = pagination;
 
-    const getOrders = useCallback(
-        async (newPage = page) => {
-            setLoading(true);
-            try {
-                const params: GetOrdersParams = {
-                    page: newPage,
-                    limit,
-                    status: status !== "ALL" ? status : undefined,
-                    consumption_type:
-                        consumptionType !== "ALL" ? consumptionType : undefined,
-                    sort,
-                };
-
-                if (startDate) {
-                    params.start_date = format(startDate, "yyyy-MM-dd'T'HH:mm:ss");
-                }
-                if (endDate) {
-                    params.end_date = format(endDate, "yyyy-MM-dd'T'HH:mm:ss");
-                }
-
-                const { data } = await ordersApi.getOrdersByBusinessId(
-                    businessId,
-                    params
-                );
-
-                setOrders(data.data, {
-                    page: data.page,
-                    limit: data.limit,
-                    total: data.total,
-                    totalPages: data.totalPages,
-                });
-            } catch {
-                toast.error("Failed to fetch orders", { style: toastErrorStyle });
-            } finally {
-                setLoading(false);
-            }
-        },
-        [
-            page,
-            limit,
-            status,
-            consumptionType,
-            sort,
-            startDate,
-            endDate,
-            businessId,
-            ordersApi,
-            setOrders,
-        ]
-    );
-
-
-    useEffect(() => {
-        getOrders(page);
-    }, [page, getOrders]);
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
             getOrders(newPage);
