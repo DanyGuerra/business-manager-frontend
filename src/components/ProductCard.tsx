@@ -129,9 +129,9 @@ export default function ProductCard({ product }: ProductCardProps) {
         productId: string,
         businessId: string
     ) {
-        const { menuId, ...rest } = data;
         const dataUpdate: UpdateProductDto = {
-            ...rest,
+            name: data.name,
+            available: data.available,
             description: data.description ?? "",
             base_price: Number(data.base_price),
         };
@@ -207,14 +207,14 @@ export default function ProductCard({ product }: ProductCardProps) {
         }
     }
 
-    function onQuantityBlur(e: React.FocusEvent<HTMLInputElement>) {
+    function onQuantityBlur() {
         if (quantity <= 0) {
             setQuantity(1);
         }
     }
 
     return (
-        <Card className={cn("group relative flex flex-col overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg px-6", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}>
+        <Card className={cn("group relative flex flex-col overflow-hidden border-border/50 bg-card transition-all duration-300 hover:shadow-lg px-3", isEditMode && "border-2 border-dashed border-primary/50 hover:border-primary/90")}>
             {isEditMode && (
                 <div className="absolute top-3 right-3 flex items-center gap-1 transition-opacity duration-200">
                     <CustomDialog
@@ -253,7 +253,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 </div>
             )}
 
-            <CardHeader className="p-5 pb-3">
+            <CardHeader className="pb-3">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-start justify-between gap-2">
                         <CardTitle
@@ -383,7 +383,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                                     type="text"
                                     value={quantity}
                                     onChange={onChangeQuantity}
-                                    onBlur={(e) => onQuantityBlur(e)}
+                                    onBlur={() => onQuantityBlur()}
                                     className="h-8 border-0 p-0 text-center text-sm focus-visible:ring-0 shadow-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
 
