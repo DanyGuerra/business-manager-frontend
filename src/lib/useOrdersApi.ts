@@ -1,4 +1,4 @@
-import { ApiResponse, User } from "@/app/types/auth";
+import { ApiResponse } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 import { OrderItemGroup } from "./useOrderItemGroups";
@@ -29,6 +29,14 @@ export type CreateOrderDto = {
     notes?: string | null,
 }
 
+export interface OrderLabel {
+    id: string;
+    name: string;
+    color: string;
+    created_at: string;
+    updated_at: string;
+}
+
 export interface Order {
     id: string
     customer_name: string
@@ -44,7 +52,7 @@ export interface Order {
     created_at: string
     updated_at: string
     itemGroups: OrderItemGroup[]
-    orderLabels: any[]
+    orderLabels: OrderLabel[]
     deleted_at: string | null
 }
 
@@ -65,6 +73,24 @@ export type CreateFullOrderDto = CreateOrderDto & {
     group_items: GroupItemsDto[];
 }
 
+type ResponsePaginationOrders = {
+    data: Order[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
+export type GetOrdersParams = {
+    page?: number;
+    limit?: number;
+    status?: OrderStatus;
+    consumption_type?: ConsumptionType;
+    sort?: 'ASC' | 'DESC';
+    start_date?: string;
+    end_date?: string;
+}
+
 export function useOrdersApi() {
     const api = useAxios();
 
@@ -81,10 +107,11 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-        getOrdersByBusinessId: (businessId: string) =>
+        getOrdersByBusinessId: (businessId: string, params?: GetOrdersParams) =>
             api
-                .get<ApiResponse<Order[]>>("/orders/business", {
+                .get<ApiResponse<ResponsePaginationOrders>>("/orders/business", {
                     headers: { [BusinessIdHeader]: businessId },
+                    params,
                 })
                 .then((res) => res.data),
         deleteOrder: (orderId: string, businessId: string) =>
@@ -99,5 +126,5 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-    };
+    }
 }

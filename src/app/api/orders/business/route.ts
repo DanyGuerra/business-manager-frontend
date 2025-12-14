@@ -3,7 +3,8 @@ import { buildHeaders, NESTJS_URL } from "../../headersUtils";
 
 export async function GET(req: NextRequest) {
     try {
-        const res = await fetch(`${NESTJS_URL}/orders/by-business-id`, {
+        const searchParams = req.nextUrl.searchParams.toString();
+        const res = await fetch(`${NESTJS_URL}/orders/by-business-id?${searchParams}`, {
             method: "GET",
             headers: {
                 ...buildHeaders(req),
@@ -14,7 +15,7 @@ export async function GET(req: NextRequest) {
 
         const data = await res.json();
         return NextResponse.json(data, { status: res.status });
-    } catch (err) {
+    } catch {
         return NextResponse.json(
             { message: "Internal server error" },
             { status: 500 }
