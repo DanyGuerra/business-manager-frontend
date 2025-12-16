@@ -11,13 +11,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { DatePicker } from "./ui/date-picker";
@@ -31,9 +24,19 @@ import { format } from "date-fns";
 
 const orderSchema = z.object({
     customer_name: z.string().optional(),
+    amount_paid: z.number().optional(),
+    total: z.number().optional(),
     notes: z.string().optional(),
     consumption_type: z.nativeEnum(ConsumptionType),
     scheduled_at: z.date().optional(),
+}).refine((data) => {
+    if (data.amount_paid !== undefined && data.total !== undefined) {
+        return data.amount_paid >= data.total;
+    }
+    return true;
+}, {
+    message: "El pago debe ser mayor o igual al total",
+    path: ["amount_paid"],
 });
 
 export type OrderValues = z.infer<typeof orderSchema>;
@@ -57,6 +60,8 @@ export default function FormOrder({
         resolver: zodResolver(orderSchema),
         defaultValues: {
             customer_name: defaultValues?.customer_name ?? "",
+            amount_paid: defaultValues?.amount_paid,
+            total: defaultValues?.total,
             notes: defaultValues?.notes ?? "",
             consumption_type: defaultValues?.consumption_type ?? ConsumptionType.DINE_IN,
             scheduled_at: defaultValues?.scheduled_at,
@@ -69,6 +74,8 @@ export default function FormOrder({
         if (defaultValues) {
             form.reset({
                 customer_name: defaultValues.customer_name ?? "",
+                amount_paid: defaultValues.amount_paid,
+                total: defaultValues.total,
                 notes: defaultValues.notes ?? "",
                 consumption_type: defaultValues.consumption_type ?? ConsumptionType.DINE_IN,
                 scheduled_at: defaultValues.scheduled_at,
@@ -87,19 +94,21 @@ export default function FormOrder({
                 className="flex-col flex w-full gap-5"
                 onSubmit={form.handleSubmit(onSubmit)}
             >
-                <FormField
-                    control={form.control}
-                    name="customer_name"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Nombre del cliente</FormLabel>
-                            <FormControl>
-                                <Input type="text" placeholder="Nombre del cliente" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
+                <div className="flex gap-4">
+                    <FormField
+                        control={form.control}
+                        name="customer_name"
+                        render={({ field }) => (
+                            <FormItem className="flex-1">
+                                <FormLabel>Nombre del cliente</FormLabel>
+                                <FormControl>
+                                    <Input type="text" placeholder="Nombre del cliente" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <div className="flex flex-col gap-4">
                     <FormField
@@ -151,7 +160,7 @@ export default function FormOrder({
                             render={({ field }) => (
                                 <>
                                     <FormItem className="flex flex-col flex-1">
-                                        <FormLabel className="text-xs font-medium">Fecha</FormLabel>
+                                        <FormLabel className="text-xs font-medium">Fecha programada</FormLabel>
                                         <FormControl>
                                             <DatePicker
                                                 date={field.value}
@@ -218,6 +227,27 @@ export default function FormOrder({
                         </FormItem>
                     )}
                 />
+
+                <div className="flex w-full">
+                    <FormField
+                        control={form.control}
+                        name="amount_paid"
+                        render={({ field }) => (
+                            <FormItem className="w-full">
+                                <FormLabel>Pago</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="0.00"
+                                        {...field}
+                                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
 
                 <div className="flex justify-center items-center">
                     <ButtonLoading

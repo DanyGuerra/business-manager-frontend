@@ -17,6 +17,8 @@ type DeleteDialogConfirmationProps = {
   description?: string;
   handleCancel?: () => void;
   handleContinue: () => void;
+  trigger?: React.ReactNode;
+  confirmText?: string;
 };
 
 export function DeleteDialogConfirmation({
@@ -24,13 +26,17 @@ export function DeleteDialogConfirmation({
   description,
   handleCancel = () => { },
   handleContinue,
+  trigger,
+  confirmText = "Continuar",
 }: DeleteDialogConfirmationProps) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" size="icon" className="size-7">
-          <Trash2Icon className="text-red-400"></Trash2Icon>
-        </Button>
+        {trigger ? trigger : (
+          <Button variant="outline" size="icon" className="size-7">
+            <Trash2Icon className="text-red-400"></Trash2Icon>
+          </Button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
@@ -45,7 +51,7 @@ export function DeleteDialogConfirmation({
             onClick={handleContinue}
             className="cursor-pointer"
           >
-            Continuar
+            {confirmText}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

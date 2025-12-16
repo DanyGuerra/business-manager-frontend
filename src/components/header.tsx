@@ -28,7 +28,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-10 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between p-1 items-center">
+      <header className="sticky top-0 z-20 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between p-1 items-center">
         <div className="flex items-center gap-2">
           <Store className="h-6 w-6" />
           <Link

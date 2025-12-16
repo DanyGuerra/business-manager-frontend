@@ -14,6 +14,7 @@ import {
   User as UserIcon,
   Plus,
   Check,
+  LayoutDashboard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -101,6 +102,11 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
   };
 
   const items = [
+    {
+      title: "Tablero de pedidos",
+      href: `/business/${businessId}/orders/board`,
+      icon: LayoutDashboard,
+    },
     {
       title: "Pedidos",
       href: `/business/${businessId}/orders`,

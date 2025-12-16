@@ -6,5 +6,5 @@ export default async function BusinessPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  redirect(`/business/${id}/orders`);
+  redirect(`/business/${id}/orders/board`);
 }

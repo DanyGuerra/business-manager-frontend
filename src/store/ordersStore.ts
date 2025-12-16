@@ -18,15 +18,24 @@ type FilterState = {
     endDate: Date | undefined;
 };
 
+type OrderResponse = {
+    data: Order[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+};
+
 type OrdersState = {
     orders: Order[];
     pagination: PaginationState;
     filters: FilterState;
-    setOrders: (orders: Order[], pagination?: PaginationState) => void;
+    setOrders: (response: OrderResponse) => void;
     addOrder: (order: Order) => void;
     updateOrder: (orderId: string, order: Partial<Order>) => void;
     removeOrder: (orderId: string) => void;
     setFilters: (filters: Partial<FilterState>) => void;
+    setPage: (page: number) => void;
     resetFilters: () => void;
     setLimit: (limit: number) => void;
 };
@@ -34,7 +43,7 @@ type OrdersState = {
 const initialFilters: FilterState = {
     status: "ALL",
     consumptionType: "ALL",
-    sort: 'DESC',
+    sort: 'ASC',
     startDate: undefined,
     endDate: undefined,
 };
@@ -48,9 +57,14 @@ export const useOrdersStore = create<OrdersState>((set) => ({
         totalPages: 0,
     },
     filters: initialFilters,
-    setOrders: (orders, pagination) => set((state) => ({
-        orders,
-        pagination: pagination ? pagination : state.pagination,
+    setOrders: (response) => set(() => ({
+        orders: response.data,
+        pagination: {
+            page: response.page,
+            limit: response.limit,
+            total: response.total,
+            totalPages: response.totalPages,
+        }
     })),
     addOrder: (order) => set((state) => ({ orders: [order, ...state.orders] })),
     updateOrder: (orderId, updatedOrder) => set((state) => ({
@@ -64,6 +78,9 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     setFilters: (newFilters) => set((state) => ({
         filters: { ...state.filters, ...newFilters },
         pagination: { ...state.pagination, page: 1 }
+    })),
+    setPage: (page) => set((state) => ({
+        pagination: { ...state.pagination, page }
     })),
     resetFilters: () => set(() => ({
         filters: initialFilters,

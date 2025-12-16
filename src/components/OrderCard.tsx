@@ -1,9 +1,9 @@
 
-import { Order, OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
+import { Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil } from "lucide-react";
-import { formatCurrency, cn } from "@/lib/utils";
+import { formatCurrency, cn, getStatusColor, getStatusLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
@@ -24,35 +24,7 @@ interface OrderCardProps {
     order: Order;
 }
 
-const getStatusColor = (status: string) => {
-    switch (status) {
-        case OrderStatus.PENDING:
-            return "bg-yellow-500 hover:bg-yellow-600";
-        case OrderStatus.PREPARING:
-            return "bg-blue-500 hover:bg-blue-600";
-        case OrderStatus.READY:
-            return "bg-green-500 hover:bg-green-600";
-        case OrderStatus.COMPLETED:
-            return "bg-slate-500 hover:bg-slate-600";
-        default:
-            return "bg-gray-500";
-    }
-};
 
-const getStatusLabel = (status: string) => {
-    switch (status) {
-        case OrderStatus.PENDING:
-            return "Pendiente";
-        case OrderStatus.PREPARING:
-            return "Preparando";
-        case OrderStatus.READY:
-            return "Listo";
-        case OrderStatus.COMPLETED:
-            return "Completado";
-        default:
-            return status;
-    }
-};
 
 const getConsumptionIcon = (type: string) => {
     switch (type) {
@@ -81,6 +53,7 @@ const getConsumptionLabel = (type: string) => {
 };
 
 import { useOrdersStore } from "@/store/ordersStore";
+import { useGetOrders } from "@/app/hooks/useGetOrders";
 
 export function OrderCard({ order }: OrderCardProps) {
     const { isEditMode } = useEditModeStore();
@@ -88,19 +61,38 @@ export function OrderCard({ order }: OrderCardProps) {
     const ordersApi = useOrdersApi();
     const { updateOrder, removeOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
+    const { getOrders } = useGetOrders();
 
     const [open, setOpen] = useState(false);
+    const [openPay, setOpenPay] = useState(false);
 
     async function handleUpdateOrder(data: OrderValues) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { total, ...rest } = data;
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
-            await ordersApi.updateOrder(order.id, data, businessId);
+            await ordersApi.updateOrder(order.id, rest, businessId);
             updateOrder(order.id, {
-                ...data,
-                scheduled_at: data.scheduled_at?.toISOString() ?? null
+                ...rest,
+                amount_paid: rest.amount_paid?.toString() ?? null,
+                scheduled_at: rest.scheduled_at?.toISOString() ?? null
             });
             toast.success("Orden actualizada correctamente", { style: toastSuccessStyle });
+            getOrders();
             setOpen(false);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.UPDATE_ORDER);
+        }
+    }
+
+    async function handleCancelOrder() {
+        try {
+            startLoading(LoadingsKeyEnum.UPDATE_ORDER);
+            await ordersApi.updateOrder(order.id, { status: OrderStatus.CANCELLED }, businessId);
+            getOrders();
+            toast.success("Orden cancelada correctamente", { style: toastSuccessStyle });
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -116,9 +108,9 @@ export function OrderCard({ order }: OrderCardProps) {
         : "Ahora";
 
     return (
-        <Card className={`w-full pt-8 hover:shadow-md transition-shadow duration-200 border-l-[3px] group relative overflow-hidden ${isEditMode ? 'border-dashed border-2 border-primary/40' : ''}`}
-            style={!isEditMode ? { borderLeftColor: getStatusColor(order.status).replace('bg-', '').replace('hover:', '').split(' ')[0].replace('500', '600') } : undefined}>
-            {!isEditMode && <div className={`absolute left-0 top-0 bottom-0 w-[3px] ${getStatusColor(order.status)}`} />}
+        <Card className={`w-full pt-8 hover:shadow-md transition-shadow duration-200 group relative overflow-hidden border-t-[3px] ${isEditMode ? 'border-dashed border-2 border-primary/40 !border-t-2' : ''}`}
+            style={!isEditMode ? { borderTopColor: getStatusColor(order.status).replace('bg-', '').replace('hover:', '').split(' ')[0].replace('500', '600') } : undefined}>
+            {!isEditMode && <div className={`absolute left-0 right-0 top-0 h-[3px] ${getStatusColor(order.status)}`} />}
 
             <CardHeader className="p-3 pb-2 space-y-0 relative">
                 <div className="flex justify-between items-start">
@@ -164,11 +156,14 @@ export function OrderCard({ order }: OrderCardProps) {
                                     onSuccess={() => setOpen(false)}
                                     defaultValues={{
                                         customer_name: order.customer_name,
+                                        amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : parseFloat(order.total),
+                                        total: parseFloat(order.total),
                                         notes: order.notes,
                                         consumption_type: order.consumption_type as ConsumptionType,
                                         scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
                                     }}
                                 />
+
                             </CustomDialog>
 
                             <DeleteDialogConfirmation
@@ -184,6 +179,8 @@ export function OrderCard({ order }: OrderCardProps) {
                                     }
                                 }}
                             />
+
+
                         </div>
                     ) : (
                         <Badge variant="outline" className={`${getStatusColor(order.status)}/10 text-foreground border-0 text-[11px] px-2 py-0.5 h-5 font-semibold capitalize`}>
@@ -238,7 +235,54 @@ export function OrderCard({ order }: OrderCardProps) {
                     </div>
                 </div>
             </CardFooter>
+            {!order.amount_paid && (
+                <div className="p-3 pt-0">
+                    <CustomDialog
+                        open={openPay}
+                        setOpen={setOpenPay}
+                        modalTitle="Pagar orden"
+                        modalDescription="Ingresa el monto pagado por el cliente"
+                        trigger={
+                            <Button className="w-full">
+                                Pagar Orden
+                            </Button>
+                        }
+                    >
+                        <FormOrder
+                            buttonTitle="Confirmar pago"
+                            loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                            handleSubmitButton={handleUpdateOrder}
+                            onSuccess={() => setOpenPay(false)}
+                            defaultValues={{
+                                customer_name: order.customer_name,
+                                amount_paid: parseFloat(order.total),
+                                total: parseFloat(order.total),
+                                notes: order.notes,
+                                consumption_type: order.consumption_type as ConsumptionType,
+                                scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
+                            }}
+                        />
+                    </CustomDialog>
+                </div>
+            )}
+            {isEditMode && (
+                <div className="p-3 pt-0">
+                    <DeleteDialogConfirmation
+                        title="Cancelar orden"
+                        description="¿Estás seguro de que deseas cancelar esta orden?"
+                        confirmText="Cancelar Orden"
+                        trigger={
+                            <Button
+                                variant="outline"
+                                className="w-full border-destructive/50 text-destructive hover:bg-destructive hover:text-white hover:border-destructive transition-all duration-300"
+                            >
+                                Cancelar Orden
+                            </Button>
+                        }
+                        handleContinue={handleCancelOrder}
+                    />
+                </div>
+            )}
         </Card >
     );
 }
-

@@ -204,7 +204,7 @@ export const useCartStore = create<CartState>()(
 
                     const existingItemIndex = targetGroup.items.findIndex(item => item.cart_item_id === cartItemId);
 
-                    let newItems = [...targetGroup.items];
+                    const newItems = [...targetGroup.items];
 
                     if (existingItemIndex > -1) {
                         newItems[existingItemIndex].quantity += quantity;

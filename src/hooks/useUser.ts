@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useUserStore } from "@/store/useUserStore";
 import { useAuthApi } from "@/lib/useAuthApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
+import { handleApiError } from "@/utils/handleApiError";
 
 export function useUser() {
     const { user, isLoading, isChecked, setUser, setIsLoading, setIsChecked, logout } = useUserStore();
@@ -27,7 +28,7 @@ export function useUser() {
                 const { data } = await authApi.getMe();
                 setUser(data);
             } catch (error) {
-                console.error(error);
+                handleApiError(error);
                 setUser(null);
             } finally {
                 setIsLoading(false);

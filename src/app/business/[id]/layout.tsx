@@ -33,7 +33,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { cn } from "@/lib/utils";
 import CartDrawer from "@/components/CartDrawer";
 
 export default function BusinessLayout({
@@ -119,7 +118,7 @@ export default function BusinessLayout({
   return (
     <SidebarProvider>
       <BusinessSidebar businessId={id} />
-      <SidebarInset>
+      <SidebarInset className="min-w-0">
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-14 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
           <SidebarTrigger className="-ml-1 cursor-pointer" />
           <Separator orientation="vertical" className="mr-2 h-4" />
@@ -137,8 +136,8 @@ export default function BusinessLayout({
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        <div className="flex flex-col gap-6">
-          <div className="w-full sticky top-[7.5rem] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-2 border-b">
+        <div className="flex flex-col gap-6 flex-1 w-full min-w-0">
+          <div className="w-full sticky top-[7.5rem] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-2 border-b ">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:space-y-0">
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-3">

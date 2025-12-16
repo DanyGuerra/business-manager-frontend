@@ -1,6 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import axios from "axios";
+
 import { useBusinessStore } from "@/store/businessStore";
 import { useOrdersStore } from "@/store/ordersStore";
 import { useOrdersApi, GetOrdersParams } from "@/lib/useOrdersApi";
@@ -8,67 +10,55 @@ import { toastErrorStyle } from "@/lib/toastStyles";
 
 export function useGetOrders() {
     const { businessId } = useBusinessStore();
-    const ordersApi = useOrdersApi();
     const { setOrders, pagination, filters } = useOrdersStore();
-    const [loading, setLoading] = useState(true);
+    const ordersApi = useOrdersApi();
 
-    const { status, consumptionType, sort, startDate, endDate } = filters;
+    const [loading, setLoading] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+
     const { page, limit } = pagination;
+    const { status, consumptionType, sort, startDate, endDate } = filters;
 
-    const getOrders = useCallback(
-        async (newPage = page) => {
-            setLoading(true);
-            try {
-                const params: GetOrdersParams = {
-                    page: newPage,
-                    limit,
-                    status: status !== "ALL" ? status : undefined,
-                    consumption_type:
-                        consumptionType !== "ALL" ? consumptionType : undefined,
-                    sort,
-                };
+    const getOrders = useCallback(async () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+        abortControllerRef.current = new AbortController();
 
-                if (startDate) {
-                    params.start_date = format(startDate, "yyyy-MM-dd'T'HH:mm:ss");
-                }
-                if (endDate) {
-                    params.end_date = format(endDate, "yyyy-MM-dd'T'HH:mm:ss");
-                }
+        setLoading(true);
 
-                const { data } = await ordersApi.getOrdersByBusinessId(
-                    businessId,
-                    params
-                );
+        try {
+            const params: GetOrdersParams = {
+                page,
+                limit,
+                status: status !== "ALL" ? status : undefined,
+                consumption_type:
+                    consumptionType !== "ALL" ? consumptionType : undefined,
+                sort,
+                start_date: startDate
+                    ? format(startDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    : undefined,
+                end_date: endDate
+                    ? format(endDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    : undefined,
+            };
 
-                setOrders(data.data, {
-                    page: data.page,
-                    limit: data.limit,
-                    total: data.total,
-                    totalPages: data.totalPages,
-                });
-            } catch {
-                toast.error("Failed to fetch orders", { style: toastErrorStyle });
-            } finally {
+            const { data } = await ordersApi.getOrdersByBusinessId(
+                businessId,
+                params
+            );
+
+            setOrders(data);
+        } catch (error) {
+            if (axios.isCancel(error)) return;
+            toast.error("Failed to fetch orders", { style: toastErrorStyle });
+        } finally {
+            if (!abortControllerRef.current?.signal.aborted) {
                 setLoading(false);
             }
-        },
-        [
-            page,
-            limit,
-            status,
-            consumptionType,
-            sort,
-            startDate,
-            endDate,
-            businessId,
-            ordersApi,
-            setOrders,
-        ]
-    );
+        }
+    }, [businessId, page, limit, status, consumptionType, sort, startDate, endDate, ordersApi, setOrders]);
 
-    useEffect(() => {
-        getOrders(page);
-    }, [page, getOrders]);
-
-    return { getOrders, loading };
+    return { loading, getOrders };
 }

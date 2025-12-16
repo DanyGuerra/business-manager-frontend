@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from "react";
+
 import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { OrderCard } from "@/components/OrderCard";
@@ -25,15 +27,19 @@ import {
 import { DateTimePicker } from "@/components/DateTimePicker";
 
 export default function OrdersPage() {
-    const { orders, pagination, filters, setFilters, resetFilters, setLimit } = useOrdersStore();
-    const { getOrders, loading } = useGetOrders();
+    const { orders, pagination, filters, setFilters, resetFilters, setLimit, setPage } = useOrdersStore();
+    const { loading, getOrders } = useGetOrders();
+
+    useEffect(() => {
+        getOrders();
+    }, [getOrders]);
 
     const { status, consumptionType, sort, startDate, endDate } = filters;
     const { page, limit } = pagination;
 
     const handlePageChange = (newPage: number) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
-            getOrders(newPage);
+            setPage(newPage);
         }
     };
 
@@ -128,7 +134,7 @@ export default function OrdersPage() {
                         <h2 className="text-xl md:text-2xl font-bold tracking-tight">Pedidos</h2>
                         <p className="text-sm text-muted-foreground">Gestiona y visualiza los pedidos de tu negocio.</p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => getOrders(page)} disabled={loading} className="w-full sm:w-auto">
+                    <Button variant="outline" size="sm" onClick={() => getOrders()} disabled={loading} className="w-full sm:w-auto">
                         <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                         Actualizar
                     </Button>
