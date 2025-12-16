@@ -97,10 +97,22 @@ export function OrderCard({ order }: OrderCardProps) {
     }
 
     const date = new Date(order.created_at);
-    const timeString = date.toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit' });
+    const timeString = date.toLocaleString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
 
     const scheduledTime = order.scheduled_at
-        ? new Date(order.scheduled_at).toLocaleString('es-MX', { hour: '2-digit', minute: '2-digit' })
+        ? new Date(order.scheduled_at).toLocaleString('es-MX', {
+            day: '2-digit',
+            month: '2-digit',
+            year: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        })
         : null;
 
     return (
@@ -255,7 +267,7 @@ export function OrderCard({ order }: OrderCardProps) {
                         modalTitle="Pagar orden"
                         modalDescription="Ingresa el monto"
                         trigger={
-                            <Button className="w-full h-7 text-[10px] font-medium shadow-none bg-primary/90 hover:bg-primary" size="sm">
+                            <Button className="font-bold w-full h-7 text-[12px] font-medium shadow-none bg-primary/90 hover:bg-primary" size="sm">
                                 <DollarSign className="h-3 w-3 mr-1.5" />
                                 Pagar
                             </Button>
