@@ -13,6 +13,11 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useBusinessStore } from "@/store/businessStore";
 import { useFetchBusiness } from "@/app/hooks/useBusiness";
+import CustomPagination from "@/components/CustomPagination";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 type BusinessProductsListProps = {
     businessId: string;
@@ -23,6 +28,12 @@ export default function TabProducts({
 }: BusinessProductsListProps) {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [search, setSearch] = useState("");
+    const [inputValue, setInputValue] = useState("");
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalItems, setTotalItems] = useState(0);
     const productApi = useProductApi();
     const { startLoading, stopLoading } = useLoadingStore();
     const { business } = useBusinessStore();
@@ -31,8 +42,10 @@ export default function TabProducts({
     async function getProducts() {
         try {
             setLoading(true);
-            const { data } = await productApi.getProductsByBusinessId(businessId);
-            setProducts(data);
+            const { data } = await productApi.getProductsByBusinessId(businessId, { page, limit, search });
+            setProducts(data.data);
+            setTotalPages(data.totalPages);
+            setTotalItems(data.total);
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -65,7 +78,7 @@ export default function TabProducts({
         if (businessId) {
             getProducts();
         }
-    }, [businessId]);
+    }, [businessId, page, limit, search]);
 
     if (loading) {
         return (
@@ -79,7 +92,32 @@ export default function TabProducts({
 
     return (
         <div className="flex flex-col gap-5">
-            {products.length === 0 ? (
+            <div className="flex items-center gap-2">
+                <div className="relative flex-1 max-w-sm">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        type="search"
+                        placeholder="Buscar productos..."
+                        className="pl-8"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                setSearch(inputValue);
+                                setPage(1);
+                            }
+                        }}
+                    />
+                </div>
+                <Button onClick={() => {
+                    setSearch(inputValue);
+                    setPage(1);
+                }}>
+                    Buscar
+                </Button>
+            </div>
+
+            {products.length === 0 && page === 1 && !search ? (
                 <div className="flex flex-col items-center justify-center min-h-[200px] p-8 text-center border-2 border-dashed rounded-lg bg-muted/10">
                     <h3 className="text-lg font-medium">No hay productos</h3>
                     <p className="text-sm text-muted-foreground mt-1 mb-4">
@@ -101,7 +139,46 @@ export default function TabProducts({
 
                 </div>
             ) : (
-                <ProductCardList products={products} productGroupId="" />
+                <>
+                    <ProductCardList products={products} productGroupId="" />
+
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4">
+                        <div className="flex-1 text-sm text-muted-foreground">
+                            Mostrando {products.length} de {totalItems} productos
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 lg:gap-8">
+                            <div className="flex items-center space-x-2">
+                                <p className="text-sm font-medium">Filas por página</p>
+                                <Select
+                                    value={limit.toString()}
+                                    onValueChange={(value) => {
+                                        setLimit(Number(value));
+                                        setPage(1); // Reset to first page on limit change
+                                    }}
+                                >
+                                    <SelectTrigger className="h-8 w-[70px]">
+                                        <SelectValue placeholder={limit.toString()} />
+                                    </SelectTrigger>
+                                    <SelectContent side="top">
+                                        {[5, 10, 20, 30, 40, 50].map((pageSize) => (
+                                            <SelectItem key={pageSize} value={`${pageSize}`}>
+                                                {pageSize}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <CustomPagination
+                                page={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage}
+                                className="w-auto mx-0"
+                            />
+
+                        </div>
+                    </div>
+                </>
             )}
         </div>
     );

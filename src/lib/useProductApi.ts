@@ -17,6 +17,21 @@ export type UpdateProductDto = {
   available: boolean;
 };
 
+export type ProductPagination = {
+  data: Product[];
+  totalPages: number;
+  total: number;
+  page: number;
+  limit: number;
+
+}
+
+export type ProductParams = {
+  page: number;
+  limit: number;
+  search?: string;
+};
+
 export function useProductApi() {
   const api = useAxios();
 
@@ -43,9 +58,10 @@ export function useProductApi() {
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),
-    getProductsByBusinessId: (businessId: string) =>
+    getProductsByBusinessId: (businessId: string, params: ProductParams) =>
       api
-        .get<ApiResponse<Product[]>>(`/product/business/${businessId}`, {
+        .get<ApiResponse<ProductPagination>>(`/product/business/${businessId}`, {
+          params,
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),

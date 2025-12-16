@@ -6,9 +6,10 @@ export async function GET(
     context: { params: Promise<{ businessId: string }> }
 ) {
     const { businessId } = await context.params;
+    const searchParams = req.nextUrl.searchParams.toString();
 
     try {
-        const res = await fetch(`${NESTJS_URL}/products/business/${businessId}`, {
+        const res = await fetch(`${NESTJS_URL}/products/business/${businessId}?${searchParams}`, {
             method: "GET",
             headers: {
                 ...buildHeaders(req),
@@ -19,7 +20,7 @@ export async function GET(
 
         const data = await res.json();
         return NextResponse.json(data, { status: res.status });
-    } catch (err) {
+    } catch {
         return NextResponse.json(
             { message: "Internal server error" },
             { status: 500 }
