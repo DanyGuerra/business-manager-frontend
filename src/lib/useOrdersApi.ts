@@ -74,7 +74,7 @@ export type CreateFullOrderDto = CreateOrderDto & {
     group_items: GroupItemsDto[];
 }
 
-type ResponsePaginationOrders = {
+type OrdersPagination = {
     data: Order[];
     total: number;
     page: number;
@@ -110,7 +110,7 @@ export function useOrdersApi() {
                 .then((res) => res.data),
         getOrdersByBusinessId: (businessId: string, params?: GetOrdersParams) =>
             api
-                .get<ApiResponse<ResponsePaginationOrders>>("/orders/business", {
+                .get<ApiResponse<OrdersPagination>>("/orders/business", {
                     headers: { [BusinessIdHeader]: businessId },
                     params,
                 })

@@ -14,7 +14,7 @@ import {
   User as UserIcon,
   Plus,
   Check,
-  LayoutDashboard,
+  Kanban,
 } from "lucide-react";
 import {
   Sidebar,
@@ -105,7 +105,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
     {
       title: "Tablero de pedidos",
       href: `/business/${businessId}/orders/board`,
-      icon: LayoutDashboard,
+      icon: Kanban,
     },
     {
       title: "Pedidos",

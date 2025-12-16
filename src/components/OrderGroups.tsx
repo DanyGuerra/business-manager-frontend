@@ -91,11 +91,11 @@ export function OrderGroups({ order }: OrderDetailsProps) {
             ))}
 
             {order.notes && (
-                <div className="mt-2 flex gap-2 bg-amber-50/80 dark:bg-amber-950/20 p-2 rounded-md border border-amber-200/50 dark:border-amber-900/40">
-                    <FileText className="h-4 w-4 text-amber-600 dark:text-amber-500 shrink-0" />
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-400">Nota</span>
-                        <p className="text-xs text-foreground/80 leading-snug">{order.notes}</p>
+                <div className="mt-2 flex gap-2 bg-muted/40 p-2.5 rounded-md border-2 border-dashed border-muted-foreground/25">
+                    <FileText className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                    <div className="flex flex-col gap-0.5">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/80">Nota del Cliente</span>
+                        <p className="text-xs font-medium text-foreground/90 leading-snug">{order.notes}</p>
                     </div>
                 </div>
             )}
