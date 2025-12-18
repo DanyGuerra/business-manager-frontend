@@ -6,6 +6,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableItem } from "./SortableItem";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Clock, ChefHat, CheckCircle2, Flag, Ghost } from "lucide-react";
+import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 
 interface KanbanColumnProps {
     title: string;
@@ -25,7 +26,7 @@ const getStatusIcon = (status: OrderStatus) => {
     }
 };
 
-export function KanbanColumn({ title, status, orders, color }: KanbanColumnProps) {
+export function KanbanColumn({ title, status, orders, color, loading }: KanbanColumnProps & { loading?: boolean }) {
     const { setNodeRef, isOver } = useDroppable({
         id: status,
     });
@@ -48,7 +49,7 @@ export function KanbanColumn({ title, status, orders, color }: KanbanColumnProps
                     </h3>
                 </div>
                 <Badge variant={orders.length > 0 ? "default" : "secondary"} className="h-6 px-2 min-w-[24px] flex items-center justify-center font-mono text-xs">
-                    {orders.length}
+                    {loading ? "-" : orders.length}
                 </Badge>
             </div>
 
@@ -58,12 +59,16 @@ export function KanbanColumn({ title, status, orders, color }: KanbanColumnProps
                     strategy={verticalListSortingStrategy}
                 >
                     <div className="flex flex-col gap-3 py-3 min-h-[150px]">
-                        {orders.map(order => (
+                        {loading ? (
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <OrderCardSkeleton key={i} />
+                            ))
+                        ) : orders.map(order => (
                             <SortableItem key={order.id} id={order.id}>
                                 <OrderCard order={order} />
                             </SortableItem>
                         ))}
-                        {orders.length === 0 && (
+                        {!loading && orders.length === 0 && (
                             <div className="flex flex-col items-center justify-center h-[200px] text-muted-foreground/40 gap-3">
                                 <div className="p-4 rounded-full bg-muted/30">
                                     <Ghost className="w-8 h-8 opacity-50" />

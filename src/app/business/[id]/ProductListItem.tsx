@@ -52,7 +52,7 @@ export default function ProductListItem({ product }: ProductListItemProps) {
 
     const isValidSelection = useMemo(() => {
         return product.option_groups.every((group) => {
-            if (!group.available) return true;
+            if (group.available === false) return true;
 
             const selections = selectedOptions[group.id] || [];
             return selections.length >= group.min_options && selections.length <= group.max_options;

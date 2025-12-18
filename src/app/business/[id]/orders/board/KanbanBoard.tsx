@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
 import { KanbanColumn } from "./KanbanColumn";
-import { Loader2 } from "lucide-react";
 import {
     DndContext,
     DragOverlay,
@@ -156,14 +155,6 @@ export default function KanbanBoard() {
         }
     }
 
-    if (loading && orders.length === 0) {
-        return (
-            <div className="flex h-[60vh] items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-            </div>
-        );
-    }
-
     return (
         <DndContext
             sensors={sensors}
@@ -178,6 +169,7 @@ export default function KanbanBoard() {
                         status={column.status}
                         orders={column.orders}
                         color={column.color}
+                        loading={loading}
                     />
                 ))}
             </div>

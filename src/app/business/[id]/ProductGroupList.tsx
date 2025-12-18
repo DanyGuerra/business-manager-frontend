@@ -11,7 +11,9 @@ import { ProductGroup } from "@/lib/useBusinessApi";
 import Link from "next/link";
 
 import CustomDialog from "@/components/customDialog";
-import ProductList from "./ProductList";
+import ProductCardList from "./ProductCardList";
+
+
 import { Edit2Icon, PlusIcon, ArrowUpRight } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
@@ -194,7 +196,7 @@ export default function ProductGroupList({
                   </CustomDialog>)}
               </div>
               <div className="flex-1">
-                <ProductList products={group.products} productGroupId={group.id} />
+                <ProductCardList products={group.products} productGroupId={group.id} />
               </div>
             </CardContent>
           </Card>

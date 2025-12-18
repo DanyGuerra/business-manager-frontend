@@ -5,9 +5,10 @@ import { useEffect } from "react";
 import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { OrderCard } from "@/components/OrderCard";
-import { Loader2, RefreshCw, ShoppingBag, Filter, XCircle } from "lucide-react";
+import { RefreshCw, ShoppingBag, Filter, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrdersStore } from "@/store/ordersStore";
+import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 import {
     Pagination,
     PaginationContent,
@@ -206,9 +207,11 @@ export default function OrdersPage() {
             </div>
 
             <div className="flex-1 p-4 md:p-6 overflow-auto">
-                {loading && orders.length === 0 ? (
-                    <div className="flex h-[60vh] items-center justify-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                {loading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+                        {[...Array(8)].map((_, i) => (
+                            <OrderCardSkeleton key={i} />
+                        ))}
                     </div>
                 ) : orders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[60vh] text-muted-foreground space-y-4">

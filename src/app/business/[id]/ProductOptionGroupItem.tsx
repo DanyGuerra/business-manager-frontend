@@ -22,17 +22,20 @@ export default function ProductOptionGroupItem({
     onSelectOption,
     isEditMode,
 }: ProductOptionGroupItemProps) {
+    // Treat undefined/null as true by checking specific false equality
+    const isUnavailable = group.available === false;
+
     return (
         <div
             className={cn(
                 "text-xs leading-snug",
-                !group.available && "opacity-50 pointer-events-none"
+                isUnavailable && "opacity-50 pointer-events-none"
             )}
         >
             <span
                 className={cn(
                     "font-semibold text-foreground/90 mr-1",
-                    !group.available && "line-through"
+                    isUnavailable && "line-through"
                 )}
             >
                 {group.name}
@@ -48,6 +51,7 @@ export default function ProductOptionGroupItem({
                 {group.options && group.options.length > 0 ? (
                     group.options.map((opt) => {
                         const isSelected = selectedOptions?.includes(opt.id) || false;
+                        const isOptUnavailable = opt.available === false;
                         return (
                             <ProductOptionChip
                                 key={opt.id}
@@ -55,7 +59,7 @@ export default function ProductOptionGroupItem({
                                 isSelected={isSelected}
                                 isEditMode={isEditMode}
                                 onClick={() => {
-                                    if (group.available && opt.available && !isEditMode) {
+                                    if (!isUnavailable && !isOptUnavailable && !isEditMode) {
                                         onSelectOption(
                                             group.id,
                                             opt.id,
