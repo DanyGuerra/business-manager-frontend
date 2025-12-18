@@ -1,6 +1,5 @@
 "use client";
 
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import CustomDialog from "@/components/customDialog";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import FormOption, { OptionValues } from "@/components/formOption";
@@ -30,7 +29,6 @@ export default function OptionList({
   const [open, setOpen] = useState<string | null>(null);
   const optionApi = useProductOptionApi();
   const { businessId } = useBusinessStore();
-  const { getBusiness } = useFetchBusiness();
   const { isEditMode } = useEditModeStore();
 
   async function handleUpdateOption(
@@ -50,7 +48,6 @@ export default function OptionList({
       toast.success("Opción actualizada correctamente", {
         style: toastSuccessStyle,
       });
-      await getBusiness(businessId);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -69,7 +66,6 @@ export default function OptionList({
       toast.success("Opción eliminada correctamente", {
         style: toastSuccessStyle,
       });
-      await getBusiness(businessId);
     } catch (error) {
       handleApiError(error);
     } finally {

@@ -1,7 +1,6 @@
-"use client";
+'use client'
 
 import { useState, useEffect } from "react";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
@@ -17,17 +16,21 @@ import { useEditModeStore } from "@/store/editModeStore";
 import { BookOpen } from "lucide-react";
 import { DataTableSearch } from "@/components/DataTableSearch";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { ProductGroup } from "@/lib/useBusinessApi";
+import ProductGroupSkeleton from "@/components/ProductGroupSkeleton";
 
 export default function TabMenu() {
   const productGroupApi = useProductGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
-  const { business, businessId } = useBusinessStore();
-  const { getBusiness } = useFetchBusiness();
+  const { businessId } = useBusinessStore();
   const { isEditMode } = useEditModeStore()
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [allGroups, setProductGroups] = useState<ProductGroup[]>([]);
 
   const handleCreateProduct = async (data: ProductGroupValues) => {
     try {
@@ -36,7 +39,6 @@ export default function TabMenu() {
         { ...data, description: data.description ?? "" },
         businessId
       );
-      await getBusiness(businessId);
       toast.success("Menú creado exitosamente", { style: toastSuccessStyle });
     } catch (error) {
       handleApiError(error);
@@ -45,7 +47,21 @@ export default function TabMenu() {
     }
   };
 
-  const allGroups = business?.product_group || [];
+  useEffect(() => {
+    const fetchProductGroups = async () => {
+      if (!businessId) return;
+      try {
+        setLoading(true);
+        const { data } = await productGroupApi.getProductGroupsByBusinessId(businessId);
+        setProductGroups(data);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProductGroups();
+  }, [businessId, productGroupApi]);
 
   const filteredGroups = allGroups.filter(group =>
     group.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -85,7 +101,13 @@ export default function TabMenu() {
         )}
       </DataTableSearch>
 
-      {paginatedGroups.length > 0 ? (
+      {loading ? (
+        <div className="flex flex-col gap-5">
+          {[1, 2].map((i) => (
+            <ProductGroupSkeleton key={i} />
+          ))}
+        </div>
+      ) : paginatedGroups.length > 0 ? (
         <>
           <ProductGroupList
             productGroups={paginatedGroups}

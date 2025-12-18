@@ -1,11 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { BusinessFull } from "@/lib/useBusinessApi";
+import { Business } from "@/lib/useBusinessApi";
 
 interface BusinessState {
-  business: BusinessFull | null;
+  business: Business | null;
   businessId: string;
-  setBusiness: (b: BusinessFull | null) => void;
+  setBusiness: (b: Business | null) => void;
   clearBusiness: () => void;
 }
 

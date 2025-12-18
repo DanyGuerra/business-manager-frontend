@@ -17,7 +17,30 @@ export async function POST(req: NextRequest) {
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (err) {
+  } catch {
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+
+    const searchParams = req.nextUrl.searchParams.toString();
+    const res = await fetch(`${NESTJS_URL}/products?${searchParams}`, {
+      method: "GET",
+      headers: {
+        ...buildHeaders(req),
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

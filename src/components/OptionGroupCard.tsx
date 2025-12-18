@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useLoadingStore } from "@/store/loadingStore";
 
@@ -16,7 +15,6 @@ import OptionList from "@/app/business/[id]/OptionList";
 import { LoadingsKeyEnum } from "@/store/loadingStore";
 import { OptionGroup } from "@/lib/useOptionGroupApi";
 import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
@@ -28,11 +26,9 @@ import {
 import { useOptionProductGroupApi } from "@/lib/useOptionProductGroupApi";
 import { cn } from "@/lib/utils";
 
-export type DialogType =
-    | null
-    | "createGroup"
-    | { type: "addOption"; groupId: string }
-    | { type: "editGroup"; groupId: string }
+import { useState } from "react";
+
+export type DialogType = "createGroup" | "addOption" | "editGroup" | null;
 
 type OptionGroupCardProps = {
     og: OptionGroup;
@@ -46,13 +42,12 @@ export default function OptionGroupCard({
     const { isEditMode } = useEditModeStore();
     const { startLoading, stopLoading } = useLoadingStore();
     const { businessId } = useBusinessStore();
-    const { getBusiness } = useFetchBusiness();
     const optionGroupApi = useOptionGroupApi();
     const productOptionGroupApi = useOptionProductGroupApi();
     const optionApi = useProductOptionApi();
-    const [dialog, setDialog] = useState<DialogType>(null);
 
-    const closeDialog = () => setDialog(null);
+    const [dialogOpen, setDialogOpen] = useState<DialogType>(null);
+    const closeDialog = () => setDialogOpen(null);
 
     async function handleEditGroupOption(
         dataDto: ProductOptionGroupValues,
@@ -66,15 +61,14 @@ export default function OptionGroupCard({
                 max_options: Number(dataDto.max_options),
             };
             await optionGroupApi.update(dto, businessId, optionGroupId);
-            await getBusiness(businessId);
             toast.success("Grupo de opciones actualizado correctamente", {
                 style: toastSuccessStyle,
             });
+            closeDialog();
         } catch (error) {
             handleApiError(error);
         } finally {
             stopLoading(LoadingsKeyEnum.UPDATE_GROUP_OPTION);
-            closeDialog();
         }
     }
 
@@ -88,7 +82,6 @@ export default function OptionGroupCard({
             toast.success("Se eliminó correctamente el grupo de opciones", {
                 style: toastSuccessStyle,
             });
-            await getBusiness(businessId);
         } catch (error) {
             handleApiError(error);
         }
@@ -104,7 +97,6 @@ export default function OptionGroupCard({
             toast.success("Se eliminó correctamente el grupo de opciones para este producto", {
                 style: toastSuccessStyle,
             });
-            await getBusiness(businessId);
         } catch (error) {
             handleApiError(error);
         }
@@ -118,25 +110,23 @@ export default function OptionGroupCard({
                 option_group_id: optionGroupId,
                 price: Number(data.price),
             });
-            await getBusiness(businessId);
             toast.success("Opción creada correctamente", {
                 style: toastSuccessStyle,
             });
+            closeDialog();
         } catch (error) {
             handleApiError(error);
         } finally {
             stopLoading(LoadingsKeyEnum.CREATE_OPTION);
-            closeDialog();
         }
     }
 
-    async function handleDeleteOption(optionId: string, groupId: string) {
+    async function handleDeleteOption(optionId: string) {
         try {
             await optionApi.deleteProductOption(optionId, businessId);
             toast.success("Opción eliminada correctamente", {
                 style: toastSuccessStyle,
             });
-            await getBusiness(businessId);
         } catch (error) {
             handleApiError(error);
         }
@@ -154,7 +144,6 @@ export default function OptionGroupCard({
             toast.success("Opción actualizada correctamente", {
                 style: toastSuccessStyle,
             });
-            await getBusiness(businessId);
         } catch (error) {
             handleApiError(error);
         }
@@ -195,6 +184,8 @@ export default function OptionGroupCard({
                     {isEditMode && (
                         <div className="flex items-center gap-1 transition-opacity duration-200">
                             <CustomDialog
+                                open={dialogOpen === "editGroup"}
+                                setOpen={(isOpen) => setDialogOpen(isOpen ? "editGroup" : null)}
                                 modalTitle="Editar grupo de opciones"
                                 modalDescription={`Editar grupo de opcioones "${og.name}"`}
                                 icon={<Pencil className="h-4 w-4" />}
@@ -232,6 +223,8 @@ export default function OptionGroupCard({
                     </div>
                     {isEditMode && (
                         <CustomDialog
+                            open={dialogOpen === "addOption"}
+                            setOpen={(isOpen) => setDialogOpen(isOpen ? "addOption" : null)}
                             modalTitle="Agregar una opción"
                             modalDescription={`Agregar opción al grupo "${og.name}"`}
                         >
@@ -247,7 +240,7 @@ export default function OptionGroupCard({
                 <OptionList
                     options={og.options}
                     onDelete={
-                        (optionId) => handleDeleteOption(optionId, og.id)
+                        (optionId) => handleDeleteOption(optionId)
 
                     }
                     onUpdate={

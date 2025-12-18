@@ -11,8 +11,6 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { Card } from "./ui/card";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { Badge } from "./ui/badge";
 import { Layers, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -36,9 +34,6 @@ export default function OptionGroupSelector({
     useState<OptionGroup | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { businessId } = useBusinessStore();
-  const { getBusiness } = useFetchBusiness();
-
   function handleCheck(og: OptionGroup) {
     setSelectedGroupOption(og);
   }
@@ -51,7 +46,6 @@ export default function OptionGroupSelector({
         selectedGroupOption.business_id
       );
 
-      await getBusiness(businessId);
       toast.success("Se agregó correctamente el grupo de opciones", {
         style: toastSuccessStyle,
       });

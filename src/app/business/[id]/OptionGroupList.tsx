@@ -19,7 +19,6 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import OptionGroupSelector from "@/components/optionGroupSelector";
 import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import OptionGroupCard from "@/components/OptionGroupCard";
 
 type OptionGroupListProps = {
@@ -46,7 +45,6 @@ export default function OptionGroupList({
   const { businessId } = useBusinessStore();
   const optionGroupApi = useOptionGroupApi();
   const productOptionGroupApi = useOptionProductGroupApi();
-  const { getBusiness } = useFetchBusiness();
 
   const closeDialog = () => setDialog(null);
 
@@ -63,7 +61,6 @@ export default function OptionGroupList({
         { product_id: productId, option_group_id: data.id },
         businessId
       );
-      await getBusiness(businessId);
       toast.success("Opción del producto creada correctamente", {
         style: toastSuccessStyle,
       });
@@ -82,6 +79,7 @@ export default function OptionGroupList({
       const { data } = await optionGroupApi.getByBusinessId(businessId);
       setOptionGroups(data);
     } catch (error) {
+      handleApiError(error)
     }
   }
 

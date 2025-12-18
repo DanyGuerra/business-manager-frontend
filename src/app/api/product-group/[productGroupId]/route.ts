@@ -1,6 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { NESTJS_URL, buildHeaders } from "../../headersUtils";
 
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ productGroupId: string }> }
+) {
+  try {
+    const { productGroupId } = await context.params;
+
+    const res = await fetch(`${NESTJS_URL}/product-group/${productGroupId}`, {
+      method: "GET",
+      headers: {
+        ...buildHeaders(req),
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const data = await res.json();
+    return NextResponse.json(data, { status: res.status });
+  } catch {
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(
   req: NextRequest,
   context: { params: Promise<{ productGroupId: string }> }
@@ -19,7 +45,7 @@ export async function DELETE(
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -49,7 +75,7 @@ export async function PATCH(
     const data = await res.json();
 
     return NextResponse.json(data, { status: res.status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

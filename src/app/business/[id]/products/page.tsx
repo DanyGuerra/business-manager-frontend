@@ -8,11 +8,12 @@ import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { PackagePlus } from "lucide-react";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { handleApiError } from "@/utils/handleApiError";
+import { ProductGroup } from "@/lib/useBusinessApi";
+import { useProductGroupApi } from "@/lib/useProductGroupApi";
+import { useState, useEffect } from "react";
 
 export default function ProductsPage({
   params,
@@ -22,9 +23,22 @@ export default function ProductsPage({
   const { id } = use(params);
   const { isEditMode } = useEditModeStore();
   const { startLoading, stopLoading } = useLoadingStore();
-  const { business } = useBusinessStore();
-  const { getBusiness } = useFetchBusiness();
   const productApi = useProductApi();
+  const { getProductGroupsByBusinessId } = useProductGroupApi();
+
+  const [menus, setMenus] = useState<ProductGroup[]>([]);
+
+  useEffect(() => {
+    const fetchMenus = async () => {
+      try {
+        const { data } = await getProductGroupsByBusinessId(id);
+        setMenus(data);
+      } catch (error) {
+        handleApiError(error);
+      }
+    };
+    if (id) fetchMenus();
+  }, [id, getProductGroupsByBusinessId]);
 
   async function handleCreateProduct(data: ProductValues) {
     try {
@@ -37,7 +51,6 @@ export default function ProductsPage({
       };
 
       await productApi.createProduct([productDto], id);
-      await getBusiness(id);
       toast.success("Producto creado exitosamente", { style: toastSuccessStyle });
       window.location.reload();
     } catch (error) {
@@ -73,7 +86,7 @@ export default function ProductsPage({
                 buttonTitle="Crear"
                 loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
                 handleSubmitButton={handleCreateProduct}
-                menus={business?.product_group || []}
+                menus={menus}
               />
             </CustomDialog>
           </div>

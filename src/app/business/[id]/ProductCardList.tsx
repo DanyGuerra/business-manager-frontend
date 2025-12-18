@@ -6,13 +6,9 @@ import ProductListItem from "./ProductListItem";
 
 type ProductCardListProps = {
     products: Product[];
-    productGroupId: string;
 };
 
 export default function ProductCardList({ products }: ProductCardListProps) {
-
-
-
     return (
         <>
             {products.length ? (

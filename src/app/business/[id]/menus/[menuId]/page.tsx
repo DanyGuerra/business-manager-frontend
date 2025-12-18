@@ -1,34 +1,54 @@
 "use client";
 
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
-import { useBusinessStore } from "@/store/businessStore";
 import { useParams } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useEffect, useState } from "react";
 import ProductCardList from "../../ProductCardList";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import { useProductGroupApi } from "@/lib/useProductGroupApi";
+import { ProductGroup, Product } from "@/lib/useBusinessApi";
+import { handleApiError } from "@/utils/handleApiError";
+import { useProductApi } from "@/lib/useProductApi";
 
 export default function MenuPage() {
     const params = useParams();
     const businessId = params.id as string;
     const menuId = params.menuId as string;
 
-    const { business } = useBusinessStore();
-    const { getBusiness } = useFetchBusiness();
+    const [productGroup, setProductGroup] = useState<ProductGroup | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState<Product[]>([]);
+    const { getProductGroup } = useProductGroupApi();
+    const productApi = useProductApi();
 
     useEffect(() => {
-        if (!business) {
-            getBusiness(businessId);
-        }
-    }, [business, businessId, getBusiness]);
+        const fetchMenu = async () => {
+            if (!businessId || !menuId) return;
 
-    const currentMenu = useMemo(() => {
-        return business?.product_group.find((group) => group.id === menuId);
-    }, [business, menuId]);
+            try {
+                setLoading(true);
+                const [groupResponse, productsResponse] = await Promise.all([
+                    getProductGroup(menuId, businessId),
+                    productApi.getProductsByProductGroupId(businessId, {
+                        product_group_id: menuId
+                    })
+                ]);
 
-    if (!business) {
+                setProductGroup(groupResponse.data);
+                setProducts(productsResponse.data);
+            } catch (error) {
+                handleApiError(error)
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchMenu();
+    }, [businessId, menuId, getProductGroup, productApi]);
+
+    if (loading) {
         return (
             <div className="flex items-center justify-center h-[50vh]">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -36,7 +56,7 @@ export default function MenuPage() {
         );
     }
 
-    if (!currentMenu) {
+    if (!productGroup) {
         return (
             <div className="flex flex-col items-center justify-center h-[50vh] gap-4">
                 <h2 className="text-xl font-semibold">Menú no encontrado</h2>
@@ -59,9 +79,9 @@ export default function MenuPage() {
                     </Link>
                 </Button>
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{currentMenu.name}</h1>
-                    {currentMenu.description && (
-                        <p className="text-muted-foreground">{currentMenu.description}</p>
+                    <h1 className="text-2xl font-bold tracking-tight">{productGroup.name}</h1>
+                    {productGroup.description && (
+                        <p className="text-muted-foreground">{productGroup.description}</p>
                     )}
                 </div>
             </div>
@@ -69,8 +89,7 @@ export default function MenuPage() {
             <Separator />
 
             <ProductCardList
-                products={currentMenu.products}
-                productGroupId={currentMenu.id}
+                products={products}
             />
         </div>
     );

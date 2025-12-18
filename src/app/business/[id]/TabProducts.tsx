@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
-import { Product } from "@/lib/useBusinessApi";
+import { Product, ProductGroup } from "@/lib/useBusinessApi";
 import ProductCardList from "@/app/business/[id]/ProductCardList";
 import { handleApiError } from "@/utils/handleApiError";
 import ProductListSkeleton from "@/components/ProductListSkeleton";
 import CustomDialog from "@/components/customDialog";
+import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { DataTableSearch } from "@/components/DataTableSearch";
 import { DataTablePagination } from "@/components/DataTablePagination";
 
@@ -32,10 +31,8 @@ export default function TabProducts({
     const [totalItems, setTotalItems] = useState(0);
     const productApi = useProductApi();
     const { startLoading, stopLoading } = useLoadingStore();
-    const { business } = useBusinessStore();
-    const { getBusiness } = useFetchBusiness();
 
-    async function getProducts() {
+    const getProducts = useCallback(async () => {
         try {
             setLoading(true);
             const { data } = await productApi.getProductsByBusinessId(businessId, { page, limit, search });
@@ -47,7 +44,7 @@ export default function TabProducts({
         } finally {
             setLoading(false);
         }
-    }
+    }, [businessId, page, limit, search, productApi]);
 
     async function handleCreateProduct(data: ProductValues) {
         try {
@@ -61,7 +58,6 @@ export default function TabProducts({
 
             await productApi.createProduct([productDto], businessId);
             await getProducts();
-            await getBusiness(businessId);
             toast.success("Producto creado exitosamente", { style: toastSuccessStyle });
         } catch (error) {
             handleApiError(error);
@@ -70,11 +66,24 @@ export default function TabProducts({
         }
     }
 
+    const [menus, setMenus] = useState<ProductGroup[]>([]);
+    const { getProductGroupsByBusinessId } = useProductGroupApi();
+
+    const fetchMenus = useCallback(async () => {
+        try {
+            const { data } = await getProductGroupsByBusinessId(businessId);
+            setMenus(data);
+        } catch (error) {
+            handleApiError(error);
+        }
+    }, [businessId, getProductGroupsByBusinessId]);
+
     useEffect(() => {
         if (businessId) {
             getProducts();
+            fetchMenus();
         }
-    }, [businessId, page, limit, search]);
+    }, [businessId, getProducts, fetchMenus]);
 
     return (
         <div className="flex flex-col gap-5">
@@ -105,14 +114,14 @@ export default function TabProducts({
                             buttonTitle="Crear"
                             loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
                             handleSubmitButton={handleCreateProduct}
-                            menus={business?.product_group || []}
+                            menus={menus}
                         />
                     </CustomDialog>
 
                 </div>
             ) : (
                 <>
-                    <ProductCardList products={products} productGroupId="" />
+                    <ProductCardList products={products} />
 
                     <DataTablePagination
                         currentPage={page}

@@ -22,7 +22,6 @@ export default function ProductOptionGroupItem({
     onSelectOption,
     isEditMode,
 }: ProductOptionGroupItemProps) {
-    // Treat undefined/null as true by checking specific false equality
     const isUnavailable = group.available === false;
 
     return (

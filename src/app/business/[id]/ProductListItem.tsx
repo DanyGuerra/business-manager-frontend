@@ -12,7 +12,6 @@ import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { UpdateProductDto, useProductApi } from "@/lib/useProductApi";
 import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { toast } from "sonner";
 import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
@@ -30,7 +29,6 @@ export default function ProductListItem({ product }: ProductListItemProps) {
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
     const { startLoading, stopLoading } = useLoadingStore();
     const { businessId } = useBusinessStore();
-    const { getBusiness } = useFetchBusiness();
     const { isEditMode } = useEditModeStore();
     const productApi = useProductApi();
     const addToCart = useCartStore((state) => state.addToCart);
@@ -115,7 +113,6 @@ export default function ProductListItem({ product }: ProductListItemProps) {
     async function handleDeleteProduct(productId: string) {
         try {
             await productApi.deleteProduct(productId, businessId);
-            await getBusiness(businessId);
             toast.success("Se eliminó el producto correctamente", {
                 style: toastSuccessStyle,
             });
@@ -138,7 +135,6 @@ export default function ProductListItem({ product }: ProductListItemProps) {
         try {
             startLoading(LoadingsKeyEnum.UPDATE_PRODUCT);
             await productApi.updateProduct(dataUpdate, productId, businessId);
-            await getBusiness(businessId);
             toast.success("Se actualizó el producto exitosamente", {
                 style: toastSuccessStyle,
             });

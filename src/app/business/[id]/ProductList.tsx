@@ -9,7 +9,6 @@ import FormProduct, { ProductValues } from "@/components/formProduct";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { PackageIcon, PlusIcon } from "lucide-react";
 import ProductListItem from "./ProductListItem";
 
@@ -21,7 +20,6 @@ export default function ProductList({ products, productGroupId }: ProductListPro
   const productApi = useProductApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
-  const { getBusiness } = useFetchBusiness();
 
   async function handleCreateProduct(
     data: ProductValues,
@@ -39,7 +37,6 @@ export default function ProductList({ products, productGroupId }: ProductListPro
       };
 
       await productApi.createProduct([dataFormatted], businessId);
-      await getBusiness(businessId);
       toast.success("Producto creado", { style: toastSuccessStyle });
     } catch (error) {
       handleApiError(error);

@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
       headers: buildHeaders(req),
     });
     return NextResponse.json(data, { status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal proxy error" },
       { status: 500 }
