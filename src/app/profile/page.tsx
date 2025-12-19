@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FormUpdateName from "@/components/formUpdateName";
 import FormUpdatePassword from "@/components/formUpdatePassword";
 import { useUser } from "@/hooks/useUser";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function ProfilePage() {
   const [businesses, setBusinesses] = useState<Business[]>([]);
@@ -96,9 +97,22 @@ export default function ProfilePage() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <div className="flex flex-row items-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center text-2xl font-bold text-primary">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
+                <Avatar className="h-16 w-16 rounded-full item-center justify-center">
+                  <AvatarImage
+                    src={`https://avatar.vercel.sh/${user.email}?variant=beam`}
+                    alt={user.name}
+                  />
+                  <AvatarFallback className="rounded-lg text-2xl font-bold">
+                    {user.name
+                      ? user.name
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')
+                        .toUpperCase()
+                        .slice(0, 2)
+                      : 'CN'}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-2xl">{user.name}</CardTitle>

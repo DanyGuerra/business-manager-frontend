@@ -244,7 +244,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                   >
                     <Avatar className="h-8 w-8 rounded-lg">
                       <AvatarImage
-                        src={`https://avatar.vercel.sh/${user?.email}`}
+                        src={`https://avatar.vercel.sh/${user?.email}?variant=beam`}
                         alt={user?.name}
                       />
                       <AvatarFallback className="rounded-lg">CN</AvatarFallback>
@@ -270,7 +270,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
                         <AvatarImage
-                          src={`https://avatar.vercel.sh/${user?.email}`}
+                          src={`https://avatar.vercel.sh/${user?.email}?variant=beam`}
                           alt={user?.name}
                         />
                         <AvatarFallback className="rounded-lg">CN</AvatarFallback>
