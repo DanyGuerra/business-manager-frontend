@@ -149,6 +149,7 @@ export default function TabOptionGroups() {
                 <OptionGroupCard
                   key={og.id}
                   og={og}
+                  onRefresh={() => getOptionsGroups()}
                 />
               );
             })}

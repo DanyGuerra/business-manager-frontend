@@ -6,15 +6,16 @@ import ProductListItem from "./ProductListItem";
 
 type ProductCardListProps = {
     products: Product[];
+    onRefresh: () => void;
 };
 
-export default function ProductCardList({ products }: ProductCardListProps) {
+export default function ProductCardList({ products, onRefresh }: ProductCardListProps) {
     return (
         <>
             {products.length ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {products.map((product) => (
-                        <ProductListItem key={product.id} product={product} />
+                        <ProductListItem key={product.id} product={product} onRefresh={onRefresh} />
                     ))}
                 </div>
             ) : (

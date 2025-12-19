@@ -5,7 +5,7 @@ import { Product } from "@/lib/useBusinessApi";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Edit2Icon, ShoppingCartIcon, Trash2Icon } from "lucide-react";
+import { Edit2Icon, ShoppingCartIcon } from "lucide-react";
 import ProductDetailSheet from "./ProductDetailSheet";
 import CustomDialog from "@/components/customDialog";
 import FormProduct, { ProductValues } from "@/components/formProduct";
@@ -20,12 +20,14 @@ import { useCartStore } from "@/store/cartStore";
 import { Option } from "@/lib/useOptionGroupApi";
 import ProductOptionGroupItem from "./ProductOptionGroupItem";
 import QuantitySelector from "./QuantitySelector";
+import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 
 type ProductListItemProps = {
     product: Product;
+    onRefresh: () => void;
 };
 
-export default function ProductListItem({ product }: ProductListItemProps) {
+export default function ProductListItem({ product, onRefresh }: ProductListItemProps) {
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
     const { startLoading, stopLoading } = useLoadingStore();
     const { businessId } = useBusinessStore();
@@ -116,6 +118,7 @@ export default function ProductListItem({ product }: ProductListItemProps) {
             toast.success("Se eliminó el producto correctamente", {
                 style: toastSuccessStyle,
             });
+            onRefresh();
         } catch (error) {
             handleApiError(error);
         }
@@ -138,6 +141,7 @@ export default function ProductListItem({ product }: ProductListItemProps) {
             toast.success("Se actualizó el producto exitosamente", {
                 style: toastSuccessStyle,
             });
+            onRefresh();
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -217,7 +221,7 @@ export default function ProductListItem({ product }: ProductListItemProps) {
                 )}
 
                 {isEditMode && (
-                    <div className="flex items-center gap-2 pt-2 border-t mt-2">
+                    <div className="flex items-center justify-between gap-2 pt-2 border-t mt-2">
                         <CustomDialog
                             open={selectedProductId === product.id}
                             setOpen={(isOpen) =>
@@ -240,14 +244,9 @@ export default function ProductListItem({ product }: ProductListItemProps) {
                             />
                         </CustomDialog>
 
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteProduct(product.id)}
-                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 ml-auto"
-                        >
-                            <Trash2Icon className="h-4 w-4" />
-                        </Button>
+
+                        <DeleteDialogConfirmation title="Eliminar producto" description="¿Estás seguro de eliminar este producto?" handleContinue={() => handleDeleteProduct(product.id)}></DeleteDialogConfirmation>
+
                     </div>
                 )}
             </div>

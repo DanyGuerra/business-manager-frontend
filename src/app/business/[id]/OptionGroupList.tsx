@@ -77,7 +77,7 @@ export default function OptionGroupList({
   async function getOptionsGroupsById() {
     try {
       const { data } = await optionGroupApi.getByBusinessId(businessId);
-      setOptionGroups(data);
+      setOptionGroups(data.data);
     } catch (error) {
       handleApiError(error)
     }
@@ -162,6 +162,7 @@ export default function OptionGroupList({
               key={og.id}
               og={og}
               productId={productId}
+              onRefresh={getOptionsGroupsById}
             />
           ))}
         </div>

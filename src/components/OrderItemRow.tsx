@@ -80,7 +80,7 @@ export function OrderItemRow({ item }: OrderItemRowProps) {
                         "font-medium text-sm text-foreground leading-tight transition-all duration-200",
                         isReady && "line-through text-muted-foreground"
                     )}>
-                        {item.product.name}
+                        {item.product?.name || "Producto sin nombre"}
                     </span>
                     <span className={cn(
                         "text-xs font-bold text-foreground/90 whitespace-nowrap transition-all duration-200",

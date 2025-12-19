@@ -113,6 +113,7 @@ export default function TabMenu() {
         <>
           <ProductGroupList
             productGroups={productGroups}
+            onRefresh={fetchProductGroups}
           />
 
           <DataTablePagination

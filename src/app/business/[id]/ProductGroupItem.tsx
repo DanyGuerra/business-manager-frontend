@@ -207,7 +207,6 @@ export default function ProductGroupItem({
                                 buttonTitle="Guardar"
                                 loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
                                 handleSubmitButton={handleCreateProduct}
-                                menus={[group]}
                             ></FormProduct>
                         </CustomDialog>
                     )}
@@ -222,6 +221,7 @@ export default function ProductGroupItem({
                     ) : (
                         <ProductCardList
                             products={products}
+                            onRefresh={fetchProducts}
                         />
                     )}
                 </div>

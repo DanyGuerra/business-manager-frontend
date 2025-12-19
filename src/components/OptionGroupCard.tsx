@@ -33,11 +33,13 @@ export type DialogType = "createGroup" | "addOption" | "editGroup" | null;
 type OptionGroupCardProps = {
     og: OptionGroup;
     productId?: string;
+    onRefresh?: () => void;
 };
 
 export default function OptionGroupCard({
     og,
     productId,
+    onRefresh,
 }: OptionGroupCardProps) {
     const { isEditMode } = useEditModeStore();
     const { startLoading, stopLoading } = useLoadingStore();
@@ -65,6 +67,7 @@ export default function OptionGroupCard({
                 style: toastSuccessStyle,
             });
             closeDialog();
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -82,6 +85,7 @@ export default function OptionGroupCard({
             toast.success("Se eliminó correctamente el grupo de opciones", {
                 style: toastSuccessStyle,
             });
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         }
@@ -97,6 +101,7 @@ export default function OptionGroupCard({
             toast.success("Se eliminó correctamente el grupo de opciones para este producto", {
                 style: toastSuccessStyle,
             });
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         }
@@ -114,6 +119,7 @@ export default function OptionGroupCard({
                 style: toastSuccessStyle,
             });
             closeDialog();
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -127,6 +133,7 @@ export default function OptionGroupCard({
             toast.success("Opción eliminada correctamente", {
                 style: toastSuccessStyle,
             });
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         }
@@ -144,6 +151,7 @@ export default function OptionGroupCard({
             toast.success("Opción actualizada correctamente", {
                 style: toastSuccessStyle,
             });
+            onRefresh?.();
         } catch (error) {
             handleApiError(error);
         }
@@ -173,11 +181,11 @@ export default function OptionGroupCard({
                         <div className="flex items-center gap-3 text-xs sm:text-sm text-muted-foreground mt-1">
                             <div className="flex items-center gap-1.5 bg-background px-2 py-1 rounded-md border shadow-sm">
                                 <span className="font-medium text-foreground">Min:</span>
-                                <span>{og.min_options}</span>
+                                <span className="text-foreground font-semibold">{og.min_options}</span>
                             </div>
                             <div className="flex items-center gap-1.5 bg-background px-2 py-1 rounded-md border shadow-sm">
                                 <span className="font-medium text-foreground">Max:</span>
-                                <span>{og.max_options}</span>
+                                <span className="text-foreground font-semibold">{og.max_options}</span>
                             </div>
                         </div>
                     </div>
