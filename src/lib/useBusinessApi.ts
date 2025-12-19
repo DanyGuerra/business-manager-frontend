@@ -1,5 +1,6 @@
 import { ApiResponse } from "@/app/types/auth";
 import { BusinessIdHeader } from "@/consts/consts";
+import { useMemo } from "react";
 import { useAxios } from "@/lib/axios";
 import { OptionGroup } from "./useOptionGroupApi";
 
@@ -37,21 +38,17 @@ export type BusinessFull = Business & {
   product_group: ProductGroup[];
 };
 
+
+
 export function useBusinessApi() {
   const api = useAxios();
 
-  return {
+  return useMemo(() => ({
     getMyBusinesses: () =>
       api
         .get<ApiResponse<Business[]>>("/business/owner")
         .then((res) => res.data),
-    getBusinessProducts: (businessId: string) =>
-      api
-        .get<ApiResponse<BusinessFull>>("/business/products", {
-          headers: { [BusinessIdHeader]: businessId },
-        })
-        .then((res) => res.data),
-    getBusiness: (businessId: string) =>
+    getBusinessById: (businessId: string) =>
       api
         .get<ApiResponse<Business>>("/business", {
           headers: { [BusinessIdHeader]: businessId },
@@ -70,5 +67,5 @@ export function useBusinessApi() {
         .delete("/business", { headers: { [BusinessIdHeader]: businessId } })
         .then((res) => res.data),
     getAllBusinesses: () => api.get("/business/all").then((res) => res.data),
-  };
+  }), [api]);
 }

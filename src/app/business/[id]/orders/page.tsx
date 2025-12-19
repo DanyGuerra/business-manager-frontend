@@ -9,15 +9,7 @@ import { RefreshCw, ShoppingBag, Filter, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
-import {
-    Pagination,
-    PaginationContent,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-    PaginationEllipsis,
-} from "@/components/ui/pagination";
+import { DataTablePagination } from "@/components/DataTablePagination";
 import {
     Select,
     SelectContent,
@@ -38,94 +30,7 @@ export default function OrdersPage() {
     const { status, consumptionType, sort, startDate, endDate } = filters;
     const { page, limit } = pagination;
 
-    const handlePageChange = (newPage: number) => {
-        if (newPage >= 1 && newPage <= pagination.totalPages) {
-            setPage(newPage);
-        }
-    };
-
     const hasActiveFilters = status !== "ALL" || consumptionType !== "ALL" || startDate !== undefined || endDate !== undefined;
-
-    const renderPaginationItems = () => {
-        const items = [];
-        const totalPages = pagination.totalPages;
-        const maxVisiblePages = 5;
-
-        if (totalPages <= maxVisiblePages) {
-            for (let i = 1; i <= totalPages; i++) {
-                items.push(
-                    <PaginationItem key={i}>
-                        <PaginationLink
-                            href="#"
-                            isActive={page === i}
-                            onClick={(e) => { e.preventDefault(); handlePageChange(i); }}
-                        >
-                            {i}
-                        </PaginationLink>
-                    </PaginationItem>
-                );
-            }
-        } else {
-            items.push(
-                <PaginationItem key={1}>
-                    <PaginationLink
-                        href="#"
-                        isActive={page === 1}
-                        onClick={(e) => { e.preventDefault(); handlePageChange(1); }}
-                    >
-                        1
-                    </PaginationLink>
-                </PaginationItem>
-            );
-
-            if (page > 3) {
-                items.push(
-                    <PaginationItem key="ellipsis-start">
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                );
-            }
-
-            const start = Math.max(2, page - 1);
-            const end = Math.min(totalPages - 1, page + 1);
-
-            for (let i = start; i <= end; i++) {
-                items.push(
-                    <PaginationItem key={i}>
-                        <PaginationLink
-                            href="#"
-                            isActive={page === i}
-                            onClick={(e) => { e.preventDefault(); handlePageChange(i); }}
-                        >
-                            {i}
-                        </PaginationLink>
-                    </PaginationItem>
-                );
-            }
-
-            if (page < totalPages - 2) {
-                items.push(
-                    <PaginationItem key="ellipsis-end">
-                        <PaginationEllipsis />
-                    </PaginationItem>
-                );
-            }
-
-            items.push(
-                <PaginationItem key={totalPages}>
-                    <PaginationLink
-                        href="#"
-                        isActive={page === totalPages}
-                        onClick={(e) => { e.preventDefault(); handlePageChange(totalPages); }}
-                    >
-                        {totalPages}
-                    </PaginationLink>
-                </PaginationItem>
-            );
-        }
-
-        return items;
-    };
 
     return (
         <div className="flex flex-col h-full bg-muted/10">
@@ -231,53 +136,16 @@ export default function OrdersPage() {
                             ))}
                         </div>
 
-                        <div className="py-4 flex flex-col sm:flex-row items-center justify-between gap-4 border-t">
-                            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                                <span className="text-sm text-muted-foreground">Mostrar:</span>
-                                <Select value={String(limit)} onValueChange={(val) => setLimit(Number(val))}>
-                                    <SelectTrigger className="w-[70px] h-8 text-xs">
-                                        <SelectValue placeholder="10" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                                            <SelectItem key={pageSize} value={String(pageSize)}>
-                                                {pageSize}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                                <span className="text-sm text-muted-foreground ml-2 sm:hidden">Total: {pagination.total}</span>
-                            </div>
-
-                            <Pagination className="w-auto">
-                                <PaginationContent>
-                                    <PaginationItem>
-                                        <PaginationPrevious
-                                            href="#"
-                                            onClick={(e: React.MouseEvent) => { e.preventDefault(); handlePageChange(page - 1); }}
-                                            className={page <= 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                        />
-                                    </PaginationItem>
-
-                                    <div className="hidden sm:flex flex-row items-center gap-1">
-                                        {renderPaginationItems()}
-                                    </div>
-                                    <div className="sm:hidden flex items-center px-4 font-medium text-sm">
-                                        Página {page} de {pagination.totalPages}
-                                    </div>
-
-                                    <PaginationItem>
-                                        <PaginationNext
-                                            href="#"
-                                            onClick={(e: React.MouseEvent) => { e.preventDefault(); handlePageChange(page + 1); }}
-                                            className={page >= pagination.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
-                                        />
-                                    </PaginationItem>
-                                </PaginationContent>
-                            </Pagination>
-
-                            <span className="text-sm text-muted-foreground mr-2 hidden sm:inline-block">Resultados: {pagination.total}</span>
-                        </div>
+                        <DataTablePagination
+                            currentPage={page}
+                            totalPages={pagination.totalPages}
+                            onPageChange={setPage}
+                            limit={limit}
+                            onLimitChange={setLimit}
+                            totalItems={pagination.total}
+                            currentCount={orders.length}
+                            itemName="pedidos"
+                        />
                     </div>
                 )}
             </div>

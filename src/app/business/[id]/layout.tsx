@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { BusinessSidebar } from "@/components/BusinessSidebar";
-import { useFetchBusiness } from "@/app/hooks/useBusiness";
 import { useBusinessStore } from "@/store/businessStore";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLoadingStore } from "@/store/loadingStore";
@@ -43,9 +42,8 @@ export default function BusinessLayout({
   params: Promise<{ id: string }>;
 }) {
   const { id } = React.use(params);
-  const { getBusiness } = useFetchBusiness();
-  const { business } = useBusinessStore();
-  const { loadings } = useLoadingStore();
+  const { business, setBusiness } = useBusinessStore();
+  const { loadings, startLoading, stopLoading } = useLoadingStore();
   const { isEditMode, setEditMode } = useEditModeStore();
   const businessApi = useBusinessApi();
   const router = useRouter();
@@ -63,9 +61,23 @@ export default function BusinessLayout({
   const lastSegment = segments[segments.length - 1];
   const pageName = breadcrumbNameMap[lastSegment] || "Dashboard";
 
+
+
+  const fetchBusiness = useCallback(async (businessId: string) => {
+    try {
+      startLoading(LoadingsKeyEnum.GET_BUSINESS);
+      const { data } = await businessApi.getBusinessById(businessId);
+      setBusiness(data);
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      stopLoading(LoadingsKeyEnum.GET_BUSINESS);
+    }
+  }, [businessApi, setBusiness, startLoading, stopLoading]);
+
   useEffect(() => {
-    getBusiness(id);
-  }, [id]);
+    fetchBusiness(id);
+  }, [id, fetchBusiness]);
 
   async function handleUpdateBusiness(
     data: CreateBusinessValues,
@@ -73,7 +85,7 @@ export default function BusinessLayout({
   ) {
     try {
       await businessApi.updateBusiness(businessId, data);
-      await getBusiness(businessId);
+      await fetchBusiness(businessId);
 
       toast.success("Se actualizó correctamente el negocio", {
         style: toastSuccessStyle,

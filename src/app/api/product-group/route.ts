@@ -3,7 +3,8 @@ import { NESTJS_URL, buildHeaders } from "../headersUtils";
 
 export async function GET(req: NextRequest) {
   try {
-    const res = await fetch(`${NESTJS_URL}/product-group`, {
+    const searchParams = req.nextUrl.searchParams;
+    const res = await fetch(`${NESTJS_URL}/product-group?${searchParams}`, {
       method: "GET",
       headers: {
         ...buildHeaders(req),

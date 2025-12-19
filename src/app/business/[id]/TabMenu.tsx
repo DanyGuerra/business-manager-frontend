@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
@@ -30,7 +30,30 @@ export default function TabMenu() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const [allGroups, setProductGroups] = useState<ProductGroup[]>([]);
+  const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
+
+
+  const fetchProductGroups = useCallback(async () => {
+    if (!businessId) return;
+    try {
+      setLoading(true);
+      const { data } = await productGroupApi.getProductGroupsByBusinessId(businessId, {
+        page,
+        limit,
+        search,
+      });
+      setProductGroups(data.data);
+      setTotalItems(data.total);
+      setTotalPages(data.totalPages);
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      setLoading(false);
+    }
+  }, [businessId, productGroupApi, page, limit, search]);
 
   const handleCreateProduct = async (data: ProductGroupValues) => {
     try {
@@ -40,6 +63,11 @@ export default function TabMenu() {
         businessId
       );
       toast.success("Menú creado exitosamente", { style: toastSuccessStyle });
+      if (page !== 1) {
+        setPage(1);
+      } else {
+        fetchProductGroups();
+      }
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -48,34 +76,8 @@ export default function TabMenu() {
   };
 
   useEffect(() => {
-    const fetchProductGroups = async () => {
-      if (!businessId) return;
-      try {
-        setLoading(true);
-        const { data } = await productGroupApi.getProductGroupsByBusinessId(businessId);
-        setProductGroups(data);
-      } catch (error) {
-        handleApiError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchProductGroups();
-  }, [businessId, productGroupApi]);
-
-  const filteredGroups = allGroups.filter(group =>
-    group.name.toLowerCase().includes(search.toLowerCase()) ||
-    (group.description && group.description.toLowerCase().includes(search.toLowerCase()))
-  );
-
-  const totalItems = filteredGroups.length;
-  const totalPages = Math.ceil(totalItems / limit);
-
-  const paginatedGroups = filteredGroups.slice((page - 1) * limit, page * limit);
-
-  useEffect(() => {
-    setPage(1);
-  }, [search, limit]);
+  }, [fetchProductGroups]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -107,10 +109,10 @@ export default function TabMenu() {
             <ProductGroupSkeleton key={i} />
           ))}
         </div>
-      ) : paginatedGroups.length > 0 ? (
+      ) : productGroups.length > 0 ? (
         <>
           <ProductGroupList
-            productGroups={paginatedGroups}
+            productGroups={productGroups}
           />
 
           <DataTablePagination
@@ -123,7 +125,7 @@ export default function TabMenu() {
               setPage(1);
             }}
             totalItems={totalItems}
-            currentCount={paginatedGroups.length}
+            currentCount={productGroups.length}
             itemName="menús"
           />
         </>

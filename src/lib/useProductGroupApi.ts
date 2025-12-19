@@ -13,6 +13,14 @@ type UpdateProductGroupDto = {
   description?: string;
 };
 
+type ProductGroupPagination = {
+  data: ProductGroup[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
 import { useCallback, useMemo } from "react";
 
 export function useProductGroupApi() {
@@ -63,10 +71,11 @@ export function useProductGroupApi() {
   );
 
   const getProductGroupsByBusinessId = useCallback(
-    (businessId: string) =>
+    (businessId: string, params?: { page: number; limit: number; search?: string }) =>
       api
-        .get<ApiResponse<ProductGroup[]>>("/product-group", {
+        .get<ApiResponse<ProductGroupPagination>>("/product-group", {
           headers: { [BusinessIdHeader]: businessId },
+          params,
         })
         .then((res) => res.data),
     [api]
