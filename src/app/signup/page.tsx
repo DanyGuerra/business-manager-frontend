@@ -74,7 +74,7 @@ export default function SignUp() {
   });
 
   return (
-    <div className="flex flex-col h-full justify-center items-center">
+    <div className="flex flex-col min-h-[calc(100vh-13.5rem)] justify-center items-center">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle className="text-xl text-center">Registrate</CardTitle>
