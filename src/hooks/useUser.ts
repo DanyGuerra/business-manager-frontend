@@ -3,11 +3,13 @@ import { useUserStore } from "@/store/useUserStore";
 import { useAuthApi } from "@/lib/useAuthApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
+import { useAuth } from "@/context/AuthContext";
 
 export function useUser() {
     const { user, isLoading, isChecked, setUser, setIsLoading, setIsChecked, logout } = useUserStore();
     const authApi = useAuthApi();
     const { startLoading, stopLoading } = useLoadingStore();
+    const { accessToken } = useAuth();
 
     useEffect(() => {
         if (isChecked) {
@@ -18,6 +20,12 @@ export function useUser() {
         if (user) {
             setIsChecked(true);
             setIsLoading(false);
+            return;
+        }
+
+        if (!accessToken) {
+            setIsLoading(false);
+            setIsChecked(true);
             return;
         }
 
@@ -36,7 +44,7 @@ export function useUser() {
                 stopLoading(LoadingsKeyEnum.GET_USER);
             }
         })();
-    }, [isChecked, user]);
+    }, [isChecked, user, accessToken]);
 
     return { user, isLoading, logout, setUser };
 }
