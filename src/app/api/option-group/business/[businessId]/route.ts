@@ -7,9 +7,10 @@ export async function GET(
 ) {
   try {
     const { businessId } = await context.params;
+    const searchParams = req.nextUrl.searchParams.toString();
 
     const res = await fetch(
-      `${NESTJS_URL}/option-group/business/${businessId}`,
+      `${NESTJS_URL}/option-group/business/${businessId}?${searchParams}`,
       {
         method: "GET",
         headers: {
@@ -22,7 +23,7 @@ export async function GET(
 
     const data = await res.json();
     return NextResponse.json(data, { status: res.status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }

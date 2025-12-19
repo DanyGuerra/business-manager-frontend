@@ -44,6 +44,20 @@ export type Option = {
   updated_at: string;
 };
 
+type OptionGroupPagination = {
+  data: OptionGroup[];
+  limit: number;
+  page: number;
+  total: number;
+  totalPages: number;
+};
+
+export type GetOptionGroupParams = {
+  page?: number;
+  limit?: number;
+  search?: string;
+};
+
 export function useOptionGroupApi() {
   const api = useAxios();
 
@@ -77,12 +91,13 @@ export function useOptionGroupApi() {
           }
         )
         .then((res) => res.data),
-    getByBusinessId: (businessId: string) =>
+    getByBusinessId: (businessId: string, params?: GetOptionGroupParams) =>
       api
-        .get<ApiResponse<OptionGroup[]>>(
+        .get<ApiResponse<OptionGroupPagination>>(
           `/option-group/business/${businessId}`,
           {
             headers: { [BusinessIdHeader]: businessId },
+            params,
           }
         )
         .then((res) => res.data),

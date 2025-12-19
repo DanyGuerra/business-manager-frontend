@@ -17,26 +17,44 @@ import { handleApiError } from "@/utils/handleApiError";
 import { Layers } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { useProductOptionApi } from "@/lib/useOptionApi";
 import OptionGroupCard from "@/components/OptionGroupCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 
 
+import { DataTablePagination } from "@/components/DataTablePagination";
+import { DataTableSearch } from "@/components/DataTableSearch";
+
 export default function TabOptionGroups() {
   const [optionGroups, setOptionGroups] = useState<OptionGroup[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [search, setSearch] = useState("");
+
   const optionGroupApi = useOptionGroupApi();
   const { startLoading, stopLoading } = useLoadingStore();
   const { businessId } = useBusinessStore();
   const { isEditMode } = useEditModeStore();
 
 
-  async function getOptionsGroups() {
+  async function getOptionsGroups(
+    pageValue = page,
+    limitValue = limit,
+    searchValue = search
+  ) {
     try {
       setIsLoading(true);
-      const { data } = await optionGroupApi.getByBusinessId(businessId);
-      setOptionGroups(data);
+      const { data } = await optionGroupApi.getByBusinessId(businessId, {
+        page: pageValue,
+        limit: limitValue,
+        search: searchValue,
+      });
+      setOptionGroups(data.data);
+      setTotal(data.total);
+      setTotalPages(data.totalPages);
     } catch (error) {
       handleApiError(error);
     } finally {
@@ -72,28 +90,37 @@ export default function TabOptionGroups() {
 
   useEffect(() => {
     getOptionsGroups();
-  }, []);
+  }, [page, limit]);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    setPage(1);
+    getOptionsGroups(1, limit, value);
+  };
 
   return (
-    <section className="flex flex-col items-center justify-center">
-      <div className="flex items-center justify-center gap-2">
-        <h2 className="scroll-m-20 text-2xl font-extrabold tracking-tight text-balance">
-          Grupo de opciones
-        </h2>
-        {isEditMode && (
-          <CustomDialog
-            open={isCreateOpen}
-            setOpen={setIsCreateOpen}
-            modalTitle="Crear variante del producto"
-            modalDescription="Crea un nuevo grupo de opciones para este producto"
-          >
-            <FormProductOptionGroup
-              buttonTitle="Agregar"
-              loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
-              handleSubmitButton={createOptionGroup}
-            />
-          </CustomDialog>
-        )}
+    <section className="flex flex-col items-center justify-center space-y-4">
+      <div className="w-full">
+        <DataTableSearch
+          onSearch={handleSearch}
+          placeholder="Buscar grupos de opciones..."
+          initialValue={search}
+        >
+          {isEditMode && (
+            <CustomDialog
+              open={isCreateOpen}
+              setOpen={setIsCreateOpen}
+              modalTitle="Crear variante del producto"
+              modalDescription="Crea un nuevo grupo de opciones para este producto"
+            >
+              <FormProductOptionGroup
+                buttonTitle="Agregar"
+                loadingKey={LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION}
+                handleSubmitButton={createOptionGroup}
+              />
+            </CustomDialog>
+          )}
+        </DataTableSearch>
       </div>
       {isLoading ? (
         <div className="grid py-4 grid-cols-1 gap-4 sm:grid-cols-2 w-full">
@@ -115,16 +142,30 @@ export default function TabOptionGroups() {
           ))}
         </div>
       ) : optionGroups.length > 0 ? (
-        <div className="grid py-4 grid-cols-1 gap-4 sm:grid-cols-2 w-full">
-          {optionGroups.map((og) => {
-            return (
-              <OptionGroupCard
-                key={og.id}
-                og={og}
-              />
-            );
-          })}
-        </div>
+        <>
+          <div className="grid py-4 grid-cols-1 gap-4 sm:grid-cols-2 w-full">
+            {optionGroups.map((og) => {
+              return (
+                <OptionGroupCard
+                  key={og.id}
+                  og={og}
+                />
+              );
+            })}
+          </div>
+          <div className="w-full">
+            <DataTablePagination
+              currentPage={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
+              limit={limit}
+              onLimitChange={setLimit}
+              totalItems={total}
+              currentCount={optionGroups.length}
+              itemName="grupos de opciones"
+            />
+          </div>
+        </>
       ) : (
         <div className="flex flex-col items-center justify-center py-12 text-center border rounded-lg bg-muted/10 border-dashed w-full mt-4">
           <div className="bg-background p-3 rounded-full shadow-sm mb-4">
