@@ -7,6 +7,7 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import Cookies from "js-cookie";
 
 type AuthContextType = {
   accessToken: string | null;
@@ -19,7 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("accessToken");
+    const storedToken = Cookies.get("accessToken");
     if (storedToken) {
       setAccessToken(storedToken);
     }
@@ -28,9 +29,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const handleSetAccessToken = (token: string | null) => {
     setAccessToken(token);
     if (token) {
-      localStorage.setItem("accessToken", token);
+      Cookies.set("accessToken", token, { expires: 7 }); // Expires in 7 days
     } else {
-      localStorage.removeItem("accessToken");
+      Cookies.remove("accessToken");
     }
   };
 

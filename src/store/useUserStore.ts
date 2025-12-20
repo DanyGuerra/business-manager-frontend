@@ -21,7 +21,7 @@ export const useUserStore = create<UserState>()(
             setUser: (user) => set({ user }),
             setIsLoading: (isLoading) => set({ isLoading }),
             setIsChecked: (isChecked) => set({ isChecked }),
-            logout: () => set({ user: null, isChecked: true }),
+            logout: () => set({ user: null, isChecked: true, isLoading: false }),
         }),
         {
             name: "user-store",

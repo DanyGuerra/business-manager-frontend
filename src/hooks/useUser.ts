@@ -6,45 +6,48 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useAuth } from "@/context/AuthContext";
 
 export function useUser() {
-    const { user, isLoading, isChecked, setUser, setIsLoading, setIsChecked, logout } = useUserStore();
+    const { user, isLoading, setUser, setIsLoading, setIsChecked, logout: storeLogout } = useUserStore();
     const authApi = useAuthApi();
     const { startLoading, stopLoading } = useLoadingStore();
-    const { accessToken } = useAuth();
+    const { accessToken, setAccessToken } = useAuth();
+
+    const logout = () => {
+        storeLogout();
+        setAccessToken(null);
+    };
 
     useEffect(() => {
-        if (isChecked) {
-            if (isLoading) setIsLoading(false);
-            return;
-        }
-
-        if (user) {
-            setIsChecked(true);
-            setIsLoading(false);
-            return;
-        }
-
         if (!accessToken) {
+            if (user) logout();
             setIsLoading(false);
             setIsChecked(true);
             return;
         }
 
-        (async () => {
-            setIsLoading(true);
-            startLoading(LoadingsKeyEnum.GET_USER);
+        const fetchUser = async () => {
+            const isRefetching = !!user;
+
+            if (!isRefetching) {
+                setIsLoading(true);
+                startLoading(LoadingsKeyEnum.GET_USER);
+            }
+
             try {
                 const { data } = await authApi.getMe();
                 setUser(data);
             } catch (error) {
                 handleApiError(error);
-                setUser(null);
+                logout();
             } finally {
                 setIsLoading(false);
                 setIsChecked(true);
                 stopLoading(LoadingsKeyEnum.GET_USER);
             }
-        })();
-    }, [isChecked, user, accessToken]);
+        };
+
+        fetchUser();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [accessToken]);
 
     return { user, isLoading, logout, setUser };
 }
