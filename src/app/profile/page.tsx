@@ -95,7 +95,7 @@ export default function ProfilePage() {
           </Card>
         ) : user ? (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardHeader className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-2">
               <div className="flex flex-row items-center gap-4">
                 <Avatar className="h-16 w-16 rounded-full item-center justify-center">
                   <AvatarImage
