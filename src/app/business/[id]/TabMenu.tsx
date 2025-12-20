@@ -33,8 +33,7 @@ export default function TabMenu() {
   const [productGroups, setProductGroups] = useState<ProductGroup[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-
+  const [open, setOpen] = useState(false);
 
   const fetchProductGroups = useCallback(async () => {
     if (!businessId) return;
@@ -71,6 +70,7 @@ export default function TabMenu() {
     } catch (error) {
       handleApiError(error);
     } finally {
+      setOpen(false);
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP);
     }
   };
@@ -91,6 +91,8 @@ export default function TabMenu() {
       >
         {isEditMode && (
           <CustomDialog
+            open={open}
+            setOpen={setOpen}
             modalTitle="Crear menú"
             modalDescription="Crea un menú de productos para tu negocio"
           >

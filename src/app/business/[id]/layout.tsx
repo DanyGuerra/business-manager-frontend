@@ -193,6 +193,9 @@ export default function BusinessLayout({
                     </CustomDialog>
                     <DeleteDialogConfirmation
                       handleContinue={handleDeleteBusiness}
+                      title="Eliminar negocio"
+                      description="¿Estás seguro de eliminar el negocio?"
+                      confirmationKeyword={business.name}
                     />
                     <Separator orientation="vertical" className="h-6 mx-1" />
                   </div>

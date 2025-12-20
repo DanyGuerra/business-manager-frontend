@@ -16,15 +16,17 @@ import ButtonLoading from "./buttonLoading";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { Switch } from "@/components/ui/switch";
 
+// Duplicate import removed
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Check, ChevronsUpDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import { ProductGroup } from "@/lib/useBusinessApi";
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 const baseProductSchema = z.object({
   name: z.string().min(3, { message: "El nombre es obligatorio" }),
@@ -45,6 +47,7 @@ type PropsFormProduct = {
   defaultValues?: Partial<ProductValues>;
   handleSubmitButton: (data: ProductValues) => void;
   menus?: ProductGroup[];
+  onSearchMenus?: (query: string) => void;
 };
 
 export default function FormProduct({
@@ -53,7 +56,30 @@ export default function FormProduct({
   handleSubmitButton,
   defaultValues,
   menus,
+  onSearchMenus,
 }: PropsFormProduct) {
+  const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (onSearchMenus) {
+        onSearchMenus(searchQuery);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, onSearchMenus]);
+
+  useEffect(() => {
+    if (defaultValues?.menuId && menus) {
+      const selectedMenu = menus.find(m => m.id === defaultValues.menuId);
+      if (selectedMenu) {
+        setSearchQuery(selectedMenu.name);
+      }
+    }
+  }, [defaultValues?.menuId, menus]);
+
   const formSchema = useMemo(() => {
     if (menus && menus.length > 0) {
       return baseProductSchema.extend({
@@ -130,35 +156,98 @@ export default function FormProduct({
           )}
         />
 
-        {menus && menus.length > 0 && (
-          <FormField
-            control={form.control}
-            name="menuId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Menú</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
+        {menus && <FormField
+          control={form.control}
+          name="menuId"
+          render={({ field }) => (
+            <FormItem className="flex flex-col">
+              <FormLabel>Menú</FormLabel>
+              <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecciona un menú" />
-                    </SelectTrigger>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={open}
+                      className={cn(
+                        "w-full justify-between pl-3 pr-3 font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                    >
+                      <span className="truncate">
+                        {field.value
+                          ? menus?.find((menu) => menu.id === field.value)?.name || "Selecciona un menú"
+                          : "Selecciona un menú"}
+                      </span>
+                      <div className="flex items-center ml-2 shrink-0 opacity-50 gap-1">
+                        {field.value && (
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              form.setValue("menuId", "");
+                            }}
+                            className="hover:opacity-100 hover:text-destructive cursor-pointer p-0.5 rounded-sm transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </div>
+                        )}
+                        <ChevronsUpDown className="h-4 w-4" />
+                      </div>
+                    </Button>
                   </FormControl>
-                  <SelectContent>
-                    {menus.map((menu) => (
-                      <SelectItem key={menu.id} value={menu.id}>
-                        {menu.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
+                </PopoverTrigger>
+                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                  <div className="p-2">
+                    <Input
+                      placeholder="Buscar menú..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="h-9 mb-2"
+                    />
+                    <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
+                      {menus?.length === 0 ? (
+                        <div className="py-6 text-center text-sm text-muted-foreground">
+                          No se encontraron menús.
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          {menus?.map((menu) => (
+                            <div
+                              key={menu.id}
+                              role="button"
+                              onClick={() => {
+                                form.setValue("menuId", menu.id);
+                                setSearchQuery(menu.name);
+                                setOpen(false);
+                              }}
+                              className={cn(
+                                "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 transition-colors cursor-pointer",
+                                menu.id === field.value && "bg-accent text-accent-foreground"
+                              )}
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4",
+                                  menu.id === field.value
+                                    ? "opacity-100"
+                                    : "opacity-0"
+                                )}
+                              />
+                              {menu.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <FormMessage />
+            </FormItem>
+          )}
+        />}
 
         <FormField
           control={form.control}
@@ -179,23 +268,7 @@ export default function FormProduct({
           )}
         />
 
-        {menus && menus.length === 0 && (
-          <div className="rounded-md bg-yellow-50 p-4 mb-4">
-            <div className="flex">
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-yellow-800">
-                  No hay menús disponibles
-                </h3>
-                <div className="mt-2 text-sm text-yellow-700">
-                  <p>
-                    Debes crear al menos un menú (grupo de productos) antes de
-                    poder crear un producto.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+
 
         <div className="flex justify-center items-center">
           <ButtonLoading

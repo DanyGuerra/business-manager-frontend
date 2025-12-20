@@ -8,13 +8,16 @@ import { handleApiError } from "@/utils/handleApiError";
 import ProductListSkeleton from "@/components/ProductListSkeleton";
 import { DataTableSearch } from "@/components/DataTableSearch";
 import { DataTablePagination } from "@/components/DataTablePagination";
+// LoadingsKeyEnum removed
 
 type BusinessProductsListProps = {
     businessId: string;
+    refreshTrigger?: number;
 };
 
 export default function TabProducts({
     businessId,
+    refreshTrigger = 0,
 }: BusinessProductsListProps) {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +46,7 @@ export default function TabProducts({
         if (businessId) {
             getProducts();
         }
-    }, [businessId, getProducts]);
+    }, [businessId, getProducts, refreshTrigger]);
 
     return (
         <div className="flex flex-col gap-5">

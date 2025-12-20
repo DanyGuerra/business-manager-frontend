@@ -30,8 +30,12 @@ export default function BusinessCard({ business }: PropsBusinessCard) {
             {business.name}
           </CardTitle>
           <CardDescription className="flex items-center gap-1.5 text-sm">
-            <MapPin className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">{business.address}</span>
+            {business.address && (
+              <>
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{business.address}</span>
+              </>
+            )}
           </CardDescription>
         </div>
 
