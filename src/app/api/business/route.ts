@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
       headers: buildHeaders(req),
     });
     return NextResponse.json(data, { status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
     return NextResponse.json(data, { status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -43,7 +43,7 @@ export async function PUT(req: NextRequest) {
       body: JSON.stringify(body),
     });
     return NextResponse.json(data, { status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest) {
       headers: buildHeaders(req),
     });
     return NextResponse.json(data, { status });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { message: "Internal proxy error" },
       { status: 500 }

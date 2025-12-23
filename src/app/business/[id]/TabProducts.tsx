@@ -8,7 +8,6 @@ import { handleApiError } from "@/utils/handleApiError";
 import ProductListSkeleton from "@/components/ProductListSkeleton";
 import { DataTableSearch } from "@/components/DataTableSearch";
 import { DataTablePagination } from "@/components/DataTablePagination";
-// LoadingsKeyEnum removed
 
 type BusinessProductsListProps = {
     businessId: string;

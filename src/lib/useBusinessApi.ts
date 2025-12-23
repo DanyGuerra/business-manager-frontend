@@ -15,6 +15,7 @@ export type Business = {
   id: string;
   name: string;
   address: string;
+  owner_id: string;
 };
 
 export type Product = {
@@ -66,6 +67,5 @@ export function useBusinessApi() {
       api
         .delete("/business", { headers: { [BusinessIdHeader]: businessId } })
         .then((res) => res.data),
-    getAllBusinesses: () => api.get("/business/all").then((res) => res.data),
   }), [api]);
 }

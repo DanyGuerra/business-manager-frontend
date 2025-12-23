@@ -48,6 +48,8 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useUser } from "@/hooks/useUser";
+import { UserRole } from "@/lib/useUserRolesBusiness";
+import { useUserRolesStore } from "@/store/userRolesStore";
 
 interface SidebarProps {
   businessId: string;
@@ -63,6 +65,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
   const [open, setOpen] = useState(false);
   const businessApi = useBusinessApi();
   const { startLoading, stopLoading } = useLoadingStore();
+  const { loadingRoles, hasRole } = useUserRolesStore();
 
   const currentBusiness = businesses.find((b) => b.id === businessId);
 
@@ -131,8 +134,15 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
       title: "Usuarios y roles",
       href: `/business/${businessId}/users`,
       icon: Users,
+      allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
-  ];
+  ].filter((item) => {
+    if (item.allowedRoles) {
+      if (loadingRoles) return false;
+      return hasRole(item.allowedRoles);
+    }
+    return true;
+  });
 
   return (
     <>

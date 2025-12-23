@@ -7,7 +7,7 @@ interface DataTableSearchProps {
     onSearch: (value: string) => void;
     placeholder?: string;
     initialValue?: string;
-    children?: React.ReactNode; // For extra actions like "Create" button
+    children?: React.ReactNode;
 }
 
 export function DataTableSearch({
