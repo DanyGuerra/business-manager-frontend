@@ -39,6 +39,16 @@ export type BusinessFull = Business & {
   product_group: ProductGroup[];
 };
 
+type CreateBusinessDto = {
+  name: string;
+  address?: string;
+};
+
+type UpdateBusinessDto = {
+  name?: string;
+  address?: string;
+};
+
 
 
 export function useBusinessApi() {
@@ -55,11 +65,11 @@ export function useBusinessApi() {
           headers: { [BusinessIdHeader]: businessId },
         })
         .then((res) => res.data),
-    createBusiness: (data: any) =>
+    createBusiness: (data: CreateBusinessDto) =>
       api
         .post<ApiResponse<CreateBusinessResponse>>("/business", data)
         .then((res) => res.data),
-    updateBusiness: (businessId: string, data: any) =>
+    updateBusiness: (businessId: string, data: UpdateBusinessDto) =>
       api
         .put("/business", data, { headers: { [BusinessIdHeader]: businessId } })
         .then((res) => res.data),
