@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
-import { Store, LogOut, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
+import Image from "next/image";
+import appIcon from "../app/icon.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -34,11 +36,11 @@ export default function Header() {
       <header className="sticky top-0 z-20 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between md:justify-end px-4 items-center relative">
         <div
           className={`flex items-center gap-2 ${!isMobile
-              ? "absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
-              : ""
+            ? "absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
+            : ""
             }`}
         >
-          <Store className="h-6 w-6" />
+          <Image src={appIcon} alt="App Icon" className="h-6 w-6" />
           <Link
             href="/"
             className="flex justify-center items-center text-lg font-bold"
