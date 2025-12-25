@@ -22,6 +22,7 @@ export type OrderDetails = {
     scheduled_at: string;
     consumption_type: ConsumptionType;
     amount_paid?: number | null;
+    table_number?: string;
 };
 
 export type CartGroup = {
@@ -64,7 +65,8 @@ const DEFAULT_ORDER_DETAILS: OrderDetails = {
     notes: "",
     scheduled_at: "",
     consumption_type: ConsumptionType.TAKE_AWAY,
-    amount_paid: undefined
+    amount_paid: undefined,
+    table_number: ""
 };
 
 export const useCartStore = create<CartState>()(

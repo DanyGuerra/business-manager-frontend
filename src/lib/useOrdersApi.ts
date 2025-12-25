@@ -27,6 +27,7 @@ export type CreateOrderDto = {
     delivered_at?: Date | string,
     scheduled_at?: Date | string,
     consumption_type?: ConsumptionType,
+    table_number?: number,
     notes?: string | null,
 }
 
@@ -56,6 +57,7 @@ export interface Order {
     orderLabels: OrderLabel[]
     deleted_at: string | null
     user: Partial<User>
+    table_number: number | null
 }
 
 

@@ -41,7 +41,7 @@ const getConsumptionIcon = (type: string) => {
 const getConsumptionLabel = (type: string) => {
     switch (type) {
         case ConsumptionType.DINE_IN:
-            return "Mesa";
+            return "Comer aqui";
         case ConsumptionType.TAKE_AWAY:
             return "Llevar";
         case ConsumptionType.DELIVERY:
@@ -228,6 +228,9 @@ export function OrderCard({ order }: OrderCardProps) {
                             <div className="flex items-center gap-1">
                                 {getConsumptionIcon(order.consumption_type)}
                                 <span>{getConsumptionLabel(order.consumption_type)}</span>
+                                {order.consumption_type === ConsumptionType.DINE_IN && order.table_number && (
+                                    <span className="ml-1 font-medium"> (Mesa: {order.table_number})</span>
+                                )}
                             </div>
                         </div>
                     </div>

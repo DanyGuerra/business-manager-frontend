@@ -1,6 +1,6 @@
 "use client";
 
-import { useCartStore } from "@/store/cartStore";
+import { useCartStore, CartGroup, CartItem } from "@/store/cartStore";
 import {
     Sheet,
     SheetContent,
@@ -84,6 +84,7 @@ export default function CartDrawer() {
             const payload = {
                 ...orderDetails,
                 scheduled_at: orderDetails.scheduled_at || undefined,
+                table_number: Number(orderDetails.table_number) || undefined,
                 group_items: groups
                     .filter((group) => group.items.length > 0)
                     .map((group) => ({
@@ -216,7 +217,17 @@ export default function CartDrawer() {
     );
 }
 
-function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, businessId, updateQuantity, removeFromCart }: any) {
+interface SortableGroupProps {
+    group: CartGroup;
+    selectedGroupId: string | null;
+    selectGroup: (businessId: string, groupId: string) => void;
+    removeGroup: (businessId: string, groupId: string) => void;
+    businessId: string;
+    updateQuantity: (businessId: string, groupId: string, cartItemId: string, quantity: number) => void;
+    removeFromCart: (businessId: string, groupId: string, cartItemId: string) => void;
+}
+
+function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, businessId, updateQuantity, removeFromCart }: SortableGroupProps) {
     const { setNodeRef } = useSortable({
         id: group.group_id,
         data: {
@@ -226,7 +237,7 @@ function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, busin
     });
 
     const isSelected = selectedGroupId === group.group_id;
-    const groupTotal = group.items.reduce((acc: number, item: any) => acc + item.total_price, 0);
+    const groupTotal = group.items.reduce((acc: number, item: CartItem) => acc + item.total_price, 0);
 
     return (
         <div
@@ -253,7 +264,7 @@ function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, busin
             </div>
 
             <SortableContext
-                items={group.items.map((i: any) => i.cart_item_id)}
+                items={group.items.map((i: CartItem) => i.cart_item_id)}
                 strategy={verticalListSortingStrategy}
             >
                 <div className="space-y-2 min-h-[50px]">
@@ -262,7 +273,7 @@ function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, busin
                             Bolsa vacía - Arrastra productos aquí
                         </p>
                     ) : (
-                        group.items.map((item: any) => (
+                        group.items.map((item: CartItem) => (
                             <CartItemRow
                                 key={item.cart_item_id}
                                 item={item}

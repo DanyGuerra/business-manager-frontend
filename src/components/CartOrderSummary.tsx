@@ -180,37 +180,54 @@ export function CartOrderSummary({
                         </div>
                     </div>
                     <div className="">
-                        <Label htmlFor="consumption-type" className="text-xs font-medium">Tipo de consumo</Label>
-                        <Tabs
-                            defaultValue={ConsumptionType.TAKE_AWAY}
-                            value={orderDetails.consumption_type}
-                            onValueChange={(value) => setOrderDetails(businessId, { consumption_type: value as ConsumptionType })}
-                            className="w-full"
-                        >
-                            <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
-                                <TabsTrigger
-                                    value={ConsumptionType.DINE_IN}
-                                    className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                        <div className="flex gap-4">
+                            <div className="flex-1 space-y-1">
+                                <Label htmlFor="consumption-type" className="text-xs font-medium">Tipo de consumo</Label>
+                                <Tabs
+                                    defaultValue={ConsumptionType.TAKE_AWAY}
+                                    value={orderDetails.consumption_type}
+                                    onValueChange={(value) => setOrderDetails(businessId, { consumption_type: value as ConsumptionType })}
+                                    className="w-full"
                                 >
-                                    <Utensils className="h-3.5 w-3.5" />
-                                    <span className="inline">Comer aqui</span>
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value={ConsumptionType.TAKE_AWAY}
-                                    className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
-                                >
-                                    <ShoppingBag className="h-3.5 w-3.5" />
-                                    <span className="inline">Llevar</span>
-                                </TabsTrigger>
-                                <TabsTrigger
-                                    value={ConsumptionType.DELIVERY}
-                                    className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
-                                >
-                                    <Truck className="h-3.5 w-3.5" />
-                                    <span className="inline">Entrega</span>
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                                    <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
+                                        <TabsTrigger
+                                            value={ConsumptionType.DINE_IN}
+                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                        >
+                                            <Utensils className="h-3.5 w-3.5" />
+                                            <span className="inline">Comer aqui</span>
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value={ConsumptionType.TAKE_AWAY}
+                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                        >
+                                            <ShoppingBag className="h-3.5 w-3.5" />
+                                            <span className="inline">Llevar</span>
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value={ConsumptionType.DELIVERY}
+                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                                        >
+                                            <Truck className="h-3.5 w-3.5" />
+                                            <span className="inline">Entrega</span>
+                                        </TabsTrigger>
+                                    </TabsList>
+                                </Tabs>
+                            </div>
+                            <div className="w-20 space-y-1">
+                                <Label htmlFor="table-number" className="text-xs font-medium">Mesa</Label>
+                                <Input
+                                    id="table-number"
+                                    type="number"
+                                    min="1"
+                                    placeholder="#"
+                                    disabled={orderDetails.consumption_type !== ConsumptionType.DINE_IN}
+                                    value={orderDetails.table_number || ""}
+                                    onChange={(e) => setOrderDetails(businessId, { table_number: e.target.value })}
+                                    className="h-11 text-center bg-background"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </CollapsibleContent>
             </Collapsible>
