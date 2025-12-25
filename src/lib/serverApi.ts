@@ -1,5 +1,6 @@
 import { User } from "@/app/types/auth";
 import { UserRolesBusiness } from "./useUserRolesBusiness";
+import { BusinessIdHeader } from "@/consts/consts";
 
 const NESTJS_URL = process.env.API_BUSINESS_URL;
 
@@ -23,7 +24,7 @@ export async function getUserRoles(userId: string, businessId: string, token: st
         const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${userId}`, {
             headers: {
                 Authorization: `Bearer ${token}`,
-                "x-business-id": businessId,
+                [BusinessIdHeader]: businessId,
             },
         });
         if (!res.ok) return [];

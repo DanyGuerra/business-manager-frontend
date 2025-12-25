@@ -26,6 +26,7 @@ type OptionGroupListProps = {
   productId: string;
   productGroupId: string;
   isEditMode: boolean;
+  onRefresh?: () => void;
 };
 
 import { DialogType as CardDialogType } from "@/components/OptionGroupCard";
@@ -36,6 +37,7 @@ export default function OptionGroupList({
   optionGroups,
   productId,
   isEditMode,
+  onRefresh,
 }: OptionGroupListProps) {
   const [dialog, setDialog] = useState<DialogType>(null);
   const [isLinkGroupOpen, setIsLinkGroupOpen] = useState(false);
@@ -64,11 +66,13 @@ export default function OptionGroupList({
       toast.success("Opción del producto creada correctamente", {
         style: toastSuccessStyle,
       });
+      if (onRefresh) onRefresh();
     } catch (error) {
       handleApiError(error);
     } finally {
       stopLoading(LoadingsKeyEnum.CREATE_PRODUCT_GROUP_OPTION);
       closeDialog();
+      setIsCreateGroupOpen(false);
     }
   }
 
@@ -122,6 +126,7 @@ export default function OptionGroupList({
                 setOpen={() => setIsLinkGroupOpen(false)}
                 optionGroups={optionsGroups}
                 productId={productId}
+                onRefresh={onRefresh}
               />
             </CustomDialog>
 

@@ -191,7 +191,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                     <DropdownMenuItem
                       key={business.id}
                       onClick={() => {
-                        window.location.href = `/business/${business.id}/orders`;
+                        router.push(`/business/${business.id}`);
                       }}
                       className="gap-2 p-2 cursor-pointer"
                     >

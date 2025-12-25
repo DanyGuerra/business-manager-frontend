@@ -200,7 +200,7 @@ export default function ProductListItem({ product, onRefresh }: ProductListItemP
             )}
 
             <div className="flex flex-col gap-2 mt-auto">
-                <ProductDetailSheet product={product} />
+                <ProductDetailSheet product={product} onRefresh={onRefresh} />
 
                 {!isEditMode && product.available && (
                     <div className="flex items-center justify-between gap-2 pt-2 border-t mt-2">

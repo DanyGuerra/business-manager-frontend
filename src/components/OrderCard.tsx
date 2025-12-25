@@ -217,18 +217,26 @@ export function OrderCard({ order }: OrderCardProps) {
             {/* Combined Footer */}
             <CardFooter className="p-3 pt-1 flex flex-col gap-2">
                 {/* Meta Info Row */}
-                <div className="flex items-center justify-between w-full text-[10px] text-muted-foreground">
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div className="flex items-center gap-1 min-w-0">
-                            <User className="h-3 w-3 opacity-70" />
-                            <span className="font-medium truncate">{order.customer_name || "Cliente"}</span>
-                        </div>
-                        <span className="opacity-30">|</span>
-                        <div className="flex items-center gap-1">
-                            {getConsumptionIcon(order.consumption_type)}
-                            <span>{getConsumptionLabel(order.consumption_type)}</span>
+                <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 min-w-0">
+                            <div className="flex items-center gap-1 min-w-0">
+                                <User className="h-3 w-3 opacity-70" />
+                                <span className="font-medium truncate">{order.customer_name || "Cliente"}</span>
+                            </div>
+                            <span className="opacity-30">|</span>
+                            <div className="flex items-center gap-1">
+                                {getConsumptionIcon(order.consumption_type)}
+                                <span>{getConsumptionLabel(order.consumption_type)}</span>
+                            </div>
                         </div>
                     </div>
+                    {order.user?.name && (
+                        <div className="flex items-center gap-1 text-[9px] opacity-80">
+                            <User className="h-2.5 w-2.5 opacity-50" />
+                            <span>Atendido por: {order.user.name}</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center justify-between w-full border-t border-dashed border-border/40 pt-2 mt-0.5">

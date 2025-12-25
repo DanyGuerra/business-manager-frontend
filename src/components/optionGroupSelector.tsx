@@ -15,12 +15,14 @@ import { Badge } from "./ui/badge";
 import { Layers, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
+import { useBusinessStore } from "@/store/businessStore";
 
 type OptionGroupSelectorProps = {
   optionGroups: OptionGroup[];
   productId: string;
   setOpen: (open: boolean) => void;
   className?: string;
+  onRefresh?: () => void;
 };
 
 export default function OptionGroupSelector({
@@ -28,8 +30,10 @@ export default function OptionGroupSelector({
   productId,
   setOpen,
   className,
+  onRefresh,
 }: OptionGroupSelectorProps) {
   const pgApi = useOptionProductGroupApi();
+  const { businessId } = useBusinessStore();
   const [selectedGroupOption, setSelectedGroupOption] =
     useState<OptionGroup | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -43,13 +47,14 @@ export default function OptionGroupSelector({
     try {
       await pgApi.create(
         { option_group_id: selectedGroupOption.id, product_id: productId },
-        selectedGroupOption.business_id
+        businessId,
       );
 
       toast.success("Se agregó correctamente el grupo de opciones", {
         style: toastSuccessStyle,
       });
       setOpen(false);
+      if (onRefresh) onRefresh();
     } catch (error) {
       handleApiError(error);
     }

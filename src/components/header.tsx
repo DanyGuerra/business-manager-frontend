@@ -17,9 +17,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/hooks/useUser";
 import { useRouter } from "next/navigation";
 
+import { useIsMobile } from "@/hooks/use-mobile";
+
 export default function Header() {
   const { user, isLoading, logout } = useUser();
   const router = useRouter();
+  const isMobile = useIsMobile();
 
   const handleLogout = () => {
     logout();
@@ -28,14 +31,19 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-20 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between p-1 items-center">
-        <div className="flex items-center gap-2">
+      <header className="sticky top-0 z-20 w-full h-14 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex justify-between md:justify-end px-4 items-center relative">
+        <div
+          className={`flex items-center gap-2 ${!isMobile
+              ? "absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
+              : ""
+            }`}
+        >
           <Store className="h-6 w-6" />
           <Link
             href="/"
             className="flex justify-center items-center text-lg font-bold"
           >
-            Business Manager
+            RestHub
           </Link>
         </div>
         <div className="flex justify-center items-center gap-3">

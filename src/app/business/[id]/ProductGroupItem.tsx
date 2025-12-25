@@ -51,6 +51,7 @@ export default function ProductGroupItem({
 
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
 
     const fetchGroup = useCallback(async () => {
         try {
@@ -134,6 +135,7 @@ export default function ProductGroupItem({
         } catch (error) {
             handleApiError(error);
         } finally {
+            setIsCreateProductOpen(false);
             stopLoading(LoadingsKeyEnum.CREATE_PRODUCT);
         }
     }
@@ -199,6 +201,8 @@ export default function ProductGroupItem({
                     </div>
                     {isEditMode && (
                         <CustomDialog
+                            open={isCreateProductOpen}
+                            setOpen={setIsCreateProductOpen}
                             modalTitle="Agregar producto"
                             modalDescription="Agrega un producto para tu menú"
                             icon={<PlusIcon />}

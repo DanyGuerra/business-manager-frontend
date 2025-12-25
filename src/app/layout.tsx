@@ -7,8 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "Business App",
-  description: "App for business management",
+  title: "RestHub - Gestión restaurantes",
+  description: "Plataforma integral para administrar restaurantes: gestione pedidos en tiempo real, menús dinámicos, control de inventario y roles de equipo eficientemente.",
 };
 
 export default function RootLayout({

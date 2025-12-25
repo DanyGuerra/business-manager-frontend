@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, BarChart3, Box, Kanban, Utensils } from "lucide-react";
+import { ArrowRight, BarChart3, Kanban, Utensils, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -12,7 +12,7 @@ export default function Home() {
               Gestione su negocio con excelencia
             </h1>
             <p className="mx-auto max-w-[700px] text-muted-foreground text-lg md:text-xl">
-              La plataforma integral para administrar productos, menús y
+              La plataforma integral para administrar productos, menús, usuarios y
               operaciones. Simplifique su flujo de trabajo y enfóquese en crecer.
             </p>
           </div>
@@ -58,13 +58,14 @@ export default function Home() {
                 Organice sus productos en menús dinámicos. Actualice precios y disponibilidad en tiempo real.
               </p>
             </div>
+
             <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-2xl bg-background border shadow-sm hover:shadow-md transition-shadow">
               <div className="p-4 rounded-full bg-primary/10 text-primary">
-                <Box className="h-8 w-8" />
+                <Users className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-bold">Control de Inventario</h3>
+              <h3 className="text-xl font-bold">Usuarios y Roles</h3>
               <p className="text-muted-foreground">
-                Mantenga un registro preciso de su stock. Reciba alertas y evite quiebres de inventario.
+                Control total sobre su equipo. Asigne roles granulares (Admin, Mesero, Cocina) y gestione permisos de acceso de forma segura.
               </p>
             </div>
             <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-2xl bg-background border shadow-sm hover:shadow-md transition-shadow">

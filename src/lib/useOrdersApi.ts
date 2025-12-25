@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/app/types/auth";
+import { ApiResponse, User } from "@/app/types/auth";
 import { useAxios } from "./axios";
 import { BusinessIdHeader } from "@/consts/consts";
 import { OrderItemGroup } from "./useOrderItemGroups";
@@ -55,6 +55,7 @@ export interface Order {
     itemGroups: OrderItemGroup[]
     orderLabels: OrderLabel[]
     deleted_at: string | null
+    user: Partial<User>
 }
 
 

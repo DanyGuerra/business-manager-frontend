@@ -95,7 +95,6 @@ export default function KanbanBoard() {
 
             } catch (error) {
                 handleApiError(error);
-                toast.error("Error al cargar el tablero");
             } finally {
                 setLoading(false);
             }

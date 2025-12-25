@@ -21,7 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { Check, ChevronsUpDown, Utensils, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ProductGroup } from "@/lib/useBusinessApi";
@@ -207,8 +207,14 @@ export default function FormProduct({
                     />
                     <div className="max-h-[300px] overflow-y-auto overflow-x-hidden">
                       {menus?.length === 0 ? (
-                        <div className="py-6 text-center text-sm text-muted-foreground">
-                          No se encontraron menús.
+                        <div className="flex flex-col items-center justify-center py-8 text-center text-sm text-muted-foreground px-4 space-y-2">
+                          <div className="bg-muted/50 p-3 rounded-full">
+                            <Utensils className="h-6 w-6 text-muted-foreground/50" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-foreground/80 mb-1">No se encontraron menús</p>
+                            <p className="text-xs text-muted-foreground">Crea un nuevo menú o intenta con otra búsqueda.</p>
+                          </div>
                         </div>
                       ) : (
                         <div className="flex flex-col gap-1">

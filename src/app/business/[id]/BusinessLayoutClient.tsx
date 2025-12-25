@@ -55,7 +55,9 @@ export default function BusinessLayoutClient({
     const router = useRouter();
     const pathname = usePathname();
     const { setUserRoles } = useUserRolesStore();
+    const { canEdit, canDelete } = useUserRolesStore();
 
+    const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
     const initialized = useRef(false);
 
     useEffect(() => {
@@ -107,9 +109,11 @@ export default function BusinessLayoutClient({
             toast.success("Se actualizó correctamente el negocio", {
                 style: toastSuccessStyle,
             });
+            fetchBusiness(businessId);
         } catch (error) {
             handleApiError(error);
         } finally {
+            setIsEditModalOpen(false);
             stopLoading(LoadingsKeyEnum.UPDATE_BUSINESS);
         }
     }
@@ -183,7 +187,9 @@ export default function BusinessLayoutClient({
                             <div className="flex items-center gap-3 self-end md:self-auto">
                                 {isEditMode && (
                                     <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-4 duration-300">
-                                        <CustomDialog
+                                        {canEdit() && <CustomDialog
+                                            open={isEditModalOpen}
+                                            setOpen={setIsEditModalOpen}
                                             modalTitle="Editar negocio"
                                             modalDescription="Edita los datos de tu negocio"
                                             icon={<Edit2Icon className="h-4 w-4" />}
@@ -199,13 +205,13 @@ export default function BusinessLayoutClient({
                                                     address: business?.address,
                                                 }}
                                             />
-                                        </CustomDialog>
-                                        <DeleteDialogConfirmation
+                                        </CustomDialog>}
+                                        {canDelete() && <DeleteDialogConfirmation
                                             handleContinue={handleDeleteBusiness}
                                             title="Eliminar negocio"
                                             description="¿Estás seguro de eliminar el negocio?"
                                             confirmationKeyword={business.name}
-                                        />
+                                        />}
                                         <Separator orientation="vertical" className="h-6 mx-1" />
                                     </div>
                                 )}

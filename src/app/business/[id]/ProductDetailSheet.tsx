@@ -12,9 +12,10 @@ import { useEditModeStore } from "@/store/editModeStore";
 
 type ProductDetailSheetProps = {
     product: Product;
+    onRefresh: () => void;
 };
 
-export default function ProductDetailSheet({ product }: ProductDetailSheetProps) {
+export default function ProductDetailSheet({ product, onRefresh }: ProductDetailSheetProps) {
     const { isEditMode, setEditMode } = useEditModeStore();
 
     return (
@@ -80,6 +81,7 @@ export default function ProductDetailSheet({ product }: ProductDetailSheetProps)
                             optionGroups={product.option_groups}
                             productGroupId={product.id}
                             isEditMode={isEditMode}
+                            onRefresh={onRefresh}
                         />
                     </div>
                 </div>
