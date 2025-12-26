@@ -24,10 +24,10 @@ export function useAxios() {
     let isRefreshing = false;
     let failedQueue: Array<{
       resolve: (value?: unknown) => void;
-      reject: (error: any) => void;
+      reject: (error: unknown) => void;
     }> = [];
 
-    const processQueue = (error: any, token: string | null = null) => {
+    const processQueue = (error: unknown, token: string | null = null) => {
       failedQueue.forEach((prom) => {
         if (error) prom.reject(error);
         else prom.resolve(token);
@@ -38,10 +38,10 @@ export function useAxios() {
     const requestInterceptor = api.interceptors.request.use((config) => {
       const token = tokenRef.current || localStorage.getItem("accessToken");
       if (token) {
-        if (!config.headers || !(config.headers instanceof AxiosHeaders)) {
+        if (!config.headers) {
           config.headers = new AxiosHeaders();
         }
-        config.headers.Authorization = `Bearer ${token}`;
+        config.headers.set("Authorization", `Bearer ${token}`);
       }
       return config;
     });
@@ -60,13 +60,10 @@ export function useAxios() {
             return new Promise((resolve, reject) => {
               failedQueue.push({ resolve, reject });
             }).then((token) => {
-              if (
-                !originalRequest.headers ||
-                !(originalRequest.headers instanceof AxiosHeaders)
-              ) {
+              if (!originalRequest.headers) {
                 originalRequest.headers = new AxiosHeaders();
               }
-              originalRequest.headers.Authorization = `Bearer ${token}`;
+              originalRequest.headers.set("Authorization", `Bearer ${token}`);
               return api.request(originalRequest);
             });
           }
@@ -74,39 +71,32 @@ export function useAxios() {
           originalRequest._retry = true;
           isRefreshing = true;
 
-          return new Promise(async (resolve, reject) => {
-            try {
-              const refreshRes = await axios.post(
-                "/api/auth/refresh",
-                {},
-                { withCredentials: true }
-              );
+          try {
+            const refreshRes = await axios.post(
+              "/api/auth/refresh",
+              {},
+              { withCredentials: true }
+            );
 
-              const newToken = refreshRes.data.data.access_token;
-              setAccessToken(newToken);
-              tokenRef.current = newToken;
+            const newToken = refreshRes.data.data.access_token;
+            setAccessToken(newToken);
+            tokenRef.current = newToken;
 
-              processQueue(null, newToken);
+            processQueue(null, newToken);
 
-              if (
-                !originalRequest.headers ||
-                !(originalRequest.headers instanceof AxiosHeaders)
-              ) {
-                originalRequest.headers = new AxiosHeaders();
-              }
-              originalRequest.headers.Authorization = `Bearer ${newToken}`;
-
-              resolve(api.request(originalRequest));
-            } catch (err) {
-              processQueue(err, null);
-              reject(err);
-
-              router.push("/login");
-              router;
-            } finally {
-              isRefreshing = false;
+            if (!originalRequest.headers) {
+              originalRequest.headers = new AxiosHeaders();
             }
-          });
+            originalRequest.headers.set("Authorization", `Bearer ${newToken}`);
+
+            return api.request(originalRequest);
+          } catch (err) {
+            processQueue(err, null);
+            router.push("/login");
+            return Promise.reject(err);
+          } finally {
+            isRefreshing = false;
+          }
         }
 
         return Promise.reject(error);
@@ -117,7 +107,7 @@ export function useAxios() {
       api.interceptors.request.eject(requestInterceptor);
       api.interceptors.response.eject(responseInterceptor);
     };
-  }, [setAccessToken]);
+  }, [setAccessToken, router]);
 
   return api;
 }

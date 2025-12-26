@@ -15,7 +15,7 @@ import { useEditModeStore } from "@/store/editModeStore";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { Layers } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import OptionGroupCard from "@/components/OptionGroupCard";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,11 +40,11 @@ export default function TabOptionGroups() {
   const { isEditMode } = useEditModeStore();
 
 
-  async function getOptionsGroups(
+  const getOptionsGroups = useCallback(async (
     pageValue = page,
     limitValue = limit,
     searchValue = search
-  ) {
+  ) => {
     try {
       setIsLoading(true);
       const { data } = await optionGroupApi.getByBusinessId(businessId, {
@@ -60,7 +60,7 @@ export default function TabOptionGroups() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [page, limit, search, businessId, optionGroupApi]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreateEmptyOpen, setIsCreateEmptyOpen] = useState(false);
@@ -90,7 +90,7 @@ export default function TabOptionGroups() {
 
   useEffect(() => {
     getOptionsGroups();
-  }, [page, limit]);
+  }, [getOptionsGroups]);
 
   const handleSearch = (value: string) => {
     setSearch(value);

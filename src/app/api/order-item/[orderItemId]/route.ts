@@ -17,7 +17,7 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ orderIt
 
         const data = await res.json();
         return NextResponse.json(data, { status: res.status });
-    } catch (err) {
+    } catch {
         return NextResponse.json(
             { message: "Internal server error" },
             { status: 500 }

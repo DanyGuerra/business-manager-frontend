@@ -4,7 +4,7 @@ type LoadingKeys = string;
 
 export enum LoadingsKeyEnum {
   CREATE_BUSINESS = "createBusiness",
-  UPDATE_BUSINESS = "createBusiness",
+  UPDATE_BUSINESS = "updateBusiness",
   GET_BUSINESS = "getBusiness",
   GET_USER = "getUser",
   CREATE_PRODUCT_GROUP = "createProductGroup",
@@ -13,12 +13,12 @@ export enum LoadingsKeyEnum {
   UPDATE_PRODUCT = "updateProduct",
   CREATE_GROUP_OPTION = "createGroupOption",
   UPDATE_GROUP_OPTION = "updateGroupOption",
-  CREATE_OPTION = "createProductGroup",
-  UPDATE_OPTION = "createProductGroup",
-  CREATE_PRODUCT_GROUP_OPTION = "createProductGroup",
-  UPDATE_PRODUCT_GROUP_OPTION = "createProductGroup",
-  LOGIN = "createBusiness",
-  SIGNUP = "createBusiness",
+  CREATE_OPTION = "createOption",
+  UPDATE_OPTION = "updateOption",
+  CREATE_PRODUCT_GROUP_OPTION = "createProductGroupOption",
+  UPDATE_PRODUCT_GROUP_OPTION = "updateProductGroupOption",
+  LOGIN = "login",
+  SIGNUP = "signup",
   CREATE_ORDER = "createOrder",
   UPDATE_ORDER = "updateOrder",
 }

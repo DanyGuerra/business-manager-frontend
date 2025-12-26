@@ -1,9 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
-import { OrderItem, userOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
+import { OrderItem, useOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { useEditModeStore } from "@/store/editModeStore";
 import { toast } from "sonner";
@@ -12,15 +11,11 @@ import { useOrdersApi } from "@/lib/useOrdersApi";
 import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 
-interface OrderItemRowProps {
-    item: OrderItem;
-}
-
-export function OrderItemRow({ item }: OrderItemRowProps) {
-    const [isReady, setIsReady] = useState<boolean>(item.is_ready);
-    const { updateOrderItem } = userOrderItemGroupsApi();
+export default function OrderItemRow({ item: initialItem, businessId }: { item: OrderItem, businessId: string }) {
+    const [isReady, setIsReady] = useState<boolean>(initialItem.is_ready);
+    const [item] = useState(initialItem);
+    const { updateOrderItem } = useOrderItemGroupsApi();
     const { deleteOrderItem } = useOrdersApi();
-    const { businessId } = useBusinessStore();
     const { isEditMode } = useEditModeStore();
     const { getOrders } = useGetOrders();
 

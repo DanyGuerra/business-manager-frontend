@@ -33,7 +33,7 @@ export function DatePicker({ date, setDate, className }: DatePickerProps) {
                     )}
                 >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP", { locale: es as any }) : <span>Seleccionar fecha</span>}
+                    {date ? format(date, "PPP", { locale: es }) : <span>Seleccionar fecha</span>}
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0">

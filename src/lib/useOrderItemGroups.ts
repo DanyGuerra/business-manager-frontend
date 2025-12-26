@@ -49,7 +49,7 @@ interface UpdateOrderItemDto {
     quantity?: number
 }
 
-export function userOrderItemGroupsApi() {
+export function useOrderItemGroupsApi() {
     const api = useAxios();
 
     return {

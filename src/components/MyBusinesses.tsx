@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Business, useBusinessApi } from "@/lib/useBusinessApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
@@ -21,7 +21,7 @@ export default function MyBusinesses() {
     const businessApi = useBusinessApi();
     const { startLoading, stopLoading } = useLoadingStore();
 
-    async function getBusiness() {
+    const getBusiness = useCallback(async () => {
         try {
             setIsLoading(true);
             const { data } = await businessApi.getMyBusinesses();
@@ -31,7 +31,7 @@ export default function MyBusinesses() {
         } finally {
             setIsLoading(false);
         }
-    }
+    }, [businessApi]);
 
     async function handleCreateBusiness(dataCreate: CreateBusinessValues) {
         try {
@@ -49,7 +49,7 @@ export default function MyBusinesses() {
 
     useEffect(() => {
         getBusiness();
-    }, []);
+    }, [getBusiness]);
 
     return (
         <div className="flex flex-col gap-8">

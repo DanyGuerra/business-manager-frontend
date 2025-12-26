@@ -4,7 +4,7 @@ import FormBusiness, { CreateBusinessValues } from "@/components/formBusiness";
 import { Business, useBusinessApi } from "@/lib/useBusinessApi";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import BusinessCard from "@/components/businessCard";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import CustomDialog from "@/components/customDialog";
@@ -34,7 +34,7 @@ export default function ProfilePage() {
   const [openPassword, setOpenPassword] = useState<boolean>(false);
   const [openName, setOpenName] = useState<boolean>(false);
 
-  async function getBusiness() {
+  const getBusiness = useCallback(async () => {
     try {
       startLoading(LoadingsKeyEnum.GET_BUSINESS);
       const { data } = await businessApi.getMyBusinesses();
@@ -44,7 +44,7 @@ export default function ProfilePage() {
     } finally {
       stopLoading(LoadingsKeyEnum.GET_BUSINESS);
     }
-  }
+  }, [businessApi, startLoading, stopLoading]);
 
   async function handleCreateBusiness(dataCreate: CreateBusinessValues) {
     try {
@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getBusiness();
-  }, []);
+  }, [getBusiness]);
 
   return (
     <div className="flex flex-col gap-8 p-6 max-w-7xl mx-auto w-full">

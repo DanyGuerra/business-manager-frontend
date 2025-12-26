@@ -38,7 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Business, useBusinessApi } from "@/lib/useBusinessApi";
 import { handleApiError } from "@/utils/handleApiError";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -69,7 +69,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
 
   const currentBusiness = businesses.find((b) => b.id === businessId);
 
-  async function getBusinesses() {
+  const getBusinesses = useCallback(async () => {
     try {
       setIsLoadingBusinesses(true);
       const { data } = await businessApi.getMyBusinesses();
@@ -79,11 +79,11 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
     } finally {
       setIsLoadingBusinesses(false);
     }
-  }
+  }, [businessApi]);
 
   useEffect(() => {
     getBusinesses();
-  }, []);
+  }, [getBusinesses]);
 
   async function handleCreateBusiness(dataCreate: CreateBusinessValues) {
     try {

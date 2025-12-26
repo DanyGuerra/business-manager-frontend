@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
 import { KanbanColumn } from "./KanbanColumn";
@@ -56,52 +56,52 @@ export default function KanbanBoard() {
         useSensor(TouchSensor)
     );
 
+    const fetchKanbanOrders = useCallback(async () => {
+        setLoading(true);
+        try {
+            const statuses = [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
+
+            const { consumptionType, startDate, endDate } = filters;
+            const { limit } = pagination;
+            const commonParams = {
+                limit,
+                page: 1,
+                consumption_type: consumptionType !== "ALL" ? consumptionType : undefined,
+                start_date: startDate
+                    ? format(startDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    : undefined,
+                end_date: endDate
+                    ? format(endDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    : undefined,
+            };
+
+            const responses = await Promise.all(
+                statuses.map(status =>
+                    ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status })
+                )
+            );
+
+            const allOrders: Order[] = responses.flatMap(response => response.data.data);
+            const uniqueOrders = Array.from(new Map(allOrders.map(order => [order.id, order])).values());
+
+            setOrders({
+                data: uniqueOrders,
+                page: 1,
+                limit: limit,
+                total: uniqueOrders.length,
+                totalPages: 1
+            });
+
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            setLoading(false);
+        }
+    }, [filters, pagination, ordersApi, businessId, setOrders]);
+
     useEffect(() => {
-        const fetchKanbanOrders = async () => {
-            setLoading(true);
-            try {
-                const statuses = [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
-
-                const { consumptionType, startDate, endDate } = filters;
-                const { limit } = pagination;
-                const commonParams = {
-                    limit,
-                    page: 1,
-                    consumption_type: consumptionType !== "ALL" ? consumptionType : undefined,
-                    start_date: startDate
-                        ? format(startDate, "yyyy-MM-dd'T'HH:mm:ss")
-                        : undefined,
-                    end_date: endDate
-                        ? format(endDate, "yyyy-MM-dd'T'HH:mm:ss")
-                        : undefined,
-                };
-
-                const responses = await Promise.all(
-                    statuses.map(status =>
-                        ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status })
-                    )
-                );
-
-                const allOrders: Order[] = responses.flatMap(response => response.data.data);
-                const uniqueOrders = Array.from(new Map(allOrders.map(order => [order.id, order])).values());
-
-                setOrders({
-                    data: uniqueOrders,
-                    page: 1,
-                    limit: limit,
-                    total: uniqueOrders.length,
-                    totalPages: 1
-                });
-
-            } catch (error) {
-                handleApiError(error);
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchKanbanOrders();
-    }, [businessId, ordersApi, setOrders, filters, pagination.limit]);
+    }, [fetchKanbanOrders]);
 
     const columns = [
         { title: "Pendientes", status: OrderStatus.PENDING, orders: pendingOrders, color: "border-l-yellow-500" },

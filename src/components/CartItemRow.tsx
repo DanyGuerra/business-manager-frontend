@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, MinusIcon, PlusIcon, Trash2Icon, GripVerticalIcon } from "lucide-react";
+import { MinusIcon, PlusIcon, Trash2Icon, GripVerticalIcon } from "lucide-react";
 import { CartItem } from "@/store/cartStore";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";

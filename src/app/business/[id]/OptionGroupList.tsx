@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import CustomDialog from "@/components/customDialog";
 import { PlusCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -78,14 +78,14 @@ export default function OptionGroupList({
 
 
 
-  async function getOptionsGroupsById() {
+  const getOptionsGroupsById = useCallback(async () => {
     try {
       const { data } = await optionGroupApi.getByBusinessId(businessId);
       setOptionGroups(data.data);
     } catch (error) {
       handleApiError(error)
     }
-  }
+  }, [optionGroupApi, businessId]);
 
   const handleOpenLinkDialog = async () => {
     await getOptionsGroupsById();
@@ -95,7 +95,7 @@ export default function OptionGroupList({
 
   useEffect(() => {
     if (dialog === "addExistingGroup") getOptionsGroupsById();
-  }, [dialog]);
+  }, [dialog, getOptionsGroupsById]);
 
   return (
     <div className="flex flex-col gap-5">

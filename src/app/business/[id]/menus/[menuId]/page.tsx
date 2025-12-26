@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import ProductCardList from "../../ProductCardList";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -23,30 +23,30 @@ export default function MenuPage() {
     const { getProductGroup } = useProductGroupApi();
     const productApi = useProductApi();
 
-    useEffect(() => {
-        const fetchMenu = async () => {
-            if (!businessId || !menuId) return;
+    const fetchMenu = useCallback(async () => {
+        if (!businessId || !menuId) return;
 
-            try {
-                setLoading(true);
-                const [groupResponse, productsResponse] = await Promise.all([
-                    getProductGroup(menuId, businessId),
-                    productApi.getProductsByProductGroupId(businessId, {
-                        product_group_id: menuId
-                    })
-                ]);
+        try {
+            setLoading(true);
+            const [groupResponse, productsResponse] = await Promise.all([
+                getProductGroup(menuId, businessId),
+                productApi.getProductsByProductGroupId(businessId, {
+                    product_group_id: menuId
+                })
+            ]);
 
-                setProductGroup(groupResponse.data);
-                setProducts(productsResponse.data);
-            } catch (error) {
-                handleApiError(error)
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchMenu();
+            setProductGroup(groupResponse.data);
+            setProducts(productsResponse.data);
+        } catch (error) {
+            handleApiError(error)
+        } finally {
+            setLoading(false);
+        }
     }, [businessId, menuId, getProductGroup, productApi]);
+
+    useEffect(() => {
+        fetchMenu();
+    }, [fetchMenu]);
 
     if (loading) {
         return (
@@ -90,6 +90,7 @@ export default function MenuPage() {
 
             <ProductCardList
                 products={products}
+                onRefresh={fetchMenu}
             />
         </div>
     );

@@ -1,4 +1,4 @@
-import { ApiResponse, User } from "@/app/types/auth";
+import { ApiResponse, User, LoginDto, SignupDto, UpdatePasswordDto, UpdateUserDto } from "@/app/types/auth";
 import { useAxios } from "@/lib/axios";
 
 type LoginResponse = { access_token: string };
@@ -15,12 +15,12 @@ export function useAuthApi() {
   const api = useAxios();
 
   return {
-    login: (data: any) =>
+    login: (data: LoginDto) =>
       api
         .post<ApiResponse<LoginResponse>>("auth/login", data)
         .then((res) => res.data),
 
-    signup: (data: any) =>
+    signup: (data: SignupDto) =>
       api
         .post<ApiResponse<SignupResponse>>("auth/signup", data)
         .then((res) => res.data),
@@ -28,12 +28,12 @@ export function useAuthApi() {
     getMe: () =>
       api.get<ApiResponse<User>>("/users/me").then((res) => res.data),
 
-    updatePassword: (data: any) =>
+    updatePassword: (data: UpdatePasswordDto) =>
       api
         .post<ApiResponse>("users/update-password", data)
         .then((res) => res.data),
 
-    updateUser: (data: any) =>
+    updateUser: (data: UpdateUserDto) =>
       api.patch<ApiResponse<User>>("/users/update", data).then((res) => res.data),
   };
 }
