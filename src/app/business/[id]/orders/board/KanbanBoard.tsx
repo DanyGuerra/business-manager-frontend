@@ -62,9 +62,8 @@ export default function KanbanBoard() {
             const statuses = [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
 
             const { consumptionType, startDate, endDate } = filters;
-            const { limit } = pagination;
             const commonParams = {
-                limit,
+                limit: pagination.limit,
                 page: 1,
                 consumption_type: consumptionType !== "ALL" ? consumptionType : undefined,
                 start_date: startDate
@@ -87,7 +86,7 @@ export default function KanbanBoard() {
             setOrders({
                 data: uniqueOrders,
                 page: 1,
-                limit: limit,
+                limit: pagination.limit,
                 total: uniqueOrders.length,
                 totalPages: 1
             });
@@ -97,7 +96,8 @@ export default function KanbanBoard() {
         } finally {
             setLoading(false);
         }
-    }, [filters, pagination, ordersApi, businessId, setOrders]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters, pagination.limit, businessId, setOrders]);
 
     useEffect(() => {
         fetchKanbanOrders();

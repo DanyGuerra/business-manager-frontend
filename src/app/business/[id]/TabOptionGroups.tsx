@@ -60,7 +60,8 @@ export default function TabOptionGroups() {
     } finally {
       setIsLoading(false);
     }
-  }, [page, limit, search, businessId, optionGroupApi]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, limit, search, businessId]);
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isCreateEmptyOpen, setIsCreateEmptyOpen] = useState(false);
