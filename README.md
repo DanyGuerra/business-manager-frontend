@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RestHub - Gestión de Restaurantes
 
-## Getting Started
+RestHub es una plataforma integral diseñada para la administración eficiente de restaurantes. Permite gestionar pedidos en tiempo real, administrar menús dinámicos, controlar inventario y definir roles de equipo, todo desde una interfaz moderna y responsiva.
 
-First, run the development server:
+## 🚀 Características Principales
+
+- **Gestión de Pedidos en Tiempo Real**: Tablero Kanban para visualizar y mover pedidos entre estados (Pendiente, En Preparación, Listo, Completado).
+- **Tipos de Consumo**: Soporte para "Comer aquí" (con número de mesa), "Para llevar" y "Domicilio".
+- **Administración de Menús**: Creación y edición de productos, grupos de opciones y variantes.
+- **Gestión de Negocios**: Soporte multi-negocio, permitiendo administrar varias sucursales o marcas.
+- **Roles y Permisos**: Control de acceso granular para usuarios (Dueño, Admin, etc.).
+- **Interfaz Moderna**: Diseño limpio y responsivo con soporte para modo oscuro.
+
+## 🛠️ Tecnologías
+
+Este proyecto está construido con un stack moderno y eficiente:
+
+- **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
+- **UI Library**: [React 19](https://react.dev/)
+- **Estilos**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Componentes**: [Shadcn UI](https://ui.shadcn.com/) (Radix primitives)
+- **Estado Global**: [Zustand](https://github.com/pmndrs/zustand)
+- **Formularios**: [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)
+- **HTTP Client**: [Axios](https://axios-http.com/)
+- **Fechas**: [date-fns](https://date-fns.org/)
+- **Drag & Drop**: [dnd-kit](https://dndkit.com/)
+
+## 🏁 Comenzar
+
+### Prerrequisitos
+
+- Node.js (v18 o superior recomendado)
+- npm, yarn, pnpm o bun
+
+### Instalación
+
+1.  Clona el repositorio:
+
+    ```bash
+    git clone https://github.com/tu-usuario/business-manager-frontend.git
+    cd business-manager-frontend
+    ```
+
+2.  Instala las dependencias:
+    ```bash
+    npm install
+    # o
+    yarn install
+    # o
+    pnpm install
+    ```
+
+### Ejecutar en Desarrollo
+
+Inicia el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📦 Scripts Disponibles
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev`: Inicia el entorno de desarrollo con Turbopack.
+- `npm run build`: Compila la aplicación para producción.
+- `npm run start`: Inicia el servidor de producción.
+- `npm run lint`: Ejecuta el linter para mantener la calidad del código.
 
-## Learn More
+## 🔐 Autenticación y Seguridad
 
-To learn more about Next.js, take a look at the following resources:
+El sistema maneja autenticación de usuarios y protección de rutas basada en roles. Asegúrate de configurar las variables de entorno necesarias para la conexión con el backend.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contribución
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request para mejoras y correcciones.
