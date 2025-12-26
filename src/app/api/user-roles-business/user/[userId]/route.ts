@@ -3,7 +3,8 @@ import { buildHeaders, NESTJS_URL } from "../../../headersUtils";
 
 export async function GET(req: NextRequest, { params }: { params: { userId: string } }) {
     try {
-        const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${params.userId}`, {
+        const userId = params.userId.toString();
+        const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${userId}`, {
             method: "GET",
             headers: {
                 ...buildHeaders(req),
