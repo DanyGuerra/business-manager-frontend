@@ -27,7 +27,7 @@ export type CreateOrderDto = {
     delivered_at?: Date | string,
     scheduled_at?: Date | string,
     consumption_type?: ConsumptionType,
-    table_number?: number,
+    table_number?: number | null,
     notes?: string | null,
 }
 

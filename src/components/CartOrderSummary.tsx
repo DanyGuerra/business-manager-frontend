@@ -186,7 +186,7 @@ export function CartOrderSummary({
                                 <Tabs
                                     defaultValue={ConsumptionType.TAKE_AWAY}
                                     value={orderDetails.consumption_type}
-                                    onValueChange={(value) => setOrderDetails(businessId, { consumption_type: value as ConsumptionType })}
+                                    onValueChange={(value) => setOrderDetails(businessId, { consumption_type: value as ConsumptionType, table_number: undefined })}
                                     className="w-full"
                                 >
                                     <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">

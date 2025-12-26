@@ -29,6 +29,7 @@ const orderSchema = z.object({
     notes: z.string().optional(),
     consumption_type: z.nativeEnum(ConsumptionType),
     scheduled_at: z.date().optional(),
+    table_number: z.number().nullable().optional(),
 }).refine((data) => {
     if (data.amount_paid !== undefined && data.total !== undefined) {
         return data.amount_paid >= data.total;
@@ -65,6 +66,7 @@ export default function FormOrder({
             notes: defaultValues?.notes ?? "",
             consumption_type: defaultValues?.consumption_type ?? ConsumptionType.DINE_IN,
             scheduled_at: defaultValues?.scheduled_at,
+            table_number: defaultValues?.table_number,
         },
     });
 
@@ -79,6 +81,7 @@ export default function FormOrder({
                 notes: defaultValues.notes ?? "",
                 consumption_type: defaultValues.consumption_type ?? ConsumptionType.DINE_IN,
                 scheduled_at: defaultValues.scheduled_at,
+                table_number: defaultValues.table_number,
             });
         }
     }, [defaultValues, form]);
@@ -110,6 +113,29 @@ export default function FormOrder({
                     />
                 </div>
 
+                <div className="flex gap-4">
+                    <FormField
+                        control={form.control}
+                        name="table_number"
+                        render={({ field }) => (
+                            <FormItem className="w-1/3">
+                                <FormLabel>Mesa</FormLabel>
+                                <FormControl>
+                                    <Input
+                                        type="number"
+                                        placeholder="#"
+                                        {...field}
+                                        value={field.value ?? ""}
+                                        onChange={(e) => field.onChange(e.target.value ? parseFloat(e.target.value) : null)}
+                                        disabled={form.watch("consumption_type") !== ConsumptionType.DINE_IN}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </div>
+
                 <div className="flex flex-col gap-4">
                     <FormField
                         control={form.control}
@@ -120,7 +146,12 @@ export default function FormOrder({
                                 <FormControl>
                                     <Tabs
                                         value={field.value}
-                                        onValueChange={field.onChange}
+                                        onValueChange={(value) => {
+                                            field.onChange(value);
+                                            if (value !== ConsumptionType.DINE_IN) {
+                                                form.setValue("table_number", null);
+                                            }
+                                        }}
                                         className="w-full"
                                     >
                                         <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
