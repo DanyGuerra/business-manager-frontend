@@ -2,11 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await context.params;
     const res = await fetch(
-      `${process.env.API_BUSINESS_URL}/users/${params.id}`,
+      `${process.env.API_BUSINESS_URL}/users/${id}`,
       {
         method: "GET",
         headers: {

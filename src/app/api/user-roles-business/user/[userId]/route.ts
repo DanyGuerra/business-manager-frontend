@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildHeaders, NESTJS_URL } from "../../../headersUtils";
 
-export async function GET(req: NextRequest, { params }: { params: { userId: string } }) {
+export async function GET(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
     try {
-        const userId = params.userId.toString();
+        const { userId } = await context.params;
         const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${userId}`, {
             method: "GET",
             headers: {
@@ -22,9 +22,10 @@ export async function GET(req: NextRequest, { params }: { params: { userId: stri
         );
     }
 }
-export async function DELETE(req: NextRequest, { params }: { params: { userId: string } }) {
+export async function DELETE(req: NextRequest, context: { params: Promise<{ userId: string }> }) {
     try {
-        const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${params.userId}`, {
+        const { userId } = await context.params;
+        const res = await fetch(`${NESTJS_URL}/user-business-roles/user/${userId}`, {
             method: "DELETE",
             headers: {
                 ...buildHeaders(req),
