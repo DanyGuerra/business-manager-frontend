@@ -58,6 +58,7 @@ export interface Order {
     deleted_at: string | null
     user: Partial<User>
     table_number: number | null
+    order_number: number
 }
 
 

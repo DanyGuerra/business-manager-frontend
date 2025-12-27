@@ -120,16 +120,13 @@ export function OrderCard({ order }: OrderCardProps) {
             "w-full transition-all duration-300 group relative overflow-hidden bg-white dark:bg-card",
             isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60'
         )}>
-            {/* Ultra-slim Status Indicator */}
             {!isEditMode && (
                 <div className={cn("absolute left-0 top-0 bottom-0 w-[2px] transition-colors", getStatusColor(order.status))} />
             )}
-
-            {/* Compact Header */}
             <CardHeader className="p-3 pb-1 space-y-0 relative">
                 <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground tracking-tight">#{order.id.slice(0, 4)}</span>
+                        <span className="text-sm font-bold text-foreground tracking-tight"># {order.order_number.toString().slice(-2)}</span>
                     </div>
 
                     {isEditMode ? (
@@ -184,7 +181,6 @@ export function OrderCard({ order }: OrderCardProps) {
                         </Badge>
                     )}
                 </div>
-                {/* Distinct Date Badges Row */}
                 {!isEditMode && (
                     <div className="flex flex-col">
                         <div className={cn(
@@ -208,17 +204,7 @@ export function OrderCard({ order }: OrderCardProps) {
                         )}
                     </div>
                 )}
-            </CardHeader>
-
-            {/* Compact Content */}
-            <CardContent className="p-3 py-1.5 text-xs">
-                <OrderGroups order={order} />
-            </CardContent>
-
-            {/* Combined Footer */}
-            <CardFooter className="p-3 pt-1 flex flex-col gap-2">
-                {/* Meta Info Row */}
-                <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground">
+                <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground mt-2 pt-2 border-t border-dashed border-border/40">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0">
                             <div className="flex items-center gap-1 min-w-0">
@@ -242,6 +228,14 @@ export function OrderCard({ order }: OrderCardProps) {
                         </div>
                     )}
                 </div>
+            </CardHeader>
+
+            <CardContent className="p-3 py-1.5 text-xs">
+                <OrderGroups order={order} />
+            </CardContent>
+
+            <CardFooter className="p-3 pt-1 flex flex-col gap-2">
+
 
                 <div className="flex items-center justify-between w-full border-t border-dashed border-border/40 pt-2 mt-0.5">
                     <div className="flex items-center gap-2 text-[10px]">
@@ -270,7 +264,6 @@ export function OrderCard({ order }: OrderCardProps) {
                 </div>
             </CardFooter>
 
-            {/* Action Buttons - Ultra Compact */}
             {!order.amount_paid && !isEditMode && (
                 <div className="px-3 pb-3 pt-0">
                     <CustomDialog
