@@ -35,5 +35,7 @@ export function useAuthApi() {
 
     updateUser: (data: UpdateUserDto) =>
       api.patch<ApiResponse<User>>("/users/update", data).then((res) => res.data),
+
+    logout: () => api.post("auth/logout").then((res) => res.data),
   };
 }
