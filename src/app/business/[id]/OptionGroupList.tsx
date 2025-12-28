@@ -167,7 +167,7 @@ export default function OptionGroupList({
               key={og.id}
               og={og}
               productId={productId}
-              onRefresh={getOptionsGroupsById}
+              onRefresh={onRefresh}
             />
           ))}
         </div>
