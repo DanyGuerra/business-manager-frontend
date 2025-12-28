@@ -25,7 +25,8 @@ import {
     DndContext,
     closestCenter,
     KeyboardSensor,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     DragEndEvent
@@ -50,7 +51,17 @@ export default function CartDrawer() {
     const selectedGroupId = getSelectedGroupId(businessId);
 
     const sensors = useSensors(
-        useSensor(PointerSensor),
+        useSensor(MouseSensor, {
+            activationConstraint: {
+                distance: 10,
+            },
+        }),
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        }),
         useSensor(KeyboardSensor)
     );
 
@@ -246,10 +257,12 @@ function SortableGroup({ group, selectedGroupId, selectGroup, removeGroup, busin
             onClick={() => selectGroup(businessId, group.group_id)}
         >
             <div className="flex items-center justify-between pb-2 border-b border-dashed">
-                <Badge variant={isSelected ? "default" : "outline"}>
-                    {group.group_name}
-                    {isSelected && " (Seleccionada)"}
-                </Badge>
+                <div>
+                    {isSelected && <Badge variant='default'>
+                        {group.group_name}
+                        {isSelected && " (Seleccionada)"}
+                    </Badge>}
+                </div>
                 <Button
                     variant="ghost"
                     size="icon"
