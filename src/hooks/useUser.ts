@@ -4,6 +4,7 @@ import { useAuthApi } from "@/lib/useAuthApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { useAuth } from "@/context/AuthContext";
+import Cookies from "js-cookie";
 
 export function useUser() {
     const { user, isLoading, setUser, setIsLoading, setIsChecked, logout: storeLogout } = useUserStore();
@@ -11,9 +12,19 @@ export function useUser() {
     const { startLoading, stopLoading } = useLoadingStore();
     const { accessToken, setAccessToken } = useAuth();
 
-    const logout = () => {
+    const logout = async () => {
+        localStorage.clear();
+        Cookies.remove("accessToken");
+        Cookies.remove("refreshToken");
         storeLogout();
         setAccessToken(null);
+        setUser(null);
+        try {
+            await authApi.logout();
+        } catch (error) {
+            handleApiError(error);
+        }
+
     };
 
     useEffect(() => {
