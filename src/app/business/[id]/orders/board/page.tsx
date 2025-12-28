@@ -15,9 +15,9 @@ export default function OrdersBoardPage() {
 
     return (
         <div className="flex flex-col h-full p-4 md:p-6 w-full">
-            <div className="flex justify-between items-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 -mx-4 md:-mx-6 px-4 md:px-6 py-3 border-b mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 -mx-4 md:-mx-6 px-4 md:px-6 py-3 border-b mb-4">
                 <h1 className="text-2xl font-bold tracking-tight">Tablero de pedidos</h1>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-start w-full sm:w-auto gap-2">
                     <span className="text-sm text-muted-foreground">Mostrar:</span>
                     <Select
                         value={pagination.limit.toString()}

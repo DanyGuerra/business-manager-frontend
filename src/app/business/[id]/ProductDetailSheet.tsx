@@ -29,11 +29,11 @@ export default function ProductDetailSheet({ product, onRefresh }: ProductDetail
                     <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover/btn:translate-x-1" />
                 </Button>
             </SheetTrigger>}
-            <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
-                <SheetHeader className="mb-6 flex flex-row items-center justify-between space-y-0">
+            <SheetContent className="w-full sm:max-w-[540px] overflow-y-auto px-6 py-2 sm:px-6">
+                <SheetHeader className="mb-4 sm:mb-6 flex flex-row items-center justify-between space-y-0 text-left">
                     <div className="flex flex-col gap-1">
-                        <SheetTitle className="text-2xl">{product.name}</SheetTitle>
-                        <SheetDescription>
+                        <SheetTitle className="text-xl sm:text-2xl">{product.name}</SheetTitle>
+                        <SheetDescription className="text-xs sm:text-sm">
                             Gestiona los grupos de opciones y variantes para este producto.
                         </SheetDescription>
                     </div>
