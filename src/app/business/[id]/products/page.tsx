@@ -13,6 +13,7 @@ import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { ProductGroup } from "@/lib/useBusinessApi";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { handleApiError } from "@/utils/handleApiError";
+import { Button } from "@/components/ui/button";
 
 export default function ProductsPage({
   params,
@@ -79,10 +80,10 @@ export default function ProductsPage({
             modalTitle="Crear producto"
             modalDescription="Agrega un nuevo producto a tu inventario"
             trigger={
-              <div className="flex items-center gap-2 cursor-pointer bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+              <Button className="shrink-0 gap-2 w-full sm:w-auto">
                 <PackagePlus className="h-4 w-4" />
                 Crear Producto
-              </div>
+              </Button>
             }
           >
             <FormProduct

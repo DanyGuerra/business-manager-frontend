@@ -5,6 +5,7 @@ import FormProductGroup, {
   ProductGroupValues,
 } from "@/components/FormProductGroup";
 import CustomDialog from "@/components/customDialog";
+import { Button } from "@/components/ui/button";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { useBusinessStore } from "@/store/businessStore";
@@ -95,6 +96,12 @@ export default function TabMenu() {
             setOpen={setOpen}
             modalTitle="Crear menú"
             modalDescription="Crea un menú de productos para tu negocio"
+            trigger={
+              <Button className="shrink-0 gap-2 w-full sm:w-auto">
+                <BookOpen className="h-4 w-4" />
+                <span>Crear menú</span>
+              </Button>
+            }
           >
             <FormProductGroup
               buttonTitle="Crear"

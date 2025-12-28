@@ -4,6 +4,7 @@ import FormProductOptionGroup, {
   ProductOptionGroupValues,
 } from "@/components/FormProductOptionGroup";
 import CustomDialog from "@/components/customDialog";
+import { Button } from "@/components/ui/button";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import {
   CreateOptionGroupDto,
@@ -113,6 +114,12 @@ export default function TabOptionGroups() {
               setOpen={setIsCreateOpen}
               modalTitle="Crear variante del producto"
               modalDescription="Crea un nuevo grupo de opciones para este producto"
+              trigger={
+                <Button className="shrink-0 gap-2 w-full sm:w-auto">
+                  <Layers className="h-4 w-4" />
+                  <span>Crear grupo</span>
+                </Button>
+              }
             >
               <FormProductOptionGroup
                 buttonTitle="Agregar"
