@@ -10,11 +10,6 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import {
-    Tabs,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
 import { ChevronsUpDown, Utensils, ShoppingBag, Truck, ChevronDownIcon, Trash2Icon } from "lucide-react";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { OrderDetails } from "@/store/cartStore";
@@ -179,53 +174,57 @@ export function CartOrderSummary({
                             </Button>
                         </div>
                     </div>
-                    <div className="">
-                        <div className="flex gap-4">
-                            <div className="flex-1 space-y-1">
-                                <Label htmlFor="consumption-type" className="text-xs font-medium">Tipo de consumo</Label>
-                                <Tabs
-                                    defaultValue={ConsumptionType.TAKE_AWAY}
-                                    value={orderDetails.consumption_type}
-                                    onValueChange={(value) => setOrderDetails(businessId, { consumption_type: value as ConsumptionType, table_number: undefined })}
-                                    className="w-full"
-                                >
-                                    <TabsList className="grid w-full grid-cols-3 h-11 p-1 bg-muted/50 rounded-lg">
-                                        <TabsTrigger
-                                            value={ConsumptionType.DINE_IN}
-                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label className="text-xs font-medium">Tipo de consumo</Label>
+                            <div className="grid grid-cols-3 gap-3">
+                                {[
+                                    { value: ConsumptionType.DINE_IN, label: "Comer aquí", icon: Utensils },
+                                    { value: ConsumptionType.TAKE_AWAY, label: "Para llevar", icon: ShoppingBag },
+                                    { value: ConsumptionType.DELIVERY, label: "Domicilio", icon: Truck },
+                                ].map((option) => {
+                                    const isSelected = orderDetails.consumption_type === option.value;
+                                    const Icon = option.icon;
+                                    return (
+                                        <div
+                                            key={option.value}
+                                            onClick={() => setOrderDetails(businessId, { consumption_type: option.value, table_number: undefined })}
+                                            className={cn(
+                                                "cursor-pointer relative flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all duration-200",
+                                                isSelected
+                                                    ? "border-primary bg-primary/5 text-primary"
+                                                    : "border-muted hover:border-muted-foreground/25 bg-background text-muted-foreground"
+                                            )}
                                         >
-                                            <Utensils className="h-3.5 w-3.5" />
-                                            <span className="inline">Comer aqui</span>
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value={ConsumptionType.TAKE_AWAY}
-                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
-                                        >
-                                            <ShoppingBag className="h-3.5 w-3.5" />
-                                            <span className="inline">Llevar</span>
-                                        </TabsTrigger>
-                                        <TabsTrigger
-                                            value={ConsumptionType.DELIVERY}
-                                            className="cursor-pointer text-xs gap-2 h-full rounded-md border border-transparent transition-all duration-200"
-                                        >
-                                            <Truck className="h-3.5 w-3.5" />
-                                            <span className="inline">Entrega</span>
-                                        </TabsTrigger>
-                                    </TabsList>
-                                </Tabs>
+                                            <Icon className={cn("h-5 w-5", isSelected && "fill-current/20")} />
+                                            <span className="text-xs font-semibold">{option.label}</span>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            <div className="w-20 space-y-1">
-                                <Label htmlFor="table-number" className="text-xs font-medium">Mesa</Label>
-                                <Input
-                                    id="table-number"
-                                    type="number"
-                                    min="1"
-                                    placeholder="#"
-                                    disabled={orderDetails.consumption_type !== ConsumptionType.DINE_IN}
-                                    value={orderDetails.table_number || ""}
-                                    onChange={(e) => setOrderDetails(businessId, { table_number: e.target.value })}
-                                    className="h-11 text-center bg-background"
-                                />
+                        </div>
+
+                        <div className={cn(
+                            "grid transition-all duration-300 ease-in-out",
+                            orderDetails.consumption_type === ConsumptionType.DINE_IN
+                                ? "grid-rows-[1fr] opacity-100"
+                                : "grid-rows-[0fr] opacity-0"
+                        )}>
+                            <div className="overflow-hidden space-y-2">
+                                <Label htmlFor="table-number" className="text-xs font-medium">Número de mesa</Label>
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">#</span>
+                                    <Input
+                                        id="table-number"
+                                        type="number"
+                                        min="1"
+                                        placeholder="0"
+                                        value={orderDetails.table_number || ""}
+                                        onChange={(e) => setOrderDetails(businessId, { table_number: e.target.value })}
+                                        className="pl-7 h-11 bg-background text-base font-medium"
+                                        autoComplete="off"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
