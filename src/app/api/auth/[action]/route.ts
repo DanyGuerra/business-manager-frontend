@@ -20,7 +20,8 @@ export async function POST(
       { status: 200 }
     );
 
-    response.cookies.set("token", "", { path: "/", maxAge: 0 });
+    response.cookies.set("accessToken", "", { path: "/", maxAge: 0 });
+    response.cookies.set("refresh_token", "", { path: "/", maxAge: 0 });
 
     return response;
   }
