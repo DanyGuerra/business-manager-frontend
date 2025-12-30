@@ -9,6 +9,7 @@ export async function getMe(token: string): Promise<User | null> {
         const res = await fetch(`${NESTJS_URL}/users/me`, {
             headers: {
                 Authorization: `Bearer ${token}`,
+                "x-api-key": process.env.API_KEY || "",
             },
         });
         if (!res.ok) return null;
@@ -25,6 +26,7 @@ export async function getUserRoles(userId: string, businessId: string, token: st
             headers: {
                 Authorization: `Bearer ${token}`,
                 [BusinessIdHeader]: businessId,
+                "x-api-key": process.env.API_KEY || "",
             },
         });
         if (!res.ok) return [];
