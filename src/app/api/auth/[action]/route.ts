@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { buildHeaders } from "../../headersUtils";
 
 const ACTIONS: Record<string, string> = {
   signup: "/auth/signup",
@@ -9,7 +10,7 @@ const ACTIONS: Record<string, string> = {
 };
 
 export async function POST(
-  req: Request,
+  req: NextRequest,
   context: { params: Promise<{ action: string }> }
 ) {
   const { action } = await context.params;
@@ -37,7 +38,7 @@ export async function POST(
   const res = await fetch(targetUrl, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      ...buildHeaders(req),
       Cookie: cookie,
     },
     body: body ? JSON.stringify(body) : undefined,

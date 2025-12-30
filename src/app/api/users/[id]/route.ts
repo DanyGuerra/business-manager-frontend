@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { NESTJS_URL, buildHeaders } from "../../headersUtils";
 
 export async function GET(
   req: NextRequest,
@@ -7,13 +8,10 @@ export async function GET(
   try {
     const { id } = await context.params;
     const res = await fetch(
-      `${process.env.API_BUSINESS_URL}/users/${id}`,
+      `${NESTJS_URL}/users/${id}`,
       {
         method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: req.headers.get("authorization") ?? "",
-        },
+        headers: buildHeaders(req),
         credentials: "include",
       }
     );
