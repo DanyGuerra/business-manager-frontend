@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { buildHeaders } from "../../headersUtils";
+import { logger } from "../../../../lib/logger";
 
 const ACTIONS: Record<string, string> = {
   signup: "/auth/signup",
@@ -53,7 +54,8 @@ export async function POST(
     setCookies.forEach((cookie) => response.headers.append("set-cookie", cookie));
 
     return response;
-  } catch {
+  } catch (error) {
+    logger.error({ error, action, targetUrl }, "Auth API Request Failed");
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
