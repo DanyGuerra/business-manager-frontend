@@ -30,6 +30,7 @@ export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
             auth: {
                 token: accessToken
             },
+            path: '/socket.io',
             transports: ['websocket'],
             withCredentials: true,
             autoConnect: true,
