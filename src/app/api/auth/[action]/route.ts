@@ -53,8 +53,7 @@ export async function POST(
     setCookies.forEach((cookie) => response.headers.append("set-cookie", cookie));
 
     return response;
-  } catch (error) {
-    console.error("Internal Server Error", error);
+  } catch {
     return NextResponse.json(
       { message: "Internal Server Error" },
       { status: 500 }
