@@ -23,6 +23,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { format } from "date-fns";
+import { useSocket } from "@/context/SocketContext";
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -35,7 +36,7 @@ const dropAnimation: DropAnimation = {
 };
 
 export default function KanbanBoard() {
-    const { orders, updateOrder, setOrders, filters, pagination } = useOrdersStore();
+    const { orders, updateOrder, setOrders, filters, pagination, setOrdersByStatus } = useOrdersStore();
     const { businessId } = useBusinessStore();
     const ordersApi = useOrdersApi();
     const [loading, setLoading] = useState(true);
@@ -56,10 +57,14 @@ export default function KanbanBoard() {
         useSensor(TouchSensor)
     );
 
-    const fetchKanbanOrders = useCallback(async () => {
-        setLoading(true);
+    const { socket, isConnected } = useSocket();
+
+    const fetchKanbanOrders = useCallback(async (targetStatus?: OrderStatus) => {
+        if (!targetStatus) setLoading(true);
         try {
-            const statuses = [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
+            const statuses = targetStatus
+                ? [targetStatus]
+                : [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
 
             const { consumptionType, startDate, endDate } = filters;
             const commonParams = {
@@ -74,34 +79,65 @@ export default function KanbanBoard() {
                     : undefined,
             };
 
-            const responses = await Promise.all(
-                statuses.map(status =>
-                    ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status })
-                )
-            );
+            if (targetStatus) {
+                const response = await ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status: targetStatus });
+                setOrdersByStatus(response.data.data, targetStatus);
+            } else {
+                const responses = await Promise.all(
+                    statuses.map(status =>
+                        ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status })
+                    )
+                );
 
-            const allOrders: Order[] = responses.flatMap(response => response.data.data);
-            const uniqueOrders = Array.from(new Map(allOrders.map(order => [order.id, order])).values());
+                const allOrders: Order[] = responses.flatMap(response => response.data.data);
+                const uniqueOrders = Array.from(new Map(allOrders.map(order => [order.id, order])).values());
 
-            setOrders({
-                data: uniqueOrders,
-                page: 1,
-                limit: pagination.limit,
-                total: uniqueOrders.length,
-                totalPages: 1
-            });
+                setOrders({
+                    data: uniqueOrders,
+                    page: 1,
+                    limit: pagination.limit,
+                    total: uniqueOrders.length,
+                    totalPages: 1
+                });
+            }
 
         } catch (error) {
             handleApiError(error);
         } finally {
-            setLoading(false);
+            if (!targetStatus) setLoading(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, pagination.limit, businessId, setOrders]);
+    }, [filters, pagination.limit, businessId, setOrders, setOrdersByStatus]);
 
     useEffect(() => {
         fetchKanbanOrders();
     }, [fetchKanbanOrders]);
+
+    useEffect(() => {
+        if (!socket || !isConnected || !businessId) return;
+
+        socket.emit('joinBusiness', businessId);
+
+        const handleOrderUpdate = (status: OrderStatus) => {
+            fetchKanbanOrders(status);
+
+        };
+
+        const handleOrderDelete = (status: OrderStatus) => {
+            fetchKanbanOrders(status);
+        };
+
+        socket.on('orderCreated', handleOrderUpdate);
+        socket.on('orderUpdated', handleOrderUpdate);
+        socket.on('orderDeleted', handleOrderDelete);
+
+        return () => {
+            socket.emit('leaveBusiness', businessId);
+            socket.off('orderCreated', handleOrderUpdate);
+            socket.off('orderUpdated', handleOrderUpdate);
+            socket.off('orderDeleted', handleOrderDelete);
+        };
+    }, [socket, isConnected, businessId, fetchKanbanOrders]);
 
     const columns = [
         { title: "Pendientes", status: OrderStatus.PENDING, orders: pendingOrders, color: "border-l-yellow-500" },
