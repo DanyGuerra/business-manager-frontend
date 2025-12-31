@@ -71,6 +71,16 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la 
 
 El sistema maneja autenticación de usuarios y protección de rutas basada en roles. Asegúrate de configurar las variables de entorno necesarias para la conexión con el backend.
 
+## ⚙️ Configuración (Variables de Entorno)
+
+Crea un archivo `.env.local` en la raíz del proyecto y agrega las siguientes variables:
+
+```bash
+API_BUSINESS_URL=http://localhost:3000
+NEXT_PUBLIC_API_URL=http://localhost:3000
+API_KEY=your_secret_api_key
+```
+
 ## 🤝 Contribución
 
 Las contribuciones son bienvenidas. Por favor, abre un issue o envía un pull request para mejoras y correcciones.

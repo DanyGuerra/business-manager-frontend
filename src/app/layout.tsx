@@ -5,6 +5,7 @@ import Header from "@/components/header";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
+import { SocketProvider } from "@/context/SocketContext";
 
 export const metadata: Metadata = {
   title: "RestHub - Gestión restaurantes",
@@ -20,14 +21,16 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col" suppressHydrationWarning>
         <AuthProvider>
-          <Providers>
-            <Header></Header>
-            <main className="flex-1 p-2">
-              {children}
-              <Toaster position="top-center" />
-            </main>
-            <Footer></Footer>
-          </Providers>
+          <SocketProvider>
+            <Providers>
+              <Header></Header>
+              <main className="flex-1 p-2">
+                {children}
+                <Toaster position="top-center" />
+              </main>
+              <Footer></Footer>
+            </Providers>
+          </SocketProvider>
         </AuthProvider>
       </body>
     </html>
