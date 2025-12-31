@@ -38,6 +38,7 @@ type OrdersState = {
     setPage: (page: number) => void;
     resetFilters: () => void;
     setLimit: (limit: number) => void;
+    setOrdersByStatus: (orders: Order[], status: OrderStatus) => void;
 };
 
 const initialFilters: FilterState = {
@@ -89,4 +90,14 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     setLimit: (limit) => set((state) => ({
         pagination: { ...state.pagination, limit, page: 1 }
     })),
+    setOrdersByStatus: (orders, status) => set((state) => {
+        const otherOrders = state.orders.filter(o => o.status !== status);
+        // Deduplicate using a Map, prioritizing the new orders
+        const mergedOrders = [...otherOrders, ...orders];
+        const uniqueOrders = Array.from(new Map(mergedOrders.map(o => [o.id, o])).values());
+
+        return {
+            orders: uniqueOrders
+        };
+    }),
 }));
