@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { proxyFetch } from "./utils";
+import { logger } from "../../../lib/logger";
 import { buildHeaders } from "../headersUtils";
 
 export async function GET(req: NextRequest) {
@@ -9,7 +10,8 @@ export async function GET(req: NextRequest) {
       headers: buildHeaders(req),
     });
     return NextResponse.json(data, { status });
-  } catch {
+  } catch (error) {
+    logger.error({ error }, "Business API GET Failed");
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -26,7 +28,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(body),
     });
     return NextResponse.json(data, { status });
-  } catch {
+  } catch (error) {
+    logger.error({ error }, "Business API POST Failed");
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -43,7 +46,8 @@ export async function PUT(req: NextRequest) {
       body: JSON.stringify(body),
     });
     return NextResponse.json(data, { status });
-  } catch {
+  } catch (error) {
+    logger.error({ error }, "Business API PUT Failed");
     return NextResponse.json(
       { message: "Internal server error" },
       { status: 500 }
@@ -58,7 +62,8 @@ export async function DELETE(req: NextRequest) {
       headers: buildHeaders(req),
     });
     return NextResponse.json(data, { status });
-  } catch {
+  } catch (error) {
+    logger.error({ error }, "Business API DELETE Failed");
     return NextResponse.json(
       { message: "Internal proxy error" },
       { status: 500 }

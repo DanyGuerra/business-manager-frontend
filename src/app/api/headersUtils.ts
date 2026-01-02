@@ -10,6 +10,7 @@ export function buildHeaders(req: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {
     Authorization: token,
     "Content-Type": "application/json",
+    "x-api-key": process.env.API_KEY || "",
   };
   if (businessId) headers[HeadersEnum.BusinessId] = businessId;
 
