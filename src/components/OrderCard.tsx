@@ -2,7 +2,7 @@
 import { Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye } from "lucide-react";
 import { formatCurrency, cn, getStatusColor, getStatusLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -12,6 +12,7 @@ import { useEditModeStore } from "@/store/editModeStore";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderGroups } from "./OrderGroups";
 import FormOrder, { OrderValues } from "./FormOrder";
+import FormPayment, { PaymentValues } from "./FormPayment";
 import { useOrdersApi } from "@/lib/useOrdersApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
@@ -76,6 +77,24 @@ export function OrderCard({ order }: OrderCardProps) {
             toast.success("Orden actualizada correctamente", { style: toastSuccessStyle });
             getOrders();
             setOpen(false);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.UPDATE_ORDER);
+        }
+    }
+
+    async function handleOrderPayment(data: PaymentValues) {
+        try {
+            startLoading(LoadingsKeyEnum.UPDATE_ORDER);
+            await ordersApi.updateOrder(order.id, { amount_paid: parseFloat(data.amount_paid) }, businessId);
+            updateOrder(order.id, {
+                ...order,
+                amount_paid: data.amount_paid,
+            });
+            toast.success("Pago registrado correctamente", { style: toastSuccessStyle });
+            getOrders();
+            setOpenPay(false);
         } catch (error) {
             handleApiError(error);
         } finally {
@@ -237,35 +256,49 @@ export function OrderCard({ order }: OrderCardProps) {
             <CardFooter className="p-3 pt-1 flex flex-col gap-2">
 
 
-                <div className="flex items-center justify-between w-full border-t border-dashed border-border/40 pt-2 mt-0.5">
-                    <div className="flex items-center gap-2 text-[10px]">
-                        {order.amount_paid && (
-                            <>
-                                <div className="flex gap-1">
-                                    <span className="text-muted-foreground">Pagado:</span>
-                                    <span className="font-medium">{formatCurrency(order.amount_paid)}</span>
+                <div className="flex flex-col gap-2 w-full border-t border-dashed border-border/40 pt-3 mt-1">
+                    {order.amount_paid ? (
+                        <div className="flex flex-col gap-1.5">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-medium">Pagado</span>
+                                <span className="font-medium">{formatCurrency(order.amount_paid)}</span>
+                            </div>
+                            {order.change && (
+                                <div className="flex justify-between items-center text-xs">
+                                    <span className="text-muted-foreground font-medium">Cambio</span>
+                                    <Badge
+                                        variant="outline"
+                                        className={cn(
+                                            "font-bold py-0 h-5 border-0",
+                                            parseFloat(order.change) < 0
+                                                ? "bg-destructive/10 text-destructive"
+                                                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                        )}
+                                    >
+                                        {formatCurrency(order.change)}
+                                    </Badge>
                                 </div>
-                                {order.change && (
-                                    <div className="flex gap-1">
-                                        <span className="text-muted-foreground">Cambio:</span>
-                                        <span className={cn(
-                                            "font-medium",
-                                            parseFloat(order.change) < 0 ? "text-destructive" : "text-emerald-600"
-                                        )}>
-                                            {formatCurrency(order.change)}
-                                        </span>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
-
-                    <span className="text-sm font-bold text-foreground">{formatCurrency(order.total)}</span>
+                            )}
+                            <div className="flex justify-between items-end pt-1 mt-1 border-t border-border/30">
+                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Total</span>
+                                <span className="text-lg font-bold leading-none">
+                                    {formatCurrency(order.total)}
+                                </span>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex justify-between items-center">
+                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Total</span>
+                            <span className="text-lg font-bold">
+                                {formatCurrency(order.total)}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </CardFooter>
 
-            {!order.amount_paid && !isEditMode && (
-                <div className="px-3 pb-3 pt-0">
+            <div className="px-3 pb-3 pt-0 flex flex-col gap-2">
+                {!order.amount_paid && !isEditMode && (
                     <CustomDialog
                         open={openPay}
                         setOpen={setOpenPay}
@@ -278,43 +311,52 @@ export function OrderCard({ order }: OrderCardProps) {
                             </Button>
                         }
                     >
-                        <FormOrder
+                        <FormPayment
                             buttonTitle="Confirmar pago"
+                            total={parseFloat(order.total)}
                             loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
-                            handleSubmitButton={handleUpdateOrder}
+                            handleSubmitButton={handleOrderPayment}
                             onSuccess={() => setOpenPay(false)}
                             defaultValues={{
-                                customer_name: order.customer_name,
-                                amount_paid: parseFloat(order.total),
+                                amount_paid: order.total.toString(),
                                 total: parseFloat(order.total),
-                                notes: order.notes,
-                                consumption_type: order.consumption_type as ConsumptionType,
-                                scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
                             }}
                         />
                     </CustomDialog>
-                </div>
-            )}
+                )}
 
-            {isEditMode && (
-                <div className="px-3 pb-3 pt-0">
-                    <DeleteDialogConfirmation
-                        title="Cancelar orden"
-                        description="¿Cancelar orden?"
-                        confirmText="Cancelar"
-                        trigger={
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full h-7 border-destructive/20 text-destructive hover:bg-destructive/5 hover:border-destructive/40 transition-all text-[10px]"
-                            >
-                                Cancelar Orden
-                            </Button>
-                        }
-                        handleContinue={handleCancelOrder}
-                    />
+                <div className="flex flex-col gap-2">
+                    {isEditMode && <Button
+                        variant="default"
+                        size="sm"
+                        className="w-full h-7 font-bold text-[10px]"
+                        asChild
+                    >
+                        <a href={`/business/${businessId}/orders/${order.id}`}>
+                            <Eye className="h-3 w-3 mr-1.5" />
+                            Ver Detalles
+                        </a>
+                    </Button>}
+
+                    {isEditMode && (
+                        <DeleteDialogConfirmation
+                            title="Cancelar orden"
+                            description="¿Cancelar orden?"
+                            confirmText="Cancelar"
+                            trigger={
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full h-7 border-destructive/20 text-destructive hover:bg-destructive/5 hover:border-destructive/40 transition-all text-[10px]"
+                                >
+                                    Cancelar Orden
+                                </Button>
+                            }
+                            handleContinue={handleCancelOrder}
+                        />
+                    )}
                 </div>
-            )}
+            </div>
         </Card>
     );
 }

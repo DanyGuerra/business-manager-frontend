@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from "next/server";
 import { buildHeaders } from "../../headersUtils";
+import { logger } from "../../../../lib/logger";
 
 const ACTIONS: Record<string, string> = {
   signup: "/auth/signup",
@@ -35,21 +36,29 @@ export async function POST(
   const targetUrl = `${process.env.API_BUSINESS_URL}${path}`;
   const cookie = req.headers.get("cookie") || "";
 
-  const res = await fetch(targetUrl, {
-    method: "POST",
-    headers: {
-      ...buildHeaders(req),
-      Cookie: cookie,
-    },
-    body: body ? JSON.stringify(body) : undefined,
-    credentials: "include",
-  });
+  try {
+    const res = await fetch(targetUrl, {
+      method: "POST",
+      headers: {
+        ...buildHeaders(req),
+        Cookie: cookie,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+      credentials: "include",
+    });
 
-  const data = await res.json().catch(() => ({}));
-  const response = NextResponse.json(data, { status: res.status });
+    const data = await res.json().catch(() => ({}));
+    const response = NextResponse.json(data, { status: res.status });
 
-  const setCookies = res.headers.getSetCookie();
-  setCookies.forEach((cookie) => response.headers.append("set-cookie", cookie));
+    const setCookies = res.headers.getSetCookie();
+    setCookies.forEach((cookie) => response.headers.append("set-cookie", cookie));
 
-  return response;
+    return response;
+  } catch (error) {
+    logger.error({ error, action, targetUrl }, "Auth API Request Failed");
+    return NextResponse.json(
+      { message: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }

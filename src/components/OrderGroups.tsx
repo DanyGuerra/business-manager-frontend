@@ -49,9 +49,9 @@ export function OrderGroups({ order }: OrderDetailsProps) {
                                     </Badge>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs font-semibold">
+                                    <span className="text-xs font-bold text-muted-foreground/80">
                                         {formatCurrency(group.subtotal)}
-                                    </Badge>
+                                    </span>
 
                                     {isEditMode && (
                                         <div onClick={(e) => e.stopPropagation()}>
@@ -79,9 +79,9 @@ export function OrderGroups({ order }: OrderDetailsProps) {
                                         <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">
                                             Subtotal {group.name}
                                         </span>
-                                        <Badge variant="default" className="text-xs font-semibold">
+                                        <span className="text-sm font-bold text-foreground/80">
                                             {formatCurrency(group.subtotal)}
-                                        </Badge>
+                                        </span>
                                     </div>
                                 </div>
                             </div>

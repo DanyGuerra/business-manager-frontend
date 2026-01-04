@@ -78,8 +78,8 @@ export default function OrderItemRow({ item: initialItem, businessId }: { item: 
                         {item.product?.name || "Producto sin nombre"}
                     </span>
                     <span className={cn(
-                        "text-xs font-bold text-foreground/90 whitespace-nowrap transition-all duration-200",
-                        isReady && "text-muted-foreground line-through"
+                        "text-xs font-medium text-muted-foreground whitespace-nowrap transition-all duration-200",
+                        isReady && "line-through opacity-80"
                     )}>
                         {formatCurrency(item.item_total)}
                     </span>

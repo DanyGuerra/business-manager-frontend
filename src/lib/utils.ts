@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
-import { OrderStatus } from "./useOrdersApi"
+import { ConsumptionType, OrderStatus } from "./useOrdersApi"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -48,6 +48,20 @@ export const getStatusLabel = (status: string) => {
       return status;
   }
 };
+
+export const getConsumptionLabel = (type: string) => {
+  switch (type) {
+    case ConsumptionType.DINE_IN:
+      return "Comer aqui";
+    case ConsumptionType.TAKE_AWAY:
+      return "Llevar";
+    case ConsumptionType.DELIVERY:
+      return "Domicilio";
+    default:
+      return type;
+  }
+};
+
 
 export function timeAgo(date: Date): string {
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
