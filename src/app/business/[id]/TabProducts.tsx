@@ -8,6 +8,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import ProductListSkeleton from "@/components/ProductListSkeleton";
 import { DataTableSearch } from "@/components/DataTableSearch";
 import { DataTablePagination } from "@/components/DataTablePagination";
+import { useCartStore } from "@/store/cartStore";
 
 type BusinessProductsListProps = {
     businessId: string;
@@ -26,6 +27,7 @@ export default function TabProducts({
     const [totalPages, setTotalPages] = useState(1);
     const [totalItems, setTotalItems] = useState(0);
     const productApi = useProductApi();
+    const { addToCart } = useCartStore();
 
     const getProducts = useCallback(async () => {
         try {
@@ -69,7 +71,11 @@ export default function TabProducts({
                 </div>
             ) : (
                 <>
-                    <ProductCardList products={products} onRefresh={getProducts} />
+                    <ProductCardList
+                        products={products}
+                        onRefresh={getProducts}
+                        onAddToCart={(product, options, quantity) => addToCart(businessId, product, options, quantity)}
+                    />
 
                     <DataTablePagination
                         currentPage={page}
