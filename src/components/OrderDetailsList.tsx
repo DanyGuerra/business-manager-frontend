@@ -11,6 +11,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 
+
 interface OrderDetailsListProps {
     order: Order;
 }
@@ -41,16 +42,18 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
                                 {group.name}
                             </span>
                             <Badge variant="secondary" className="text-[10px] h-5">
-                                {group.items.length} items
+                                {group.items.length} {group.items.length === 1 ? "producto" : "productos"}
                             </Badge>
                         </div>
                         <div className="flex items-center gap-2">
                             {isEditMode && (
-                                <DeleteDialogConfirmation
-                                    title="Eliminar grupo"
-                                    description="¿Estás seguro de que deseas eliminar este grupo y todos sus ítems?"
-                                    handleContinue={() => handleDeleteGroup(group.id)}
-                                />
+                                <>
+                                    <DeleteDialogConfirmation
+                                        title="Eliminar grupo"
+                                        description="¿Estás seguro de que deseas eliminar este grupo y todos sus ítems?"
+                                        handleContinue={() => handleDeleteGroup(group.id)}
+                                    />
+                                </>
                             )}
                             <Badge variant="outline" className="text-xs font-semibold bg-background">
                                 {formatCurrency(group.subtotal)}

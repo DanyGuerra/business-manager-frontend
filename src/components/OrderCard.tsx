@@ -326,8 +326,8 @@ export function OrderCard({ order }: OrderCardProps) {
                 )}
 
                 <div className="flex flex-col gap-2">
-                    <Button
-                        variant="ghost"
+                    {isEditMode && <Button
+                        variant="default"
                         size="sm"
                         className="w-full h-7 font-bold text-[10px]"
                         asChild
@@ -336,7 +336,7 @@ export function OrderCard({ order }: OrderCardProps) {
                             <Eye className="h-3 w-3 mr-1.5" />
                             Ver Detalles
                         </a>
-                    </Button>
+                    </Button>}
 
                     {isEditMode && (
                         <DeleteDialogConfirmation

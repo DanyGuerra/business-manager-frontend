@@ -13,10 +13,13 @@ import { useEditModeStore } from "@/store/editModeStore";
 type ProductDetailSheetProps = {
     product: Product;
     onRefresh: () => void;
+    forceViewMode?: boolean;
 };
 
-export default function ProductDetailSheet({ product, onRefresh }: ProductDetailSheetProps) {
-    const { isEditMode, setEditMode } = useEditModeStore();
+export default function ProductDetailSheet({ product, onRefresh, forceViewMode = false }: ProductDetailSheetProps) {
+    const globalIsEditMode = useEditModeStore((state) => state.isEditMode);
+    const { setEditMode } = useEditModeStore();
+    const isEditMode = forceViewMode ? false : globalIsEditMode;
 
     return (
         <Sheet>

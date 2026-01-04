@@ -6,7 +6,7 @@ import { useOrdersApi, Order, ConsumptionType } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderDetailsList } from "@/components/OrderDetailsList";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign } from "lucide-react";
+import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign, PencilIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -22,6 +22,8 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { useOrdersStore } from "@/store/ordersStore";
 import { Pencil } from "lucide-react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
+import { AddOrderItemsSheet } from "@/components/AddOrderItemsSheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const getConsumptionIcon = (type: string) => {
     switch (type) {
@@ -39,6 +41,7 @@ const getConsumptionIcon = (type: string) => {
 export default function OrderDetailsPage() {
     const params = useParams();
     const router = useRouter();
+    const isMobile = useIsMobile();
     const apiOrders = useOrdersApi();
     const { businessId } = useBusinessStore();
     const { isEditMode } = useEditModeStore();
@@ -236,10 +239,23 @@ export default function OrderDetailsPage() {
                     {/* Main Content - Items */}
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
-                            <CardHeader>
-                                <CardTitle className="text-base flex justify-between items-center">
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <CardTitle className="text-base font-semibold">
                                     Detalle del Pedido
                                 </CardTitle>
+                                {isEditMode && <AddOrderItemsSheet
+                                    order={order}
+                                    defaultView="cart"
+                                    onSuccess={(updatedOrder) => {
+                                        if (updatedOrder) setOrder(updatedOrder);
+                                    }}
+                                    trigger={
+                                        <Button variant="default" size="sm" className="flex items-center justify-center gap-1 h-8 px-2">
+                                            <PencilIcon className="h-4 w-4" />
+                                            <span className={cn(isMobile ? "hidden" : "inline")}>Editar Orden</span>
+                                        </Button>
+                                    }
+                                />}
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <OrderDetailsList order={order} />

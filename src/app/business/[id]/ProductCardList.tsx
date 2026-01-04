@@ -2,20 +2,30 @@
 
 import { Product } from "@/lib/useBusinessApi";
 import ProductListItem from "./ProductListItem";
+import { Option } from "@/lib/useOptionGroupApi";
 
 
 type ProductCardListProps = {
     products: Product[];
     onRefresh: () => void;
+    className?: string;
+    forceViewMode?: boolean;
+    onAddToCart?: (product: Product, options: Option[], quantity: number) => void;
 };
 
-export default function ProductCardList({ products, onRefresh }: ProductCardListProps) {
+export default function ProductCardList({ products, onRefresh, className, forceViewMode = false, onAddToCart }: ProductCardListProps) {
     return (
         <>
             {products.length ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className={className || "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"}>
                     {products.map((product) => (
-                        <ProductListItem key={product.id} product={product} onRefresh={onRefresh} />
+                        <ProductListItem
+                            key={product.id}
+                            product={product}
+                            onRefresh={onRefresh}
+                            forceViewMode={forceViewMode}
+                            onAddToCart={onAddToCart}
+                        />
                     ))}
                 </div>
             ) : (

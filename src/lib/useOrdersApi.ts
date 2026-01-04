@@ -78,6 +78,10 @@ export type CreateFullOrderDto = CreateOrderDto & {
     group_items: GroupItemsDto[];
 }
 
+export type UpdateFullOrderDto = CreateOrderDto & {
+    group_items: GroupItemsDto[];
+}
+
 type OrdersPagination = {
     data: Order[];
     total: number;
@@ -134,6 +138,12 @@ export function useOrdersApi() {
         updateOrder: (orderId: string, data: Partial<CreateOrderDto>, businessId: string) =>
             api
                 .patch<ApiResponse<Order>>(`/orders/${orderId}`, data, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
+        updateFullOrder: (orderId: string, data: Partial<UpdateFullOrderDto>, businessId: string) =>
+            api
+                .patch<ApiResponse<Order>>(`/orders/full/${orderId}`, data, {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),

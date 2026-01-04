@@ -92,7 +92,6 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     })),
     setOrdersByStatus: (orders, status) => set((state) => {
         const otherOrders = state.orders.filter(o => o.status !== status);
-        // Deduplicate using a Map, prioritizing the new orders
         const mergedOrders = [...otherOrders, ...orders];
         const uniqueOrders = Array.from(new Map(mergedOrders.map(o => [o.id, o])).values());
 

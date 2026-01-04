@@ -31,8 +31,10 @@ interface CartOrderSummaryProps {
     totalPrice: number;
     orderDetails: OrderDetails;
     setOrderDetails: (businessId: string, details: Partial<OrderDetails>) => void;
-    onConfirm: () => void;
+    onConfirm?: () => void;
+    onUpdate?: () => void;
     isLoading: boolean;
+    disableSubmit?: boolean;
 }
 
 export function CartOrderSummary({
@@ -41,7 +43,9 @@ export function CartOrderSummary({
     orderDetails,
     setOrderDetails,
     onConfirm,
-    isLoading
+    onUpdate,
+    isLoading,
+    disableSubmit
 }: CartOrderSummaryProps) {
     const [open, setOpen] = useState(false);
 
@@ -75,6 +79,14 @@ export function CartOrderSummary({
         newDate.setMilliseconds(0);
 
         setOrderDetails(businessId, { scheduled_at: newDate.toISOString() });
+    };
+
+    const handleAction = () => {
+        if (onUpdate) {
+            onUpdate();
+        } else if (onConfirm) {
+            onConfirm();
+        }
     };
 
     return (
@@ -298,18 +310,19 @@ export function CartOrderSummary({
                 </SheetClose>
                 <ButtonLoading
                     loadingState={isLoading}
+                    disabled={disableSubmit}
                     onClick={() => {
                         if (orderDetails.amount_paid === null) {
-                            onConfirm();
+                            handleAction();
                             return;
                         }
                         if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice) {
                             toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
                             return;
                         }
-                        onConfirm();
+                        handleAction();
                     }}
-                    buttonTitle="Confirmar"
+                    buttonTitle={onUpdate ? "Actualizar" : "Confirmar"}
                     className="text-sm font-bold h-10"
                     size="default"
                 />

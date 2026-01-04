@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { useEditModeStore } from "@/store/editModeStore";
-import { useCartStore } from "@/store/cartStore";
 import { Option } from "@/lib/useOptionGroupApi";
 import ProductOptionGroupItem from "./ProductOptionGroupItem";
 import QuantitySelector from "./QuantitySelector";
@@ -25,15 +24,17 @@ import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation"
 type ProductListItemProps = {
     product: Product;
     onRefresh: () => void;
+    forceViewMode?: boolean;
+    onAddToCart?: (product: Product, options: Option[], quantity: number) => void;
 };
 
-export default function ProductListItem({ product, onRefresh }: ProductListItemProps) {
+export default function ProductListItem({ product, onRefresh, forceViewMode = false, onAddToCart }: ProductListItemProps) {
     const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
     const { startLoading, stopLoading } = useLoadingStore();
     const { businessId } = useBusinessStore();
-    const { isEditMode } = useEditModeStore();
+    const globalIsEditMode = useEditModeStore((state) => state.isEditMode);
+    const isEditMode = forceViewMode ? false : globalIsEditMode;
     const productApi = useProductApi();
-    const addToCart = useCartStore((state) => state.addToCart);
 
     const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
     const [quantity, setQuantity] = useState(1);
@@ -105,8 +106,10 @@ export default function ProductListItem({ product, onRefresh }: ProductListItemP
             });
         });
 
-        addToCart(businessId, product, cartOptions, quantity);
-        toast.success("Producto agregado al carrito", { style: toastSuccessStyle });
+        if (onAddToCart) {
+            onAddToCart(product, cartOptions, quantity);
+            toast.success("Producto agregado", { style: toastSuccessStyle });
+        }
 
         setSelectedOptions({});
         setQuantity(1);
@@ -200,7 +203,7 @@ export default function ProductListItem({ product, onRefresh }: ProductListItemP
             )}
 
             <div className="flex flex-col gap-2 mt-auto">
-                <ProductDetailSheet product={product} onRefresh={onRefresh} />
+                <ProductDetailSheet product={product} onRefresh={onRefresh} forceViewMode={forceViewMode} />
 
                 {!isEditMode && product.available && (
                     <div className="flex items-center justify-between gap-2 pt-2 border-t mt-2">
