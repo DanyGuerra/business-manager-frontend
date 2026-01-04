@@ -143,5 +143,11 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
+        getOrderById: (orderId: string, businessId: string) =>
+            api
+                .get<ApiResponse<Order>>(`/orders/${orderId}`, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
     }), [api]);
 }

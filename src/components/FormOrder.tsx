@@ -265,7 +265,7 @@ export default function FormOrder({
                         name="amount_paid"
                         render={({ field }) => (
                             <FormItem className="w-full">
-                                <FormLabel>Pago</FormLabel>
+                                <FormLabel>Paga con</FormLabel>
                                 <FormControl>
                                     <Input
                                         type="number"
