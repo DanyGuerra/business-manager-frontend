@@ -298,7 +298,7 @@ export default function OrderDetailsPage() {
                                             </div>
                                             <div>
                                                 <p className="font-medium">Mesa {order.table_number}</p>
-                                                <p className="text-muted-foreground text-xs">Ubicación</p>
+                                                <p className="text-muted-foreground text-xs"># Mesa</p>
                                             </div>
                                         </div>
                                     </>
