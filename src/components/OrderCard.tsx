@@ -2,7 +2,7 @@
 import { Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal } from "lucide-react";
 import { formatCurrency, cn, getStatusColor, getStatusLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -17,10 +17,11 @@ import { useOrdersApi } from "@/lib/useOrdersApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useOrdersStore } from "@/store/ordersStore";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
+import { SortableItemContext } from "@/app/business/[id]/orders/board/SortableItem";
 
 interface OrderCardProps {
     order: Order;
@@ -59,6 +60,8 @@ export function OrderCard({ order }: OrderCardProps) {
     const { updateOrder, removeOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
     const { getOrders } = useGetOrders();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { attributes, listeners } = useContext<any>(SortableItemContext) || {};
 
     const [open, setOpen] = useState(false);
     const [openPay, setOpenPay] = useState(false);
@@ -142,8 +145,18 @@ export function OrderCard({ order }: OrderCardProps) {
             {!isEditMode && (
                 <div className={cn("absolute left-0 top-0 bottom-0 w-[2px] transition-colors", getStatusColor(order.status))} />
             )}
+
+            {!isEditMode && listeners && (
+                <div
+                    {...listeners}
+                    {...attributes}
+                    className="h-10 w-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -top-1 cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted/50 rounded-md transition-colors z-10"
+                >
+                    <GripHorizontal className="h-4 w-4 text-muted-foreground hover:text-muted-foreground/60" />
+                </div>
+            )}
             <CardHeader className="p-3 pb-1 space-y-0 relative">
-                <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center relative">
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-foreground tracking-tight"># {order.order_number.toString().slice(-2)}</span>
                     </div>
