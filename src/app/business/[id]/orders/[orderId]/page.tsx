@@ -213,10 +213,12 @@ export default function OrderDetailsPage() {
                             )}
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                        <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
                             <div className="flex items-center gap-1.5">
                                 <Clock className="h-3.5 w-3.5 opacity-70" />
-                                <span className="text-xs">{timeString}</span>
+                                <span className="text-[10px] uppercase opacity-70 font-semibold">Creado: </span>
+                                <span className="text-[11px] font-bold leading-none">{timeString}</span>
+
                             </div>
 
                             {scheduledTime && (
