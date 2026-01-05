@@ -1,11 +1,14 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ReactNode } from "react";
+import { ReactNode, createContext } from "react";
 
 interface SortableItemProps {
     id: string;
     children: ReactNode;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const SortableItemContext = createContext<any>(null);
 
 export function SortableItem({ id, children }: SortableItemProps) {
     const {
@@ -24,8 +27,10 @@ export function SortableItem({ id, children }: SortableItemProps) {
     };
 
     return (
-        <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="touch-none">
-            {children}
-        </div>
+        <SortableItemContext.Provider value={{ attributes, listeners, isDragging }}>
+            <div ref={setNodeRef} style={style} className="touch-none">
+                {children}
+            </div>
+        </SortableItemContext.Provider>
     );
 }
