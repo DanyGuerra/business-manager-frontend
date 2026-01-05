@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildHeaders, NESTJS_URL } from "../../../headersUtils";
+import { buildHeaders, NESTJS_URL } from "../../../../headersUtils";
 
 export async function DELETE(
     req: NextRequest,
-    context: { params: Promise<{ groupId: string }> }
+    context: { params: Promise<{ groupId: string, orderId: string }> }
 ) {
-    const { groupId } = await context.params;
+    const { groupId, orderId } = await context.params;
 
     try {
-        const res = await fetch(`${NESTJS_URL}/orders/item-group/${groupId}`, {
+        const res = await fetch(`${NESTJS_URL}/orders/${orderId}/item-group/${groupId}`, {
             method: "DELETE",
             headers: {
                 ...buildHeaders(req),

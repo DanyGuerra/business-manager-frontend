@@ -25,7 +25,7 @@ export function OrderGroups({ order }: OrderDetailsProps) {
 
     const handleDeleteGroup = async (groupId: string) => {
         try {
-            await deleteOrderItemGroup(groupId, businessId);
+            await deleteOrderItemGroup(order.id, groupId, businessId);
             toast.success("Grupo eliminado correctamente", { style: toastSuccessStyle });
             getOrders()
         } catch (error) {
@@ -73,7 +73,7 @@ export function OrderGroups({ order }: OrderDetailsProps) {
 
                         <CollapsibleContent>
                             <div className="pt-3">
-                                <OrderItemGroup group={group} />
+                                <OrderItemGroup group={group} orderId={order.id} />
                                 <div className="flex justify-end items-center mt-2 pt-2 border-t border-dashed border-muted/60">
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">

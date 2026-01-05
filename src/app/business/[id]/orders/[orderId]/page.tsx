@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useOrdersApi, Order, ConsumptionType } from "@/lib/useOrdersApi";
+import { useOrdersApi, ConsumptionType } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderDetailsList } from "@/components/OrderDetailsList";
 import { Button } from "@/components/ui/button";
@@ -45,10 +45,9 @@ export default function OrderDetailsPage() {
     const apiOrders = useOrdersApi();
     const { businessId } = useBusinessStore();
     const { isEditMode } = useEditModeStore();
-    const { removeOrder, updateOrder } = useOrdersStore();
+    const { removeOrder, updateOrder, activeOrder: order, setActiveOrder: setOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
 
-    const [order, setOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [openPay, setOpenPay] = useState(false);
@@ -72,14 +71,21 @@ export default function OrderDetailsPage() {
         };
 
         fetchOrder();
-    }, [orderId, businessId, apiOrders]);
+
+        return () => {
+            setOrder(null);
+        }
+    }, [orderId, businessId, apiOrders, setOrder]);
 
     async function handleUpdateOrder(data: OrderValues) {
         if (!order) return;
 
+        const payload = { ...data };
+        delete payload.total;
+
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
-            const { data: updatedOrder } = await apiOrders.updateOrder(order.id, { amount_paid: data.amount_paid }, businessId);
+            const { data: updatedOrder } = await apiOrders.updateOrder(order.id, payload, businessId);
 
 
             setOrder(updatedOrder);
@@ -354,11 +360,7 @@ export default function OrderDetailsPage() {
                                                     buttonTitle="Confirmar pago"
                                                     loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
                                                     handleSubmitButton={(data: PaymentValues) => handleUpdateOrder({
-                                                        ...order,
-                                                        total: parseFloat(order.total),
                                                         amount_paid: parseFloat(data.amount_paid),
-                                                        scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
-                                                        consumption_type: order.consumption_type as ConsumptionType,
                                                     } as OrderValues)}
                                                     onSuccess={() => setOpenPay(false)}
                                                     defaultValues={{

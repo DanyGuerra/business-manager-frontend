@@ -120,7 +120,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                 const newGroupId = Math.random().toString(36).substr(2, 9);
                 const newGroup: CartGroup = {
                     group_id: newGroupId,
-                    group_name: "Nuevos Ítems",
+                    group_name: "",
                     items: [newItem]
                 };
                 setSelectedGroupId(newGroupId);
@@ -255,7 +255,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         }
     };
 
-    const totalItemsCount = cartGroups.reduce((acc, group) => acc + group.items.length, 0);
+    const totalItemsCount = cartGroups.reduce((acc, group) => acc + group.items.reduce((sum, item) => sum + item.quantity, 0), 0);
     const totalAmount = cartGroups.reduce((acc, group) => acc + group.items.reduce((sum, item) => sum + item.total_price, 0), 0);
 
     const normalizeGroups = useCallback((groups: CartGroup[]) => {
@@ -410,6 +410,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                                 setSelectedGroupId(groupId);
                                 setView('products');
                             }}
+                            onContinueShopping={() => setView('products')}
                         />
                     </div>
                 )}

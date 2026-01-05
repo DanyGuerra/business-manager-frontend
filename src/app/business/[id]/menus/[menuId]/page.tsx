@@ -11,6 +11,11 @@ import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { ProductGroup, Product } from "@/lib/useBusinessApi";
 import { handleApiError } from "@/utils/handleApiError";
 import { useProductApi } from "@/lib/useProductApi";
+import { useCartStore } from "@/store/cartStore";
+
+import { Option } from "@/lib/useOptionGroupApi";
+import { toast } from "sonner";
+import { toastSuccessStyle } from "@/lib/toastStyles";
 
 export default function MenuPage() {
     const params = useParams();
@@ -21,7 +26,13 @@ export default function MenuPage() {
     const [loading, setLoading] = useState(true);
     const [products, setProducts] = useState<Product[]>([]);
     const { getProductGroup } = useProductGroupApi();
+    const { addToCart } = useCartStore();
     const productApi = useProductApi();
+
+    const handleAddToCart = (product: Product, options: Option[], quantity: number) => {
+        addToCart(businessId, product, options, quantity);
+        toast.success("Producto agregado al carrito", { style: toastSuccessStyle });
+    };
 
     const fetchMenu = useCallback(async () => {
         if (!businessId || !menuId) return;
@@ -91,6 +102,7 @@ export default function MenuPage() {
             <ProductCardList
                 products={products}
                 onRefresh={fetchMenu}
+                onAddToCart={handleAddToCart}
             />
         </div>
     );

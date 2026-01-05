@@ -48,6 +48,7 @@ interface CartDrawerContentProps {
     businessId?: string;
     disableSubmit?: boolean;
     onAddProductsToGroup?: (groupId: string) => void;
+    onContinueShopping?: () => void;
 }
 
 export function CartDrawerContent({
@@ -70,7 +71,8 @@ export function CartDrawerContent({
     setOrderDetails,
     businessId = "default",
     disableSubmit,
-    onAddProductsToGroup
+    onAddProductsToGroup,
+    onContinueShopping
 }: CartDrawerContentProps) {
 
     const sensors = useSensors(
@@ -129,7 +131,7 @@ export function CartDrawerContent({
                         <ShoppingCartIcon className="h-8 w-8 opacity-50" />
                     </div>
                     <p className="text-lg font-medium">Tu carrito está vacío</p>
-                    <Button type="button" variant="outline" onClick={onClose}>
+                    <Button type="button" variant="outline" onClick={onContinueShopping || onClose}>
                         Seguir comprando
                     </Button>
                 </div>

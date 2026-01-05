@@ -39,6 +39,8 @@ type OrdersState = {
     resetFilters: () => void;
     setLimit: (limit: number) => void;
     setOrdersByStatus: (orders: Order[], status: OrderStatus) => void;
+    activeOrder: Order | null;
+    setActiveOrder: (order: Order | null) => void;
 };
 
 const initialFilters: FilterState = {
@@ -99,4 +101,6 @@ export const useOrdersStore = create<OrdersState>((set) => ({
             orders: uniqueOrders
         };
     }),
+    activeOrder: null,
+    setActiveOrder: (order) => set({ activeOrder: order }),
 }));
