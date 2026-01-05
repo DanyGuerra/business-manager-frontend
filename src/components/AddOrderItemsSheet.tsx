@@ -194,7 +194,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         const newGroupId = Math.random().toString(36).substr(2, 9);
         const newGroup: CartGroup = {
             group_id: newGroupId,
-            group_name: "Nueva Bolsa",
+            group_name: "",
             items: []
         };
         setCartGroups(prev => [...prev, newGroup]);
