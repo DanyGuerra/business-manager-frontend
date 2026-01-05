@@ -61,6 +61,17 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
     }, [product.option_groups, selectedOptions]);
 
     function handleOptionSelect(groupId: string, optionId: string, isMulti: boolean, maxOptions: number) {
+        const currentSelections = selectedOptions[groupId] || [];
+
+        if (isMulti && !currentSelections.includes(optionId)) {
+            if (currentSelections.length >= maxOptions) {
+                toast.error(`Máximo ${maxOptions} opciones permitidas`, {
+                    style: toastErrorStyle,
+                });
+                return;
+            }
+        }
+
         setSelectedOptions((prev) => {
             const currentSelections = prev[groupId] || [];
             let newSelections: string[];
@@ -69,12 +80,6 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
                 if (currentSelections.includes(optionId)) {
                     newSelections = currentSelections.filter((id) => id !== optionId);
                 } else {
-                    if (currentSelections.length >= maxOptions) {
-                        toast.error(`Máximo ${maxOptions} opciones permitidas`, {
-                            style: toastErrorStyle,
-                        });
-                        return prev;
-                    }
                     newSelections = [...currentSelections, optionId];
                 }
             } else {

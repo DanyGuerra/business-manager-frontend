@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { useEditModeStore } from "@/store/editModeStore";
-import { useGetOrders } from "@/app/hooks/useGetOrders";
+import { useOrdersStore } from "@/store/ordersStore";
 
 
 interface OrderDetailsListProps {
@@ -20,13 +20,15 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
     const { deleteOrderItemGroup } = useOrdersApi();
     const { businessId } = useBusinessStore();
     const { isEditMode } = useEditModeStore();
-    const { getOrders } = useGetOrders();
+    const { updateOrder, setActiveOrder } = useOrdersStore();
+
 
     const handleDeleteGroup = async (groupId: string) => {
         try {
-            await deleteOrderItemGroup(groupId, businessId);
+            const { data } = await deleteOrderItemGroup(order.id, groupId, businessId);
             toast.success("Grupo eliminado correctamente", { style: toastSuccessStyle });
-            getOrders()
+            setActiveOrder(data);
+            updateOrder(data.id, data);
         } catch (error) {
             handleApiError(error);
         }
@@ -34,7 +36,7 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
 
     return (
         <div className="flex flex-col gap-6">
-            {order.itemGroups.map((group) => (
+            {order.itemGroups && order.itemGroups.map((group) => (
                 <div key={group.id} className="border rounded-md bg-background/50 overflow-hidden">
                     <div className="flex items-center justify-between p-3 bg-muted/30 border-b">
                         <div className="flex items-center gap-2">
@@ -62,7 +64,7 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
                     </div>
 
                     <div className="p-3">
-                        <OrderItemGroup group={group} />
+                        <OrderItemGroup group={group} orderId={order.id} />
                     </div>
                 </div>
             ))}

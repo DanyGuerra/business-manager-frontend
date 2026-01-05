@@ -354,8 +354,8 @@ export function OrderCard({ order }: OrderCardProps) {
                     {isEditMode && (
                         <DeleteDialogConfirmation
                             title="Cancelar orden"
-                            description="¿Cancelar orden?"
-                            confirmText="Cancelar"
+                            description="¿Estás seguro de cancelar esta orden?"
+                            confirmText="Continuar"
                             trigger={
                                 <Button
                                     variant="outline"

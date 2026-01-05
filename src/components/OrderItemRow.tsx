@@ -9,14 +9,16 @@ import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useOrdersApi } from "@/lib/useOrdersApi";
 import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
+import { useOrdersStore } from "@/store/ordersStore";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 
-export default function OrderItemRow({ item: initialItem, businessId }: { item: OrderItem, businessId: string }) {
+export default function OrderItemRow({ item: initialItem, businessId, orderId }: { item: OrderItem, businessId: string, orderId: string }) {
     const [isReady, setIsReady] = useState<boolean>(initialItem.is_ready);
     const [item] = useState(initialItem);
     const { updateOrderItem } = useOrderItemGroupsApi();
     const { deleteOrderItem } = useOrdersApi();
     const { isEditMode } = useEditModeStore();
+    const { setActiveOrder: setOrder } = useOrdersStore();
     const { getOrders } = useGetOrders();
 
     const handleToggleReady = async () => {
@@ -31,11 +33,12 @@ export default function OrderItemRow({ item: initialItem, businessId }: { item: 
         }
     };
 
-    const handleDelete = async (id: string, idBusiness: string) => {
+    const handleDelete = async (orderId: string, itemId: string, idBusiness: string) => {
         try {
-            await deleteOrderItem(id, idBusiness);
+            const { data } = await deleteOrderItem(orderId, itemId, idBusiness);
             toast.success("Item eliminado correctamente", { style: toastSuccessStyle });
             getOrders()
+            setOrder(data)
         } catch (error) {
             handleApiError(error);
         }
@@ -50,7 +53,7 @@ export default function OrderItemRow({ item: initialItem, businessId }: { item: 
                 {isEditMode && (
 
                     <DeleteDialogConfirmation
-                        handleContinue={() => handleDelete(item.id, businessId)}
+                        handleContinue={() => handleDelete(orderId, item.id, businessId)}
                         title="Eliminar item"
                         description="¿Estás seguro de eliminar este item?"
                     ></DeleteDialogConfirmation >

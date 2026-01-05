@@ -245,7 +245,7 @@ export function CartOrderSummary({
             <Separator />
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <Label htmlFor="pay-later-switch" className="text-xs font-medium">Pagar despues</Label>
+                    <Label htmlFor="pay-later-switch" className="text-xs font-medium">Pagar después</Label>
                     <Switch
                         defaultChecked={false}
                         id="pay-later-switch"

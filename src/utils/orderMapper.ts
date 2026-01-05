@@ -14,7 +14,9 @@ export function mapOrderToLocalCart(order: Order): CartGroup[] {
     return order.itemGroups.map((group) => ({
         group_id: group.id,
         group_name: group.name,
-        items: group.items.map((item) => mapOrderItemToLocalItem(item)),
+        items: group.items
+            .map((item) => mapOrderItemToLocalItem(item))
+            .filter((item): item is CartItem => item !== null),
     }));
 }
 

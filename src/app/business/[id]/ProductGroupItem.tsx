@@ -25,6 +25,8 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import FormProduct, { ProductValues } from "@/components/formProduct";
 import { CreateProductDto, useProductApi } from "@/lib/useProductApi";
 import { handleApiError } from "@/utils/handleApiError";
+import { useCartStore } from "@/store/cartStore";
+import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useState } from "react";
@@ -36,7 +38,6 @@ type ProductGroupItemProps = {
     onRefresh: () => void;
 };
 
-import ProductCardSkeleton from "@/components/ProductCardSkeleton";
 
 export default function ProductGroupItem({
     group: initialGroup,
@@ -49,6 +50,7 @@ export default function ProductGroupItem({
     const apiProduct = useProductApi();
     const { stopLoading, startLoading } = useLoadingStore();
 
+    const { addToCart } = useCartStore();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
@@ -226,6 +228,7 @@ export default function ProductGroupItem({
                         <ProductCardList
                             products={products}
                             onRefresh={fetchProducts}
+                            onAddToCart={(product, options, quantity) => addToCart(businessId, product, options, quantity)}
                         />
                     )}
                 </div>
