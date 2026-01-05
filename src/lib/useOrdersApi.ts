@@ -123,9 +123,9 @@ export function useOrdersApi() {
                     params,
                 })
                 .then((res) => res.data),
-        deleteOrderItemGroup: (groupId: string, businessId: string) =>
+        deleteOrderItemGroup: (orderId: string, groupId: string, businessId: string) =>
             api
-                .delete<ApiResponse<void>>(`/orders/group/${groupId}`, {
+                .delete<ApiResponse<Order>>(`/orders/${orderId}/group/${groupId}`, {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
@@ -147,9 +147,9 @@ export function useOrdersApi() {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),
-        deleteOrderItem: (itemId: string, businessId: string) =>
+        deleteOrderItem: (orderId: string, itemId: string, businessId: string) =>
             api
-                .delete<ApiResponse<Order>>(`/orders/item/${itemId}`, {
+                .delete<ApiResponse<Order>>(`/orders/${orderId}/item/${itemId}`, {
                     headers: { [BusinessIdHeader]: businessId },
                 })
                 .then((res) => res.data),

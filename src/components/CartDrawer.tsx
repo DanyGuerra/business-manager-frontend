@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 
 import { useCartStore } from "@/store/cartStore";
 import {
@@ -24,6 +25,7 @@ export default function CartDrawer() {
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
     const [isOpen, setIsOpen] = useState(false);
+    const router = useRouter();
 
     const groups = getGroups(businessId);
     const totalItems = getTotalItems(businessId);
@@ -96,6 +98,10 @@ export default function CartDrawer() {
                     onMoveItem={(from, to, item) => moveItem(businessId, from, to, item)}
                     setOrderDetails={(details) => setOrderDetails(businessId, details)}
                     businessId={businessId}
+                    onContinueShopping={() => {
+                        setIsOpen(false);
+                        router.push(`/business/${businessId}/products`);
+                    }}
                 />
             </SheetContent>
         </Sheet>
