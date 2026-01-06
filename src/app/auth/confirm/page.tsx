@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { useAuthApi } from "@/lib/useAuthApi";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 
-export default function ConfirmEmailPage() {
+function ConfirmEmailContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const authApi = useAuthApi();
@@ -89,5 +89,25 @@ export default function ConfirmEmailPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function ConfirmEmailPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col min-h-[calc(100vh-13.5rem)] justify-center items-center p-4">
+                <Card className="w-full max-w-sm">
+                    <CardHeader>
+                        <CardTitle className="text-xl text-center">Verificación de Correo</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex flex-col items-center gap-6 py-6">
+                        <Loader2 className="h-16 w-16 text-primary animate-spin" />
+                        <p className="text-center text-muted-foreground">Cargando...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        }>
+            <ConfirmEmailContent />
+        </Suspense>
     );
 }
