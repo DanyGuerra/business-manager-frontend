@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -42,6 +44,15 @@ export default function SignUp() {
   const authApi = useAuthApi();
   const { startLoading, stopLoading, loadings } = useLoadingStore();
   const router = useRouter();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   async function onSubmit(dataUser: LoginValues) {
     startLoading(LoadingsKeyEnum.SIGNUP);
@@ -49,12 +60,14 @@ export default function SignUp() {
       const { statusCode } = await authApi.signup(dataUser);
 
       if (statusCode === 201) {
-        toast.success("Usuario creado correctamente", {
+        toast.success("Usuario creado correctamente. Por favor revisa tu correo para verificar tu cuenta.", {
           style: toastSuccessStyle,
+          duration: 10000,
         });
-        setTimeout(() => {
+        form.reset();
+        timerRef.current = setTimeout(() => {
           router.push("/login");
-        }, 2000);
+        }, 15000);
       }
     } catch (error) {
       handleApiError(error);

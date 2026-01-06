@@ -9,6 +9,7 @@ export type User = {
   email: string;
   username: string;
   name: string;
+  is_verified: boolean;
   created_at: string;
   updated_at: string;
 };
