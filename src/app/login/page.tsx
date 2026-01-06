@@ -18,9 +18,12 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
-} from "@/components/ui/form";
+}
+  from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useRouter } from "next/navigation";
@@ -33,7 +36,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useUserStore } from "@/store/useUserStore";
 
 const loginSchema = z.object({
-  email: z.email("Ingresa un correo electronico valido"),
+  email: z.string().email("Ingresa un correo electronico valido"),
   password: z.string().min(6, "La contrasena debe ser de almenos 6 caracteres"),
 });
 
@@ -45,7 +48,6 @@ export default function Login() {
   const { setAccessToken } = useAuth();
   const authApi = useAuthApi();
   const router = useRouter();
-  const businessApi = useAuthApi();
 
   const form = useForm<LoginValues>({
     resolver: zodResolver(loginSchema),
@@ -55,13 +57,56 @@ export default function Login() {
     },
   });
 
+  async function handleResendVerification(email: string) {
+    try {
+      startLoading(LoadingsKeyEnum.RESEND_VERIFICATION);
+      const { message } = await authApi.resendVerificationEmail(email);
+      toast.success(message, { style: toastSuccessStyle });
+    } catch (error) {
+      handleApiError(error);
+    } finally {
+      stopLoading(LoadingsKeyEnum.RESEND_VERIFICATION);
+    }
+  }
+
   async function onSubmit(dataUser: LoginValues) {
     startLoading(LoadingsKeyEnum.LOGIN);
     setIsLoading(true)
     try {
-      const { data: { access_token } } = await businessApi.login(dataUser);
+      const { data: { access_token } } = await authApi.login(dataUser);
       setAccessToken(access_token);
       const { data: userData } = await authApi.getMe();
+
+      if (!userData.is_verified) {
+        toast.custom((id) => (
+          <div className="relative flex flex-col gap-3 w-full bg-red-600/60 backdrop-blur text-white p-4 rounded-lg shadow-lg">
+            <button
+              onClick={() => toast.dismiss(id)}
+              className="absolute top-2 right-2 p-1 hover:bg-white/10 rounded-full transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className="flex flex-col gap-1 pr-6">
+              <p className="font-bold text-sm">Cuenta no verificada</p>
+              <p className="text-xs opacity-90">Tu cuenta no ha sido verificada. Por favor revisa tu correo. En caso de que no lo hayas recibido, puedes reenviarlo.</p>
+            </div>
+            <Button
+              variant="default"
+              size="sm"
+              className="w-full h-8 text-xs font-semibold bg-white text-red-600 hover:bg-white/90 border-0"
+              onClick={() => {
+                handleResendVerification(dataUser.email);
+                toast.dismiss(id);
+              }}
+            >
+              Reenviar correo
+            </Button>
+          </div>
+        ), { duration: 20000 });
+        setAccessToken(null);
+        return;
+      }
+
       setUser(userData);
 
       toast.success("Inicio de sesión exitoso", {
