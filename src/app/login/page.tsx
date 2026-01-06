@@ -60,8 +60,8 @@ export default function Login() {
   async function handleResendVerification(email: string) {
     try {
       startLoading(LoadingsKeyEnum.RESEND_VERIFICATION);
-      const { message } = await authApi.resendVerificationEmail(email);
-      toast.success(message, { style: toastSuccessStyle });
+      await authApi.resendVerificationEmail(email);
+      toast.success("Correo de verificación reenviado. Revisa tu carpeta de spam", { style: toastSuccessStyle });
     } catch (error) {
       handleApiError(error);
     } finally {
