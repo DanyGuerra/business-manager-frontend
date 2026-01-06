@@ -21,6 +21,8 @@ export enum LoadingsKeyEnum {
   SIGNUP = "signup",
   CREATE_ORDER = "createOrder",
   UPDATE_ORDER = "updateOrder",
+  RESEND_VERIFICATION = "resendVerification",
+  CONFIRM_EMAIL = "confirmEmail",
 }
 
 type LoadingState = {

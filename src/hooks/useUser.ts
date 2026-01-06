@@ -45,6 +45,12 @@ export function useUser() {
 
             try {
                 const { data } = await authApi.getMe();
+
+                if (data && !data.is_verified) {
+                    logout();
+                    return;
+                }
+
                 setUser(data);
             } catch (error) {
                 handleApiError(error);

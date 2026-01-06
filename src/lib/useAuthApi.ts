@@ -37,5 +37,15 @@ export function useAuthApi() {
       api.patch<ApiResponse<User>>("/users/update", data).then((res) => res.data),
 
     logout: () => api.post("auth/logout").then((res) => res.data),
+
+    resendVerificationEmail: (email: string) =>
+      api
+        .post<ApiResponse>("auth/email/resend", { email })
+        .then((res) => res.data),
+
+    verifyEmail: (token: string) =>
+      api
+        .get<ApiResponse>(`auth/email/verify?token=${token}`)
+        .then((res) => res.data),
   };
 }
