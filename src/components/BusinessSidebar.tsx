@@ -15,6 +15,7 @@ import {
   Plus,
   Check,
   Kanban,
+  LayoutDashboard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -129,6 +130,12 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
       title: "Grupo de opciones",
       href: `/business/${businessId}/option-groups`,
       icon: Layers,
+    },
+    {
+      title: "Dashboard",
+      href: `/business/${businessId}/dashboard`,
+      icon: LayoutDashboard,
+      allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
     {
       title: "Usuarios y roles",
