@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { DailySalesData } from "@/lib/useStatsApi";
-import { useTheme } from "next-themes";
+
 import { parseISO } from "date-fns";
 
 interface DailySalesChartProps {
@@ -14,7 +14,7 @@ interface DailySalesChartProps {
 export function DailySalesChart({ data, className }: DailySalesChartProps) {
     const svgRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
-    const { theme } = useTheme();
+
     const [width, setWidth] = useState(0);
     const height = 350;
 
@@ -80,8 +80,8 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .attr("cx", (d) => x(d.date))
             .attr("cy", (d) => y(d.value))
             .attr("r", 2)
-            .attr("fill", theme === "dark" ? "#ffffff" : "#000000")
-            .attr("stroke", theme === "dark" ? "#ffffff" : "#000000")
+            .attr("fill", "var(--primary)")
+            .attr("stroke", "var(--primary)")
             .attr("stroke-width", 2)
             .style("cursor", "pointer")
             .on("mouseenter", (event, d) => {
@@ -151,7 +151,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
 
 
 
-    }, [data, width, height, theme]);
+    }, [data, width, height]);
 
     return (
         <div ref={containerRef} className={`relative w-full ${className} min-h-[350px] flex items-center justify-center`}>
