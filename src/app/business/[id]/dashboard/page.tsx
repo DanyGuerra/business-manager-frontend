@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { endOfDay, format, startOfDay } from "date-fns";
+import { endOfDay, format, parseISO, startOfDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon, DollarSign, ShoppingBag, TrendingUp, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
-import { useStatsApi } from "@/lib/useStatsApi";
+import { DailySalesResponse, useStatsApi } from "@/lib/useStatsApi";
+import { DailySalesChart } from "@/components/DailySalesChart";
 import { StatsData } from "@/app/types/stats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useBusinessStore } from "@/store/businessStore";
@@ -29,9 +30,10 @@ import { cn } from "@/lib/utils";
 
 
 export default function DashboardPage() {
-    const { getSalesStats } = useStatsApi();
+    const { getSalesStats, getDailySales } = useStatsApi();
     const { businessId } = useBusinessStore();
     const [stats, setStats] = useState<StatsData | null>(null);
+    const [dailyStats, setDailyStats] = useState<DailySalesResponse | undefined>();
     const [loading, setLoading] = useState(true);
 
     const [date, setDate] = useState<DateRange | undefined>({
@@ -42,17 +44,24 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (businessId) {
-            getSalesStats(businessId, {
+            setLoading(true);
+            const params = {
                 start_date: date?.from ? startOfDay(date.from).toISOString() : undefined,
                 end_date: date?.to ? endOfDay(date.to).toISOString() : undefined,
                 top_limit: parseInt(topLimit),
-            })
-                .then((response) => {
-                    setStats(response.data);
+            };
+
+            Promise.all([
+                getSalesStats(businessId, params),
+                getDailySales(businessId, params),
+            ])
+                .then(([statsResponse, dailyResponse]) => {
+                    setStats(statsResponse.data);
+                    setDailyStats(dailyResponse.data);
                 })
                 .finally(() => setLoading(false));
         }
-    }, [businessId, getSalesStats, date, topLimit]);
+    }, [businessId, getSalesStats, getDailySales, date, topLimit]);
 
     if (loading) {
         return (
@@ -164,7 +173,50 @@ export default function DashboardPage() {
                         </p>
                     </CardContent>
                 </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Promedio Diario</CardTitle>
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            ${dailyStats?.summary.avg_daily.toLocaleString()}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            Media por día
+                        </p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Mejor Día</CardTitle>
+                        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold">
+                            ${dailyStats?.summary.best_day.revenue.toLocaleString()}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                            {dailyStats?.summary.best_day.date
+                                ? format(parseISO(dailyStats.summary.best_day.date), "dd LLL, y", { locale: es })
+                                : "N/A"}
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
+
+            {dailyStats && (
+                <Card className="col-span-full">
+                    <CardHeader>
+                        <CardTitle>Comportamiento de Ventas</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-[350px] w-full">
+                            <DailySalesChart data={dailyStats.data} />
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
                 <Card className="col-span-full lg:col-span-4">
