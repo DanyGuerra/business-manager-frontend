@@ -72,7 +72,7 @@ export default function DashboardPage() {
     }
 
     if (!stats) {
-        return <div>No se pudieron cargar las estadísticas.</div>;
+        return <div className="flex justify-center items-center h-full w-full">No hay estadísticas disponibles.</div>;
     }
 
     return (
