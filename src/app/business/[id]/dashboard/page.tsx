@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { endOfDay, format, startOfDay } from "date-fns";
+import { es } from "date-fns/locale";
 import { Calendar as CalendarIcon, DollarSign, ShoppingBag, TrendingUp, X } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -67,16 +68,16 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
                 <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-col md:flex-row w-full md:w-auto items-stretch md:items-center gap-3">
                     <Popover>
                         <PopoverTrigger asChild>
                             <Button
                                 id="date"
                                 variant={"outline"}
                                 className={cn(
-                                    "w-[300px] justify-start text-left font-normal",
+                                    "w-full md:w-[260px] justify-start text-left font-normal",
                                     !date && "text-muted-foreground"
                                 )}
                             >
@@ -84,30 +85,32 @@ export default function DashboardPage() {
                                 {date?.from ? (
                                     date.to ? (
                                         <>
-                                            {format(date.from, "LLL dd, y")} -{" "}
-                                            {format(date.to, "LLL dd, y")}
+                                            {format(date.from, "dd LLL, y", { locale: es })} -{" "}
+                                            {format(date.to, "dd LLL, y", { locale: es })}
                                         </>
                                     ) : (
-                                        format(date.from, "LLL dd, y")
+                                        format(date.from, "dd LLL, y", { locale: es })
                                     )
                                 ) : (
-                                    <span>Escoge una fecha</span>
+                                    <span>Seleccionar fecha</span>
                                 )}
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0" align="end">
                             <Calendar
+                                initialFocus
                                 mode="range"
                                 defaultMonth={date?.from}
                                 selected={date}
                                 onSelect={setDate}
-                                numberOfMonths={2}
+                                numberOfMonths={1}
+                                locale={es}
                             />
                         </PopoverContent>
                     </Popover>
 
                     <Select value={topLimit} onValueChange={setTopLimit}>
-                        <SelectTrigger className="w-[180px]">
+                        <SelectTrigger className="w-full md:w-[130px]">
                             <SelectValue placeholder="Límite" />
                         </SelectTrigger>
                         <SelectContent>
@@ -118,15 +121,16 @@ export default function DashboardPage() {
                         </SelectContent>
                     </Select>
 
-                    {(date || topLimit) && (
+                    {(date || topLimit !== "5") && (
                         <Button
                             variant="ghost"
-                            size="icon"
+                            className="w-full md:w-10 md:h-10 md:p-0"
                             onClick={() => {
                                 setDate(undefined);
                                 setTopLimit("5");
                             }}
                         >
+                            <span className="md:hidden mr-2">Limpiar filtros</span>
                             <X className="h-4 w-4" />
                         </Button>
                     )}
@@ -163,52 +167,64 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-                <Card className="col-span-4">
+                <Card className="col-span-full lg:col-span-4">
                     <CardHeader>
                         <CardTitle>Productos Más Vendidos</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {stats.top_products.map((product) => (
-                                <div key={product.id} className="flex items-center">
-                                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
-                                        <TrendingUp className="h-5 w-5 text-primary" />
+                        {stats.top_products.length === 0 ? (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                                No hay productos para las fechas seleccionadas
+                            </p>
+                        ) : (
+                            <div className="space-y-4">
+                                {stats.top_products.map((product) => (
+                                    <div key={product.id} className="flex items-center">
+                                        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
+                                            <TrendingUp className="h-5 w-5 text-primary" />
+                                        </div>
+                                        <div className="ml-4 space-y-1">
+                                            <p className="text-sm font-medium leading-none">
+                                                {product.name}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground">
+                                                Producto
+                                            </p>
+                                        </div>
+                                        <div className="ml-auto font-medium">
+                                            {product.quantity} vendidos
+                                        </div>
                                     </div>
-                                    <div className="ml-4 space-y-1">
-                                        <p className="text-sm font-medium leading-none">
-                                            {product.name}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground">
-                                            Producto
-                                        </p>
-                                    </div>
-                                    <div className="ml-auto font-medium">
-                                        {product.quantity} vendidos
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
-                <Card className="col-span-3">
+                <Card className="col-span-full lg:col-span-3">
                     <CardHeader>
                         <CardTitle>Top Opciones (Extras)</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
-                            {stats.top_options.map((option) => (
-                                <div key={option.id} className="flex items-center">
-                                    <div className="ml-4 space-y-1">
-                                        <p className="text-sm font-medium leading-none">
-                                            {option.name}
-                                        </p>
+                        {stats.top_options.length === 0 ? (
+                            <p className="text-sm text-muted-foreground text-center py-4">
+                                No hay opciones para las fechas seleccionadas
+                            </p>
+                        ) : (
+                            <div className="space-y-4">
+                                {stats.top_options.map((option) => (
+                                    <div key={option.id} className="flex items-center">
+                                        <div className="ml-4 space-y-1">
+                                            <p className="text-sm font-medium leading-none">
+                                                {option.name}
+                                            </p>
+                                        </div>
+                                        <div className="ml-auto font-medium">
+                                            {option.quantity}
+                                        </div>
                                     </div>
-                                    <div className="ml-auto font-medium">
-                                        {option.quantity}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
