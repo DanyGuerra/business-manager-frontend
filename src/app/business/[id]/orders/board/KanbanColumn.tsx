@@ -34,7 +34,7 @@ export function KanbanColumn({ title, status, orders, color, loading }: KanbanCo
     return (
         <div
             ref={setNodeRef}
-            className={`flex flex-col h-full min-w-[380px] w-full rounded-xl border transition-all duration-300 ${isOver
+            className={`flex flex-col h-full min-w-[300px] w-full rounded-xl border transition-all duration-300 ${isOver
                 ? 'bg-primary/5 ring-2 ring-primary/20 border-primary/50'
                 : 'bg-muted/40 hover:bg-muted/60 border-transparent hover:border-border/50'
                 }`}
