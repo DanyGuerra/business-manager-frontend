@@ -207,7 +207,7 @@ export function OrderCard({ order }: OrderCardProps) {
                         </div>
                     ) : (
                         <Badge variant="outline" className={cn(
-                            "text-[9px] px-1.5 py-0 h-4 font-normal capitalize border-border/60 text-muted-foreground",
+                            "text-[9px] px-1.5 py-0 h-4 font-normal capitalize border-border/60 text-muted-foreground max-w-[80px] truncate block text-center",
                         )}>
                             {getStatusLabel(order.status)}
                         </Badge>
@@ -237,20 +237,25 @@ export function OrderCard({ order }: OrderCardProps) {
                     </div>
                 )}
                 <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground mt-2 pt-2 border-t border-dashed border-border/40">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 min-w-0">
-                            <div className="flex items-center gap-1 min-w-0">
-                                <User className="h-3 w-3 opacity-70" />
-                                <span className="font-medium truncate">{order.customer_name || "Cliente"}</span>
-                            </div>
-                            <span className="opacity-30">|</span>
-                            <div className="flex items-center gap-1">
-                                {getConsumptionIcon(order.consumption_type)}
-                                <span>{getConsumptionLabel(order.consumption_type)}</span>
-                                {order.consumption_type === ConsumptionType.DINE_IN && order.table_number && (
-                                    <span className="ml-1 font-medium"> (Mesa: {order.table_number})</span>
-                                )}
-                            </div>
+                    <div className="flex flex-col items-start gap-2 w-full">
+                        <div className="flex items-center gap-1.5 min-w-0 bg-primary/10 dark:bg-primary/20 text-primary px-2.5 py-1 rounded-md border border-primary/10 flex-1 shadow-sm">
+                            <User className="h-3.5 w-3.5 shrink-0" />
+                            <span className="font-bold text-xs truncate capitalize tracking-tight" title={order.customer_name || "Cliente"}>
+                                {order.customer_name || "Cliente"}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0 bg-muted/40 px-2 py-1 rounded-md border border-border/40 text-muted-foreground whitespace-nowrap">
+                            {getConsumptionIcon(order.consumption_type)}
+                            <span className="font-medium text-[10px] uppercase tracking-wide">{getConsumptionLabel(order.consumption_type)}</span>
+                            {order.consumption_type === ConsumptionType.DINE_IN && order.table_number && (
+                                <>
+                                    <div className="w-px h-2.5 bg-border/60 mx-1" />
+                                    <div className="flex items-center gap-1">
+                                        <span className="text-[9px] text-muted-foreground/70 font-medium">Mesa</span>
+                                        <span className="font-bold bg-background text-foreground px-1.5 pt-[1px] rounded-[3px] border border-border/50 shadow-sm min-w-[18px] text-center leading-none">{order.table_number}</span>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                     {order.user?.name && (
