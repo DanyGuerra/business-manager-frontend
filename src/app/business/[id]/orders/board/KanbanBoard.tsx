@@ -211,7 +211,7 @@ export default function KanbanBoard() {
 
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeOrder ? (
-                    <div className="w-[300px] opacity-90 rotate-2 cursor-grabbing">
+                    <div className="w-[350px] opacity-90 rotate-2 cursor-grabbing">
                         <OrderCard order={activeOrder} />
                     </div>
                 ) : null}
