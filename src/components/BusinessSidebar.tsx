@@ -163,7 +163,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                     size="lg"
                     className="cursor-pointer data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
-                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Store className="size-4" />
                     </div>
                     <div className="grid flex-1 text-left text-sm leading-tight">
@@ -238,6 +238,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                       asChild
                       isActive={pathname === item.href}
                       tooltip={item.title}
+                      className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
                     >
                       <Link href={item.href}>
                         <item.icon />
