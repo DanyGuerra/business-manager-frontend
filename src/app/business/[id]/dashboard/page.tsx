@@ -208,7 +208,7 @@ export default function DashboardPage() {
             {dailyStats && (
                 <Card className="col-span-full">
                     <CardHeader>
-                        <CardTitle>Comportamiento de Ventas</CardTitle>
+                        <CardTitle>Gráfica de Ventas</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="h-[350px] w-full">
