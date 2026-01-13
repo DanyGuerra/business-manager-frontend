@@ -147,7 +147,7 @@ export default function BusinessLayoutClient({
     }
 
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
             <BusinessSidebar businessId={businessId} />
             <SidebarInset className="min-w-0">
                 <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 sticky top-14 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
