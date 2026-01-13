@@ -37,7 +37,7 @@ export function OrderGroups({ order }: OrderDetailsProps) {
         <div className="flex flex-col gap-4">
             {order.itemGroups.map((group) => (
                 <div key={group.id}>
-                    <Collapsible className="w-full border rounded-md bg-muted p-2" defaultOpen>
+                    <Collapsible className="w-full border rounded-md bg-muted/50 p-2" defaultOpen>
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between cursor-pointer">
                                 <div className="flex items-center gap-2">

@@ -46,7 +46,7 @@ export default function OrderItemRow({ item: initialItem, businessId, orderId }:
 
     return (
         <div className={cn(
-            "flex items-start gap-3 py-3 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
+            "flex items-start gap-2 py-1.5 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
             isReady && "opacity-40"
         )}>
             <div className="flex justify-stretch items-center gap-2">
@@ -72,7 +72,7 @@ export default function OrderItemRow({ item: initialItem, businessId, orderId }:
                 {item.quantity}
             </div>
 
-            <div className="flex flex-col flex-1 min-w-0 gap-1">
+            <div className="flex flex-col flex-1 min-w-0 gap-0.5">
                 <div className="flex justify-between items-start gap-2">
                     <span className={cn(
                         "font-medium text-sm text-foreground leading-tight transition-all duration-200",
@@ -88,20 +88,20 @@ export default function OrderItemRow({ item: initialItem, businessId, orderId }:
                     </span>
                 </div>
                 {item.grouped_options && Object.keys(item.grouped_options).length > 0 && (
-                    <div className="flex flex-col gap-1 mt-1 text-[12px]">
+                    <div className="flex flex-col gap-0.5 mt-0.5 text-[10px]">
                         {Object.entries(item.grouped_options).map(([groupName, options]) => (
-                            <div key={groupName} className="flex flex-wrap items-center gap-1.5">
-                                <span className="text-primary/90">{groupName}:</span>
+                            <div key={groupName} className="flex flex-wrap items-center gap-1">
+                                <span className="text-primary/90 font-medium">{groupName}:</span>
                                 <div className="flex flex-wrap gap-1">
                                     {options.map((opt, i) => (
                                         <Badge
                                             key={`${groupName}-${i}`}
-                                            variant="outline"
-                                            className="flex items-baseline rounded-full px-2 py-0.5 h-auto min-h-[20px] font-medium bg-primary/10 text-primary border-primary/20 shadow-sm hover:bg-primary/15 transition-colors"
+                                            variant="default"
+                                            className="flex items-center rounded-sm px-1.5 py-[1px] h-auto min-h-0 text-[10px] font-semibold bg-primary text-primary-foreground border-transparent shadow-sm hover:bg-primary/90"
                                         >
                                             {opt.name}
                                             {opt.price > 0 && (
-                                                <span className="ml-1 text-[10px] font-bold text-primary/60">
+                                                <span className="text-[9px] font-bold opacity-70">
                                                     + {formatCurrency(opt.price)}
                                                 </span>
                                             )}

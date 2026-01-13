@@ -147,26 +147,26 @@ export default function ProfilePage() {
               </CustomDialog>
             </CardHeader>
             <CardContent className="grid gap-6 sm:grid-cols-2 pt-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <Mail className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <div className="p-2 rounded-full bg-primary/10 shrink-0">
+                  <Mail className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-medium text-muted-foreground">
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <p className="text-xs font-medium text-muted-foreground truncate">
                     Correo Electrónico
                   </p>
-                  <p className="text-sm font-medium">{user.email}</p>
+                  <p className="text-sm font-medium truncate" title={user.email}>{user.email}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm">
-                <div className="p-2 rounded-full bg-primary/10">
-                  <AtSign className="h-5 w-5 text-primary" />
+              <div className="flex items-center gap-3 p-3 rounded-lg border bg-card text-card-foreground shadow-sm overflow-hidden">
+                <div className="p-2 rounded-full bg-primary/10 shrink-0">
+                  <AtSign className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                 </div>
-                <div className="space-y-0.5">
-                  <p className="text-xs font-medium text-muted-foreground">
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <p className="text-xs font-medium text-muted-foreground truncate">
                     Nombre de usuario
                   </p>
-                  <p className="text-sm font-medium">{user.username}</p>
+                  <p className="text-sm font-medium truncate" title={user.username}>{user.username}</p>
                 </div>
               </div>
             </CardContent>
