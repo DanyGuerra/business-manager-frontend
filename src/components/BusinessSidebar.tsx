@@ -132,7 +132,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
       icon: Layers,
     },
     {
-      title: "Dashboard",
+      title: "Estadísticas",
       href: `/business/${businessId}/dashboard`,
       icon: LayoutDashboard,
       allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
