@@ -53,94 +53,137 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             value: d.total_sales
         }));
 
-        const x = d3.scaleTime()
-            .domain(d3.extent(parsedData, d => d.date) as [Date, Date])
-            .range([0, innerWidth]);
+        const x = d3.scaleBand()
+            .domain(parsedData.map(d => d.date.toISOString()))
+            .range([0, innerWidth])
+            .padding(0.1);
 
         const y = d3.scaleLinear()
             .domain([0, d3.max(parsedData, d => d.value) || 0])
             .nice()
             .range([innerHeight, 0]);
 
-        const line = d3.line<{ date: Date; value: number }>()
-            .x(d => x(d.date))
-            .y(d => y(d.value))
+        const maxBarWidth = 32;
+        const barWidth = Math.min(x.bandwidth(), maxBarWidth);
 
-        svg.append("path")
-            .attr("fill", "none")
-            .attr("class", "text-primary")
-            .attr("stroke", "currentColor")
-            .attr("stroke-width", 2)
-            .attr("d", line(parsedData));
-
-        svg.selectAll(".dot")
+        const groups = svg.selectAll(".bar-group")
             .data(parsedData)
             .enter()
-            .append("circle")
-            .attr("class", "dot")
-            .attr("cx", (d) => x(d.date))
-            .attr("cy", (d) => y(d.value))
-            .attr("r", 2)
+            .append("g")
+            .attr("class", "bar-group")
+            .attr("transform", (d) => `translate(${x(d.date.toISOString()) || 0}, 0)`);
+
+        groups.append("rect")
+            .attr("class", "bar-visual")
+            .attr("x", (x.bandwidth() - barWidth) / 2)
+            .attr("y", (d) => y(d.value))
+            .attr("width", barWidth)
+            .attr("height", (d) => innerHeight - y(d.value))
             .attr("fill", "var(--primary)")
-            .attr("stroke", "var(--primary)")
-            .attr("stroke-width", 2)
+            .attr("rx", 4)
+            .attr("ry", 4)
+            .attr("opacity", 0.6)
+            .style("pointer-events", "none");
+
+        groups.append("rect")
+            .attr("class", "bar-hit")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", x.bandwidth())
+            .attr("height", innerHeight)
+            .attr("fill", "transparent")
             .style("cursor", "pointer")
             .on("mouseenter", (event, d) => {
-                const xPos = x(d.date);
-                const yPos = y(d.value);
+                const xPos = x(d.date.toISOString()) || 0;
+                const barTop = y(d.value);
+                const bandwidth = x.bandwidth();
 
-                tooltip
-                    .style("visibility", "visible")
-                    .style("left", `${xPos + margin.left - (isMobile ? 40 : -10)}px`)
-                    .style("top", `${yPos + margin.top - 40}px`)
-                    .html(`
+                tooltip.html(`
                         <div class="font-bold">${d3.timeFormat("%d %b, %Y")(d.date)}</div>
                         <div>Ventas: $${d.value.toLocaleString()}</div>
                     `);
 
-                // Increase radius on hover
-                d3.select(event.currentTarget)
+                const tooltipNode = tooltip.node();
+                const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 120;
+                let leftPos = xPos + margin.left + bandwidth / 2 - tooltipWidth / 2;
+
+                if (chartWrapperRef.current && chartWrapperRef.current.parentElement) {
+                    const scrollContainer = chartWrapperRef.current.parentElement;
+                    const scrollLeft = scrollContainer.scrollLeft;
+                    const containerWidth = scrollContainer.clientWidth;
+
+                    const visualLeft = leftPos - scrollLeft;
+
+                    if (visualLeft + tooltipWidth > containerWidth - 10) {
+                        leftPos = (containerWidth - 10 - tooltipWidth) + scrollLeft;
+                    }
+                    if (visualLeft < 10) {
+                        leftPos = 10 + scrollLeft;
+                    }
+                }
+
+                tooltip
+                    .style("visibility", "visible")
+                    .style("left", `${leftPos}px`)
+                    .style("top", `${barTop + margin.top - 50}px`);
+
+                const group = d3.select(event.currentTarget.parentNode);
+                group.select(".bar-visual")
                     .transition()
-                    .duration(200)
-                    .attr("r", 4);
+                    .duration(150)
+                    .ease(d3.easeCubicOut)
+                    .attr("opacity", 1)
+                    .attr("width", barWidth + 4)
+                    .attr("x", (x.bandwidth() - (barWidth + 4)) / 2);
             })
             .on("mouseleave", (event) => {
                 tooltip.style("visibility", "hidden");
 
-                // Reset radius
-                d3.select(event.currentTarget)
+                const group = d3.select(event.currentTarget.parentNode);
+                group.select(".bar-visual")
                     .transition()
-                    .duration(200)
-                    .attr("r", 2);
+                    .duration(150)
+                    .attr("opacity", 0.6)
+                    .attr("width", barWidth)
+                    .attr("x", (x.bandwidth() - barWidth) / 2);
             });
 
         const xAxis = d3.axisBottom(x)
-            .ticks(isMobile ? 3 : 5)
-            .tickFormat(d => d3.timeFormat("%d %b")(d as Date));
+            .tickFormat((d) => {
+                const date = parseISO(d);
+                return d3.timeFormat("%d %b")(date);
+            });
+
+        if (parsedData.length > 10) {
+            const tickValues = x.domain().filter((_, i) => !(i % Math.ceil(parsedData.length / 10)));
+            xAxis.tickValues(tickValues);
+        }
 
         const yAxis = d3.axisLeft(y)
             .ticks(isMobile ? 4 : 5)
             .tickFormat(d => `$${d}`);
 
-        svg.append("g")
+        const xAxisGroup = svg.append("g")
             .attr("transform", `translate(0,${innerHeight})`)
-            .call(xAxis)
-            .attr("color", "hsl(var(--muted-foreground))")
-            .style("font-size", isMobile ? "10px" : "12px");
+            .call(xAxis);
+
+        xAxisGroup.attr("color", "hsl(var(--muted-foreground))")
+            .style("font-size", isMobile ? "10px" : "12px")
+            .selectAll("text")
+            .style("text-anchor", "middle");
 
         svg.append("g")
             .call(yAxis)
             .attr("color", "hsl(var(--muted-foreground))")
             .style("font-size", isMobile ? "10px" : "12px")
-            .call(g => g.select(".domain").remove()) // Remove axis line
+            .call(g => g.select(".domain").remove())
             .call(g => g.selectAll(".tick line")
                 .attr("x2", innerWidth)
-                .attr("stroke-opacity", 0.1)); // Grid lines
+                .attr("stroke-opacity", 0.1));
 
-        // Tooltip interaction overlay - relative to container
-        d3.select(containerRef.current).selectAll(".tooltip").remove();
+        d3.select(chartWrapperRef.current).selectAll(".tooltip").remove();
 
-        const tooltip = d3.select(containerRef.current)
+        const tooltip = d3.select(chartWrapperRef.current)
             .append("div")
             .attr("class", "tooltip bg-popover text-popover-foreground border border-border rounded shadow-md")
             .style("position", "absolute")
@@ -160,7 +203,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 </div>
             ) : (
                 <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
-                    <div ref={chartWrapperRef} className="min-w-[600px] sm:min-w-full h-[350px]">
+                    <div ref={chartWrapperRef} className="min-w-[600px] sm:min-w-full h-[350px] relative">
                         <svg ref={svgRef} width="100%" height={height} className="overflow-visible" style={{ minWidth: "100%" }} />
                     </div>
                 </div>

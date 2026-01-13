@@ -251,7 +251,7 @@ export default function OrderDetailsPage() {
                                 <CardTitle className="text-base font-semibold">
                                     Detalle del Pedido
                                 </CardTitle>
-                                {isEditMode && <AddOrderItemsSheet
+                                <AddOrderItemsSheet
                                     order={order}
                                     defaultView="cart"
                                     onSuccess={(updatedOrder) => {
@@ -263,7 +263,7 @@ export default function OrderDetailsPage() {
                                             <span className={cn(isMobile ? "hidden" : "inline")}>Editar Orden</span>
                                         </Button>
                                     }
-                                />}
+                                />
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <OrderDetailsList order={order} />

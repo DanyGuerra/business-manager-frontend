@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
@@ -22,10 +22,31 @@ import { DateTimePicker } from "@/components/DateTimePicker";
 export default function OrdersPage() {
     const { orders, pagination, filters, setFilters, resetFilters, setLimit, setPage } = useOrdersStore();
     const { loading, getOrders } = useGetOrders();
+    const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
-        getOrders();
-    }, [getOrders]);
+        if (!initialized) {
+            const date = new Date();
+            const startDate = new Date(date);
+            startDate.setHours(0, 0, 0, 0);
+
+            const endDate = new Date(date);
+            endDate.setHours(23, 59, 59, 999);
+
+            setFilters({
+                sort: "DESC",
+                startDate,
+                endDate
+            });
+            setInitialized(true);
+        }
+    }, [setFilters, initialized]);
+
+    useEffect(() => {
+        if (initialized) {
+            getOrders();
+        }
+    }, [getOrders, initialized]);
 
     const { status, consumptionType, sort, startDate, endDate } = filters;
     const { page, limit } = pagination;

@@ -24,7 +24,9 @@ import { toastSuccessStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessApi } from "@/lib/useBusinessApi";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
-import { useRouter, usePathname } from "next/navigation";
+
+
+import { usePathname, useRouter } from "next/navigation";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -52,8 +54,8 @@ export default function BusinessLayoutClient({
     const { isEditMode, setEditMode } = useEditModeStore();
     const { startLoading, stopLoading } = useLoadingStore();
     const businessApi = useBusinessApi();
-    const router = useRouter();
     const pathname = usePathname();
+    const router = useRouter();
     const { setUserRoles } = useUserRolesStore();
     const { canEdit, canDelete } = useUserRolesStore();
 
@@ -89,11 +91,13 @@ export default function BusinessLayoutClient({
         products: "Productos",
         "option-groups": "Grupos de Opciones",
         users: "Usuarios",
+        board: "Tablero pedidos",
+        dashboard: "Estadísticas",
     };
 
     const segments = pathname.split("/");
     const lastSegment = segments[segments.length - 1];
-    const pageName = breadcrumbNameMap[lastSegment] || "Dashboard";
+    const pageName = breadcrumbNameMap[lastSegment] || "";
 
     async function handleUpdateBusiness(
         data: CreateBusinessValues,
@@ -132,6 +136,8 @@ export default function BusinessLayoutClient({
         }
     }
 
+
+
     if (!business) {
         return (
             <div className="flex h-screen items-center justify-center">
@@ -141,10 +147,10 @@ export default function BusinessLayoutClient({
     }
 
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={false}>
             <BusinessSidebar businessId={businessId} />
             <SidebarInset className="min-w-0">
-                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4 sticky top-14 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4 sticky top-14 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                     <SidebarTrigger className="-ml-1 cursor-pointer" />
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <Breadcrumb>
@@ -163,68 +169,69 @@ export default function BusinessLayoutClient({
                 </header>
 
                 <div className="flex flex-col gap-6 flex-1 w-full min-w-0">
-                    <div className="w-full sticky top-[7.5rem] z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-4 py-2 border-b ">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between md:space-y-0">
-                            <div className="flex flex-col gap-2">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                                        <Store className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <h1 className="text-2xl font-bold tracking-tight">
-                                        {business?.name}
-                                    </h1>
-                                </div>
-                                <div className="flex items-center gap-2 text-muted-foreground ml-1">
-                                    {business.address?.trim() ? (
-                                        <>
-                                            <MapPin className="h-4 w-4" />
-                                            <p>{business.address}</p>
-                                        </>
-                                    ) : null}
-                                </div>
+                    <div className="w-full sticky top-[6.5rem] z-10 bg-background/50 backdrop-blur-sm px-4 py-2 border-b flex justify-between items-center gap-4">
+                        <div className="flex items-center gap-3 min-w-0">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 shrink-0">
+                                <Store className="h-4 w-4 text-primary" />
                             </div>
-
-                            <div className="flex items-center gap-3 self-end md:self-auto">
-                                {isEditMode && (
-                                    <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-4 duration-300">
-                                        {canEdit() && <CustomDialog
-                                            open={isEditModalOpen}
-                                            setOpen={setIsEditModalOpen}
-                                            modalTitle="Editar negocio"
-                                            modalDescription="Edita los datos de tu negocio"
-                                            icon={<Edit2Icon className="h-4 w-4" />}
-                                        >
-                                            <FormBusiness
-                                                buttonTitle="Guardar"
-                                                handleSubmitButton={(data) =>
-                                                    handleUpdateBusiness(data, businessId)
-                                                }
-                                                loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
-                                                defaultValues={{
-                                                    name: business?.name ?? "",
-                                                    address: business?.address,
-                                                }}
-                                            />
-                                        </CustomDialog>}
-                                        {canDelete() && <DeleteDialogConfirmation
-                                            handleContinue={handleDeleteBusiness}
-                                            title="Eliminar negocio"
-                                            description="¿Estás seguro de eliminar el negocio?"
-                                            confirmationKeyword={business.name}
-                                        />}
-                                        <Separator orientation="vertical" className="h-6 mx-1" />
+                            <div className="flex flex-col min-w-0">
+                                <h1 className="text-sm font-semibold tracking-tight truncate">
+                                    {business?.name}
+                                </h1>
+                                {business.address?.trim() && (
+                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                        <MapPin className="h-3 w-3 shrink-0" />
+                                        <p className="text-xs truncate">{business.address}</p>
                                     </div>
                                 )}
-                                <div className="flex items-center space-x-2">
-                                    <Switch
-                                        id="edit-mode-global"
-                                        checked={isEditMode}
-                                        onCheckedChange={setEditMode}
-                                    />
-                                    <Label htmlFor="edit-mode-global" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                        Modo edición
-                                    </Label>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 shrink-0">
+                            {isEditMode && (
+                                <div className="flex items-center gap-1 animate-in fade-in slide-in-from-right-4 duration-300">
+                                    {canEdit() && <CustomDialog
+                                        open={isEditModalOpen}
+                                        setOpen={setIsEditModalOpen}
+                                        modalTitle="Editar negocio"
+                                        modalDescription="Edita los datos de tu negocio"
+                                        icon={<Edit2Icon className="h-4 w-4" />}
+                                        trigger={
+                                            <button className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-muted transition-colors">
+                                                <Edit2Icon className="h-4 w-4 text-muted-foreground" />
+                                            </button>
+                                        }
+                                    >
+                                        <FormBusiness
+                                            buttonTitle="Guardar"
+                                            handleSubmitButton={(data) =>
+                                                handleUpdateBusiness(data, businessId)
+                                            }
+                                            loadingKey={LoadingsKeyEnum.UPDATE_BUSINESS}
+                                            defaultValues={{
+                                                name: business?.name ?? "",
+                                                address: business?.address,
+                                            }}
+                                        />
+                                    </CustomDialog>}
+                                    {canDelete() && <DeleteDialogConfirmation
+                                        handleContinue={handleDeleteBusiness}
+                                        title="Eliminar negocio"
+                                        description="¿Estás seguro de eliminar el negocio?"
+                                        confirmationKeyword={business.name}
+                                    />}
+                                    <Separator orientation="vertical" className="h-6 mx-1" />
                                 </div>
+                            )}
+                            <div className="flex items-center space-x-2">
+                                <Switch
+                                    id="edit-mode-global"
+                                    checked={isEditMode}
+                                    onCheckedChange={setEditMode}
+                                />
+                                <Label htmlFor="edit-mode-global" className="text-xs font-medium leading-none cursor-pointer">
+                                    Modo edición
+                                </Label>
                             </div>
                         </div>
                     </div>
