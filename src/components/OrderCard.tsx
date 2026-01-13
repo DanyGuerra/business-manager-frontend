@@ -150,7 +150,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 <div
                     {...listeners}
                     {...attributes}
-                    className="h-10 w-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -top-1 cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted/50 rounded-md transition-colors z-10"
+                    className="h-10 w-full flex items-center justify-center absolute left-1/2 -translate-x-1/2 -top-1 cursor-grab active:cursor-grabbing p-1.5 hover:bg-muted/50 rounded-md transition-colors z-10 touch-none"
                 >
                     <GripHorizontal className="h-4 w-4 text-muted-foreground hover:text-muted-foreground/60" />
                 </div>
