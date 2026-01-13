@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useOrdersStore } from "@/store/ordersStore";
-import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
+import { OrderStatus, useOrdersApi, GetOrdersParams } from "@/lib/useOrdersApi";
 import { KanbanColumn } from "./KanbanColumn";
 import {
     DndContext,
@@ -44,7 +44,7 @@ export default function KanbanBoard() {
     const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING);
     const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING);
     const readyOrders = orders.filter(o => o.status === OrderStatus.READY);
-    const completedOrders = orders.filter(o => o.status === OrderStatus.COMPLETED);
+    const completedOrders = orders.filter(o => o.status === OrderStatus.COMPLETED).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     const [activeOrder, setActiveOrder] = useState<Order | null>(null);
 
@@ -54,7 +54,12 @@ export default function KanbanBoard() {
                 distance: 5,
             },
         }),
-        useSensor(TouchSensor)
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250,
+                tolerance: 5,
+            },
+        })
     );
 
     const { socket, isConnected } = useSocket();
@@ -84,9 +89,13 @@ export default function KanbanBoard() {
                 setOrdersByStatus(response.data.data, targetStatus);
             } else {
                 const responses = await Promise.all(
-                    statuses.map(status =>
-                        ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status })
-                    )
+                    statuses.map(status => {
+                        const params: GetOrdersParams = { ...commonParams, status };
+                        if (status === OrderStatus.COMPLETED) {
+                            params.sort = 'DESC';
+                        }
+                        return ordersApi.getOrdersByBusinessId(businessId, params);
+                    })
                 );
 
                 const allOrders: Order[] = responses.flatMap(response => response.data.data);

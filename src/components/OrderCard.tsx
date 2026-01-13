@@ -344,17 +344,17 @@ export function OrderCard({ order }: OrderCardProps) {
                 )}
 
                 <div className="flex flex-col gap-2">
-                    {isEditMode && <Button
-                        variant="default"
+                    <Button
+                        variant="ghost"
                         size="sm"
-                        className="w-full h-7 font-bold text-[10px]"
+                        className="w-full h-8 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                         asChild
                     >
                         <a href={`/business/${businessId}/orders/${order.id}`}>
-                            <Eye className="h-3 w-3 mr-1.5" />
+                            <Eye className="h-3.5 w-3.5 mr-2 opacity-70 group-hover:opacity-100 transition-opacity" />
                             Ver Detalles
                         </a>
-                    </Button>}
+                    </Button>
 
                     {isEditMode && (
                         <DeleteDialogConfirmation

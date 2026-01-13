@@ -28,7 +28,7 @@ export function SortableItem({ id, children }: SortableItemProps) {
 
     return (
         <SortableItemContext.Provider value={{ attributes, listeners, isDragging }}>
-            <div ref={setNodeRef} style={style} className="touch-none">
+            <div ref={setNodeRef} style={style} className="touch-manipulation select-none">
                 {children}
             </div>
         </SortableItemContext.Provider>
