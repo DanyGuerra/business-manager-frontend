@@ -56,8 +56,6 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
         const x = d3.scaleBand()
             .domain(parsedData.map(d => d.date.toISOString()))
             .range([0, innerWidth])
-            // Use a smaller padding to keep the *band* wide (for hit area), 
-            // but we will draw the visible bar thinner manually.
             .padding(0.1);
 
         const y = d3.scaleLinear()
@@ -65,7 +63,6 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .nice()
             .range([innerHeight, 0]);
 
-        // Max width for the thinner look
         const maxBarWidth = 32;
         const barWidth = Math.min(x.bandwidth(), maxBarWidth);
 
@@ -76,20 +73,18 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .attr("class", "bar-group")
             .attr("transform", (d) => `translate(${x(d.date.toISOString()) || 0}, 0)`);
 
-        // Visible Bar (Thin)
         groups.append("rect")
             .attr("class", "bar-visual")
-            .attr("x", (x.bandwidth() - barWidth) / 2) // Center within the band
+            .attr("x", (x.bandwidth() - barWidth) / 2)
             .attr("y", (d) => y(d.value))
             .attr("width", barWidth)
             .attr("height", (d) => innerHeight - y(d.value))
             .attr("fill", "var(--primary)")
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("opacity", 0.6) // Default state: slightly transparent
-            .style("pointer-events", "none"); // Let the hit rect handle events
+            .attr("opacity", 0.6)
+            .style("pointer-events", "none");
 
-        // Invisible Hit Area (Full Band Width & Full Height)
         groups.append("rect")
             .attr("class", "bar-hit")
             .attr("x", 0)
@@ -100,27 +95,45 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .style("cursor", "pointer")
             .on("mouseenter", (event, d) => {
                 const xPos = x(d.date.toISOString()) || 0;
-                // Position tooltip relative to the bar top
                 const barTop = y(d.value);
                 const bandwidth = x.bandwidth();
 
-                tooltip
-                    .style("visibility", "visible")
-                    .style("left", `${xPos + margin.left + bandwidth / 2 - 40}px`)
-                    .style("top", `${barTop + margin.top - 50}px`)
-                    .html(`
+                tooltip.html(`
                         <div class="font-bold">${d3.timeFormat("%d %b, %Y")(d.date)}</div>
                         <div>Ventas: $${d.value.toLocaleString()}</div>
                     `);
 
-                // Select the visual bar within this group
+                const tooltipNode = tooltip.node();
+                const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 120;
+                let leftPos = xPos + margin.left + bandwidth / 2 - tooltipWidth / 2;
+
+                if (chartWrapperRef.current && chartWrapperRef.current.parentElement) {
+                    const scrollContainer = chartWrapperRef.current.parentElement;
+                    const scrollLeft = scrollContainer.scrollLeft;
+                    const containerWidth = scrollContainer.clientWidth;
+
+                    const visualLeft = leftPos - scrollLeft;
+
+                    if (visualLeft + tooltipWidth > containerWidth - 10) {
+                        leftPos = (containerWidth - 10 - tooltipWidth) + scrollLeft;
+                    }
+                    if (visualLeft < 10) {
+                        leftPos = 10 + scrollLeft;
+                    }
+                }
+
+                tooltip
+                    .style("visibility", "visible")
+                    .style("left", `${leftPos}px`)
+                    .style("top", `${barTop + margin.top - 50}px`);
+
                 const group = d3.select(event.currentTarget.parentNode);
                 group.select(".bar-visual")
                     .transition()
                     .duration(150)
-                    .ease(d3.easeCubicOut) // Snappy easing
-                    .attr("opacity", 1) // Fully opaque on hover
-                    .attr("width", barWidth + 4) // Expand slightly more
+                    .ease(d3.easeCubicOut)
+                    .attr("opacity", 1)
+                    .attr("width", barWidth + 4)
                     .attr("x", (x.bandwidth() - (barWidth + 4)) / 2);
             })
             .on("mouseleave", (event) => {
@@ -130,7 +143,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 group.select(".bar-visual")
                     .transition()
                     .duration(150)
-                    .attr("opacity", 0.6) // Return to default
+                    .attr("opacity", 0.6)
                     .attr("width", barWidth)
                     .attr("x", (x.bandwidth() - barWidth) / 2);
             });
@@ -141,7 +154,6 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 return d3.timeFormat("%d %b")(date);
             });
 
-        // Custom tick filtering for x-axis if there are too many bars
         if (parsedData.length > 10) {
             const tickValues = x.domain().filter((_, i) => !(i % Math.ceil(parsedData.length / 10)));
             xAxis.tickValues(tickValues);
@@ -164,15 +176,14 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .call(yAxis)
             .attr("color", "hsl(var(--muted-foreground))")
             .style("font-size", isMobile ? "10px" : "12px")
-            .call(g => g.select(".domain").remove()) // Remove axis line
+            .call(g => g.select(".domain").remove())
             .call(g => g.selectAll(".tick line")
                 .attr("x2", innerWidth)
-                .attr("stroke-opacity", 0.1)); // Grid lines
+                .attr("stroke-opacity", 0.1));
 
-        // Tooltip interaction overlay - relative to container
-        d3.select(containerRef.current).selectAll(".tooltip").remove();
+        d3.select(chartWrapperRef.current).selectAll(".tooltip").remove();
 
-        const tooltip = d3.select(containerRef.current)
+        const tooltip = d3.select(chartWrapperRef.current)
             .append("div")
             .attr("class", "tooltip bg-popover text-popover-foreground border border-border rounded shadow-md")
             .style("position", "absolute")
@@ -192,7 +203,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 </div>
             ) : (
                 <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
-                    <div ref={chartWrapperRef} className="min-w-[600px] sm:min-w-full h-[350px]">
+                    <div ref={chartWrapperRef} className="min-w-[600px] sm:min-w-full h-[350px] relative">
                         <svg ref={svgRef} width="100%" height={height} className="overflow-visible" style={{ minWidth: "100%" }} />
                     </div>
                 </div>
