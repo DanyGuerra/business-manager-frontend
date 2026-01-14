@@ -254,7 +254,7 @@ export function CartOrderSummary({
                             if (checked) {
                                 setOrderDetails(businessId, { amount_paid: null });
                             } else {
-                                setOrderDetails(businessId, { amount_paid: totalPrice });
+                                setOrderDetails(businessId, { amount_paid: 0 });
                             }
                         }}
                     />

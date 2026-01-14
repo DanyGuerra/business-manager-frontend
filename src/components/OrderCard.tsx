@@ -1,5 +1,7 @@
 
 import { Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
+import { format } from "date-fns";
+import { es } from "date-fns/locale";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal } from "lucide-react";
@@ -119,22 +121,10 @@ export function OrderCard({ order }: OrderCardProps) {
     }
 
     const date = new Date(order.created_at);
-    const timeString = date.toLocaleString('es-MX', {
-        day: '2-digit',
-        month: '2-digit',
-        year: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+    const timeString = format(date, "d MMM yyyy • h:mm a", { locale: es });
 
     const scheduledTime = order.scheduled_at
-        ? new Date(order.scheduled_at).toLocaleString('es-MX', {
-            day: '2-digit',
-            month: '2-digit',
-            year: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-        })
+        ? format(new Date(order.scheduled_at), "d MMM yyyy • h:mm a", { locale: es })
         : null;
 
     return (
@@ -221,7 +211,7 @@ export function OrderCard({ order }: OrderCardProps) {
                         )}>
                             <Clock className="h-3 w-3 opacity-70" />
                             <span className="text-[9px] uppercase opacity-70">Creado:</span>
-                            <span className="text-[10px] font-medium leading-none">{timeString}</span>
+                            <span className="text-[10px] font-medium leading-none capitalize">{timeString}</span>
                         </div>
 
                         {scheduledTime && (
@@ -231,7 +221,7 @@ export function OrderCard({ order }: OrderCardProps) {
                             )}>
                                 <Calendar className="h-3 w-3 opacity-90" />
                                 <span className="text-[9px] uppercase opacity-70 font-semibold">Entrega:</span>
-                                <span className="text-[10px] font-bold leading-none">{scheduledTime}</span>
+                                <span className="text-[10px] font-bold leading-none capitalize">{scheduledTime}</span>
                             </div>
                         )}
                     </div>
