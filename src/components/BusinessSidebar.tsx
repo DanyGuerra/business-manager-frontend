@@ -232,21 +232,31 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={pathname === item.href}
-                      tooltip={item.title}
-                      className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {(() => {
+                  const activeItem = items
+                    .filter(
+                      (item) =>
+                        pathname === item.href ||
+                        pathname.startsWith(`${item.href}/`)
+                    )
+                    .sort((a, b) => b.href.length - a.href.length)[0];
+
+                  return items.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={activeItem?.href === item.href}
+                        tooltip={item.title}
+                        className="data-[active=true]:bg-primary data-[active=true]:text-primary-foreground"
+                      >
+                        <Link href={item.href}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ));
+                })()}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

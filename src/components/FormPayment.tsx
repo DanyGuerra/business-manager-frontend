@@ -91,6 +91,7 @@ export default function FormPayment({
                                 <FormLabel>Paga con</FormLabel>
                                 <FormControl>
                                     <Input
+                                        min={total}
                                         type="number"
                                         placeholder="0.00"
                                         {...field}
@@ -103,9 +104,20 @@ export default function FormPayment({
                     />
                 </div>
 
+                <div className="bg-muted p-4 rounded-lg">
+                    <span className="text-sm font-medium text-muted-foreground block mb-2">Su cambio</span>
+                    <div className="text-2xl font-bold text-green-600">
+                        {(() => {
+                            const amountPaid = parseFloat(form.watch("amount_paid") || "0");
+                            const change = amountPaid - total;
+                            return change > 0 ? formatCurrency(change) : formatCurrency(0);
+                        })()}
+                    </div>
+                </div>
+
                 <div className="flex justify-center items-center">
                     <ButtonLoading
-                        disabled={!form.formState.isDirty}
+                        disabled={!form.formState.isValid}
                         loadingState={loadings[loadingKey]}
                         buttonTitle={buttonTitle}
                     />

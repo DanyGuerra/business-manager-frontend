@@ -96,8 +96,8 @@ export default function BusinessLayoutClient({
     };
 
     const segments = pathname.split("/");
-    const lastSegment = segments[segments.length - 1];
-    const pageName = breadcrumbNameMap[lastSegment] || "";
+    const matchingKey = [...segments].reverse().find((key) => breadcrumbNameMap[key]);
+    const pageName = matchingKey ? breadcrumbNameMap[matchingKey] : "";
 
     async function handleUpdateBusiness(
         data: CreateBusinessValues,

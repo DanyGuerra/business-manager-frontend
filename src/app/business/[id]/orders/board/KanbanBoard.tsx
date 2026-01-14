@@ -22,7 +22,6 @@ import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { toastSuccessStyle } from "@/lib/toastStyles";
-import { format } from "date-fns";
 import { useSocket } from "@/context/SocketContext";
 
 const dropAnimation: DropAnimation = {
@@ -36,7 +35,7 @@ const dropAnimation: DropAnimation = {
 };
 
 export default function KanbanBoard() {
-    const { orders, updateOrder, setOrders, filters, pagination, setOrdersByStatus } = useOrdersStore();
+    const { orders, updateOrder, setOrders, pagination, setOrdersByStatus } = useOrdersStore();
     const { businessId } = useBusinessStore();
     const ordersApi = useOrdersApi();
     const [loading, setLoading] = useState(true);
@@ -66,17 +65,9 @@ export default function KanbanBoard() {
                 ? [targetStatus]
                 : [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
 
-            const { consumptionType, startDate, endDate } = filters;
             const commonParams = {
                 limit: pagination.limit,
                 page: 1,
-                consumption_type: consumptionType !== "ALL" ? consumptionType : undefined,
-                start_date: startDate
-                    ? format(startDate, "yyyy-MM-dd'T'HH:mm:ss")
-                    : undefined,
-                end_date: endDate
-                    ? format(endDate, "yyyy-MM-dd'T'HH:mm:ss")
-                    : undefined,
             };
 
             if (targetStatus) {
@@ -111,11 +102,13 @@ export default function KanbanBoard() {
             if (!targetStatus) setLoading(false);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [filters, pagination.limit, businessId, setOrders, setOrdersByStatus]);
+    }, [pagination.limit, businessId, setOrders, setOrdersByStatus]);
 
     useEffect(() => {
-        fetchKanbanOrders();
-    }, [fetchKanbanOrders]);
+        if (businessId) {
+            fetchKanbanOrders();
+        }
+    }, [businessId, fetchKanbanOrders]);
 
     useEffect(() => {
         if (!socket || !isConnected || !businessId) return;

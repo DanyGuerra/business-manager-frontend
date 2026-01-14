@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { DailySalesData } from "@/lib/useStatsApi";
 
-import { parseISO } from "date-fns";
+import { parseISO, format } from "date-fns";
+import { es } from "date-fns/locale";
 
 interface DailySalesChartProps {
     data: DailySalesData[];
@@ -82,7 +83,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .attr("fill", "var(--primary)")
             .attr("rx", 4)
             .attr("ry", 4)
-            .attr("opacity", 0.6)
+            .attr("opacity", 1)
             .style("pointer-events", "none");
 
         groups.append("rect")
@@ -99,7 +100,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 const bandwidth = x.bandwidth();
 
                 tooltip.html(`
-                        <div class="font-bold">${d3.timeFormat("%d %b, %Y")(d.date)}</div>
+                        <div class="font-bold capitalize">${format(d.date, "d MMM, yyyy", { locale: es })}</div>
                         <div>Ventas: $${d.value.toLocaleString()}</div>
                     `);
 
@@ -122,17 +123,20 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                     }
                 }
 
+                let topPos = barTop + margin.top - 50;
+                if (topPos < 5) topPos = 5;
+
                 tooltip
                     .style("visibility", "visible")
                     .style("left", `${leftPos}px`)
-                    .style("top", `${barTop + margin.top - 50}px`);
+                    .style("top", `${topPos}px`);
 
                 const group = d3.select(event.currentTarget.parentNode);
                 group.select(".bar-visual")
                     .transition()
                     .duration(150)
                     .ease(d3.easeCubicOut)
-                    .attr("opacity", 1)
+                    .attr("opacity", 0.6)
                     .attr("width", barWidth + 4)
                     .attr("x", (x.bandwidth() - (barWidth + 4)) / 2);
             })
@@ -142,8 +146,8 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 const group = d3.select(event.currentTarget.parentNode);
                 group.select(".bar-visual")
                     .transition()
-                    .duration(150)
-                    .attr("opacity", 0.6)
+                    .duration(0)
+                    .attr("opacity", 1)
                     .attr("width", barWidth)
                     .attr("x", (x.bandwidth() - barWidth) / 2);
             });
@@ -151,7 +155,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
         const xAxis = d3.axisBottom(x)
             .tickFormat((d) => {
                 const date = parseISO(d);
-                return d3.timeFormat("%d %b")(date);
+                return format(date, "d MMM", { locale: es });
             });
 
         if (parsedData.length > 10) {
