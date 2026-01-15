@@ -100,7 +100,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                 const bandwidth = x.bandwidth();
 
                 tooltip.html(`
-                        <div class="font-bold capitalize">${format(d.date, "d MMM, yyyy", { locale: es })}</div>
+                        <div class="font-bold capitalize">${format(d.date, "EEE d MMMM yyyy", { locale: es })}</div>
                         <div>Ventas: $${d.value.toLocaleString()}</div>
                     `);
 
@@ -155,7 +155,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
         const xAxis = d3.axisBottom(x)
             .tickFormat((d) => {
                 const date = parseISO(d);
-                return format(date, "d MMM", { locale: es });
+                return format(date, "EEE d MMM", { locale: es });
             });
 
         if (parsedData.length > 10) {
