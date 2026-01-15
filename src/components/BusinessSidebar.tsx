@@ -15,7 +15,7 @@ import {
   Plus,
   Check,
   Kanban,
-  LayoutDashboard,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -134,7 +134,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
     {
       title: "Estadísticas",
       href: `/business/${businessId}/dashboard`,
-      icon: LayoutDashboard,
+      icon: BarChart3,
       allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
     {
