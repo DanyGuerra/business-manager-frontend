@@ -227,7 +227,7 @@ export function OrderCard({ order }: OrderCardProps) {
                     </div>
                 )}
                 <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground mt-1.5 pt-1.5 border-t border-dashed border-border/40">
-                    <div className="flex flex-row items-center gap-1.5 w-full">
+                    <div className="flex flex-col md:flex-row gap-1.5 w-full">
                         <div className="flex items-center gap-1.5 min-w-0 bg-primary/10 dark:bg-primary/20 text-primary px-2 py-0.5 rounded-md border border-primary/10 flex-1 shadow-sm h-6">
                             <User className="h-3 w-3 shrink-0" />
                             <span className="font-bold text-xs truncate capitalize tracking-tight" title={order.customer_name || "Cliente"}>

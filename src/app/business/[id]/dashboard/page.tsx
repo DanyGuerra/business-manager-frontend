@@ -196,9 +196,9 @@ export default function DashboardPage() {
                         <div className="text-2xl font-bold">
                             ${dailyStats?.summary.best_day.revenue.toLocaleString()}
                         </div>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-muted-foreground capitalize">
                             {dailyStats?.summary.best_day.date
-                                ? format(parseISO(dailyStats.summary.best_day.date), "dd LLL, y", { locale: es })
+                                ? format(parseISO(dailyStats.summary.best_day.date), "EEE d MMMM yyyy", { locale: es })
                                 : "N/A"}
                         </p>
                     </CardContent>
