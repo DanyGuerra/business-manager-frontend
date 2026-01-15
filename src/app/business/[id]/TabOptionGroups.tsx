@@ -168,7 +168,7 @@ export default function TabOptionGroups() {
               totalPages={totalPages}
               onPageChange={setPage}
               limit={limit}
-              onLimitChange={setLimit}
+              onLimitChange={(limit) => { setLimit(limit); setPage(1) }}
               totalItems={total}
               currentCount={optionGroups.length}
               itemName="grupos de opciones"
