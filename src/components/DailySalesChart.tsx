@@ -14,6 +14,7 @@ interface DailySalesChartProps {
 
 export function DailySalesChart({ data, className }: DailySalesChartProps) {
     const svgRef = useRef<SVGSVGElement>(null);
+    const yAxisRef = useRef<SVGSVGElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const chartWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -21,33 +22,47 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
     const height = 350;
 
     useEffect(() => {
-        if (!chartWrapperRef.current) return;
+        if (!containerRef.current) return;
 
         const resizeObserver = new ResizeObserver((entries) => {
             if (!entries || entries.length === 0) return;
             setWidth(entries[0].contentRect.width);
         });
 
-        resizeObserver.observe(chartWrapperRef.current);
+        resizeObserver.observe(containerRef.current);
         return () => resizeObserver.disconnect();
     }, []);
 
     useEffect(() => {
-        if (!data || data.length === 0 || !svgRef.current || width === 0) return;
+        if (!data || data.length === 0 || !svgRef.current || !yAxisRef.current || width === 0) return;
 
         d3.select(svgRef.current).selectAll("*").remove();
+        d3.select(yAxisRef.current).selectAll("*").remove();
 
         const isMobile = width < 600;
-        const margin = isMobile
-            ? { top: 20, right: 10, bottom: 20, left: 45 }
-            : { top: 20, right: 30, bottom: 30, left: 60 };
-        const innerWidth = width - margin.left - margin.right;
+        const yAxisWidth = isMobile ? 45 : 60;
+
+        const margin = { top: 20, right: isMobile ? 10 : 30, bottom: 30 };
+        const chartMarginLeft = 10;
+
+        const availableWidth = width - yAxisWidth;
+
+        const ITEMS_PER_VIEW = 150;
+        const isScrollable = data.length > ITEMS_PER_VIEW;
+
+        const chartWidth = isScrollable
+            ? (availableWidth / ITEMS_PER_VIEW) * data.length
+            : availableWidth;
+
+        const innerWidth = chartWidth - chartMarginLeft - margin.right;
         const innerHeight = height - margin.top - margin.bottom;
 
         const svg = d3.select(svgRef.current)
-            .attr("viewBox", `0 0 ${width} ${height}`)
+            .attr("width", chartWidth)
+            .attr("height", height)
+            .attr("viewBox", `0 0 ${chartWidth} ${height}`)
             .append("g")
-            .attr("transform", `translate(${margin.left},${margin.top})`);
+            .attr("transform", `translate(${chartMarginLeft},${margin.top})`);
 
         const parsedData = data.map(d => ({
             date: parseISO(d.date),
@@ -106,21 +121,12 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
 
                 const tooltipNode = tooltip.node();
                 const tooltipWidth = tooltipNode ? tooltipNode.offsetWidth : 120;
-                let leftPos = xPos + margin.left + bandwidth / 2 - tooltipWidth / 2;
+
+                let leftPos = xPos + chartMarginLeft + bandwidth / 2 - tooltipWidth / 2;
 
                 if (chartWrapperRef.current && chartWrapperRef.current.parentElement) {
-                    const scrollContainer = chartWrapperRef.current.parentElement;
-                    const scrollLeft = scrollContainer.scrollLeft;
-                    const containerWidth = scrollContainer.clientWidth;
-
-                    const visualLeft = leftPos - scrollLeft;
-
-                    if (visualLeft + tooltipWidth > containerWidth - 10) {
-                        leftPos = (containerWidth - 10 - tooltipWidth) + scrollLeft;
-                    }
-                    if (visualLeft < 10) {
-                        leftPos = 10 + scrollLeft;
-                    }
+                    if (leftPos < 10) leftPos = 10;
+                    if (leftPos + tooltipWidth > chartWidth - 10) leftPos = chartWidth - tooltipWidth - 10;
                 }
 
                 let topPos = barTop + margin.top - 50;
@@ -155,7 +161,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
         const xAxis = d3.axisBottom(x)
             .tickFormat((d) => {
                 const date = parseISO(d);
-                return format(date, "EEE d MMM", { locale: es });
+                return format(date, "EEE d MMM yyyy", { locale: es });
             });
 
         if (parsedData.length > 10) {
@@ -176,13 +182,29 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .selectAll("text")
             .style("text-anchor", "middle");
 
-        svg.append("g")
+        // Render Y-Axis (Sticky)
+        const yAxisSvg = d3.select(yAxisRef.current)
+            .attr("width", yAxisWidth)
+            .attr("height", height)
+            .append("g")
+            .attr("transform", `translate(${yAxisWidth},${margin.top})`); // Align to right of container
+
+        yAxisSvg.append("g")
             .call(yAxis)
             .attr("color", "hsl(var(--muted-foreground))")
             .style("font-size", isMobile ? "10px" : "12px")
+            .call(g => g.select(".domain").remove());
+
+        const yAxisGrid = d3.axisLeft(y)
+            .ticks(isMobile ? 4 : 5)
+            .tickSize(-innerWidth)
+            .tickFormat(() => "");
+
+        svg.insert("g", ":first-child") // Insert behind bars
+            .call(yAxisGrid)
+            .attr("color", "hsl(var(--muted-foreground))")
             .call(g => g.select(".domain").remove())
             .call(g => g.selectAll(".tick line")
-                .attr("x2", innerWidth)
                 .attr("stroke-opacity", 0.1));
 
         d3.select(chartWrapperRef.current).selectAll(".tooltip").remove();
@@ -206,9 +228,17 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
                     <p className="text-muted-foreground text-sm">No hay datos disponibles para este periodo</p>
                 </div>
             ) : (
-                <div className="w-full overflow-x-auto pb-4 custom-scrollbar">
-                    <div ref={chartWrapperRef} className="min-w-[600px] sm:min-w-full h-[350px] relative">
-                        <svg ref={svgRef} width="100%" height={height} className="overflow-visible" style={{ minWidth: "100%" }} />
+                <div className="flex w-full">
+                    {/* Sticky Y-Axis */}
+                    <div className="shrink-0 relative z-10 bg-card border-r border-border/50" style={{ width: width < 600 ? 45 : 60, height }}>
+                        <svg ref={yAxisRef} className="overflow-visible w-full h-full" />
+                    </div>
+
+                    {/* Scrollable Chart */}
+                    <div className="flex-1 overflow-x-auto pb-4 custom-scrollbar">
+                        <div ref={chartWrapperRef} className="relative" style={{ height }}>
+                            <svg ref={svgRef} className="overflow-visible" />
+                        </div>
                     </div>
                 </div>
             )}
