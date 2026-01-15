@@ -96,8 +96,8 @@ export default function OrderItemRow({ item: initialItem, businessId, orderId }:
                                     {options.map((opt, i) => (
                                         <Badge
                                             key={`${groupName}-${i}`}
-                                            variant="default"
-                                            className="flex items-center rounded-sm px-1.5 py-[1px] h-auto min-h-0 text-[10px] font-semibold bg-primary text-primary-foreground border-transparent shadow-sm hover:bg-primary/90"
+                                            variant="outline"
+                                            className="flex items-center rounded-md px-1.5 py-[0.5px] h-auto min-h-0 text-[10px] font-semibold border-1 border-primary/80"
                                         >
                                             {opt.name}
                                             {opt.price > 0 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BusinessSidebar } from "@/components/BusinessSidebar";
 import { useBusinessStore } from "@/store/businessStore";
@@ -60,13 +60,9 @@ export default function BusinessLayoutClient({
     const { canEdit, canDelete } = useUserRolesStore();
 
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
-    const initialized = useRef(false);
 
     useEffect(() => {
-        if (!initialized.current) {
-            setUserRoles(initialUserRoles);
-            initialized.current = true;
-        }
+        setUserRoles(initialUserRoles);
     }, [initialUserRoles, setUserRoles]);
 
     const fetchBusiness = useCallback(async (businessId: string) => {
