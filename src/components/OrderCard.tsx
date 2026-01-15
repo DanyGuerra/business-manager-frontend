@@ -148,7 +148,7 @@ export function OrderCard({ order }: OrderCardProps) {
             <CardHeader className="p-2.5 pb-1 space-y-0 relative">
                 <div className="flex justify-between items-center relative">
                     <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-foreground tracking-tight"># {order.order_number.toString().slice(-2)}</span>
+                        <span className="text-sm font-bold text-foreground tracking-tight"># {order?.order_number?.toString().slice(-2)}</span>
                     </div>
 
                     {isEditMode ? (
