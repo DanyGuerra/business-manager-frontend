@@ -162,7 +162,7 @@ export default function OrdersPage() {
                             totalPages={pagination.totalPages}
                             onPageChange={setPage}
                             limit={limit}
-                            onLimitChange={setLimit}
+                            onLimitChange={(val) => { setLimit(val); setPage(1) }}
                             totalItems={pagination.total}
                             currentCount={orders.length}
                             itemName="pedidos"
