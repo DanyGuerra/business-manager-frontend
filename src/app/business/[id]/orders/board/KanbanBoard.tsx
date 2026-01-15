@@ -71,7 +71,11 @@ export default function KanbanBoard() {
             };
 
             if (targetStatus) {
-                const response = await ordersApi.getOrdersByBusinessId(businessId, { ...commonParams, status: targetStatus });
+                const params: GetOrdersParams = { ...commonParams, status: targetStatus };
+                if (targetStatus === OrderStatus.COMPLETED) {
+                    params.sort = 'DESC';
+                }
+                const response = await ordersApi.getOrdersByBusinessId(businessId, params);
                 setOrdersByStatus(response.data.data, targetStatus);
             } else {
                 const responses = await Promise.all(
