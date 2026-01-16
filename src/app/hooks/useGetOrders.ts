@@ -37,10 +37,10 @@ export function useGetOrders() {
                     consumptionType !== "ALL" ? consumptionType : undefined,
                 sort,
                 start_date: startDate
-                    ? format(startDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    ? format(startDate, "yyyy-MM-dd'T'HH:mm:ssXXX")
                     : undefined,
                 end_date: endDate
-                    ? format(endDate, "yyyy-MM-dd'T'HH:mm:ss")
+                    ? format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX")
                     : undefined,
             };
 

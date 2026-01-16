@@ -22,11 +22,11 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useContext, useState } from "react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useOrdersStore } from "@/store/ordersStore";
-import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { SortableItemContext } from "@/app/business/[id]/orders/board/SortableItem";
 
 interface OrderCardProps {
     order: Order;
+    onOrderUpdate?: () => void;
 }
 
 const getConsumptionIcon = (type: string) => {
@@ -55,13 +55,29 @@ const getConsumptionLabel = (type: string) => {
     }
 };
 
-export function OrderCard({ order }: OrderCardProps) {
+const getStatusBadgeStyle = (status: string) => {
+    switch (status) {
+        case OrderStatus.PENDING:
+            return "bg-yellow-100/80 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20";
+        case OrderStatus.PREPARING:
+            return "bg-blue-100/80 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20";
+        case OrderStatus.READY:
+            return "bg-green-100/80 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20";
+        case OrderStatus.COMPLETED:
+            return "bg-slate-100/80 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20";
+        case OrderStatus.CANCELLED:
+            return "bg-red-100/80 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
+        default:
+            return "bg-muted text-muted-foreground border-border";
+    }
+};
+
+export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
     const { isEditMode } = useEditModeStore();
     const { businessId } = useBusinessStore();
     const ordersApi = useOrdersApi();
     const { updateOrder, removeOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
-    const { getOrders } = useGetOrders();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { attributes, listeners } = useContext<any>(SortableItemContext) || {};
 
@@ -80,7 +96,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 scheduled_at: rest.scheduled_at?.toISOString() ?? null
             });
             toast.success("Orden actualizada correctamente", { style: toastSuccessStyle });
-            getOrders();
+            if (onOrderUpdate) onOrderUpdate();
             setOpen(false);
         } catch (error) {
             handleApiError(error);
@@ -98,7 +114,7 @@ export function OrderCard({ order }: OrderCardProps) {
                 amount_paid: data.amount_paid,
             });
             toast.success("Pago registrado correctamente", { style: toastSuccessStyle });
-            getOrders();
+            if (onOrderUpdate) onOrderUpdate();
             setOpenPay(false);
         } catch (error) {
             handleApiError(error);
@@ -111,7 +127,7 @@ export function OrderCard({ order }: OrderCardProps) {
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
             await ordersApi.updateOrder(order.id, { status: OrderStatus.CANCELLED }, businessId);
-            getOrders();
+            if (onOrderUpdate) onOrderUpdate();
             toast.success("Orden cancelada correctamente", { style: toastSuccessStyle });
         } catch (error) {
             handleApiError(error);
@@ -129,7 +145,7 @@ export function OrderCard({ order }: OrderCardProps) {
 
     return (
         <Card className={cn(
-            "w-full transition-all duration-300 group relative overflow-hidden bg-white dark:bg-card",
+            "w-full transition-all pt-8 duration-300 group relative overflow-hidden bg-white dark:bg-card",
             isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60'
         )}>
             {!isEditMode && (
@@ -145,87 +161,99 @@ export function OrderCard({ order }: OrderCardProps) {
                     <GripHorizontal className="h-4 w-4 text-muted-foreground hover:text-muted-foreground/60" />
                 </div>
             )}
-            <CardHeader className="p-2.5 pb-1 space-y-0 relative">
-                <div className="flex justify-between items-center relative">
+            <CardHeader className="p-2.5 pb-1 space-y-0">
+                <div className="flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-foreground tracking-tight"># {order?.order_number?.toString().slice(-2)}</span>
-                    </div>
-
-                    {isEditMode ? (
-                        <div className="flex items-center gap-1 absolute top-2 right-2">
-                            <CustomDialog
-                                open={open}
-                                setOpen={setOpen}
-                                modalTitle="Editar orden"
-                                modalDescription="Modifica los detalles de la orden"
-                                trigger={
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted transition-colors">
-                                        <Pencil className="h-3 w-3 text-muted-foreground" />
-                                    </Button>
-                                }
-                            >
-                                <FormOrder
-                                    buttonTitle="Guardar cambios"
-                                    loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
-                                    handleSubmitButton={handleUpdateOrder}
-                                    onSuccess={() => setOpen(false)}
-                                    defaultValues={{
-                                        customer_name: order.customer_name,
-                                        amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : parseFloat(order.total),
-                                        total: parseFloat(order.total),
-                                        notes: order.notes,
-                                        consumption_type: order.consumption_type as ConsumptionType,
-                                        scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
-                                        table_number: order.table_number,
-                                    }}
-                                />
-                            </CustomDialog>
-
-                            <DeleteDialogConfirmation
-                                title="Eliminar orden"
-                                description="¿Estás seguro de que deseas eliminar esta orden?"
-                                handleContinue={async () => {
-                                    try {
-                                        await ordersApi.deleteOrder(order.id, businessId);
-                                        removeOrder(order.id);
-                                        toast.success("Orden eliminada", { style: toastSuccessStyle });
-                                    } catch (error) {
-                                        handleApiError(error);
-                                    }
-                                }}
-                            />
-                        </div>
-                    ) : (
                         <Badge variant="outline" className={cn(
-                            "text-[9px] px-1.5 py-0 h-4 font-normal capitalize border-border/60 text-muted-foreground max-w-[80px] truncate block text-center",
+                            "text-[10px] px-2 py-0.5 h-5 font-semibold capitalize border max-w-[100px] truncate flex justify-center items-center shadow-sm",
+                            getStatusBadgeStyle(order.status)
                         )}>
                             {getStatusLabel(order.status)}
                         </Badge>
-                    )}
-                </div>
-                {!isEditMode && (
-                    <div className="flex flex-col">
-                        <div className={cn(
-                            "flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm border",
-                            "bg-muted/10 border-border/30 text-muted-foreground"
-                        )}>
-                            <Clock className="h-3 w-3 opacity-70" />
-                            <span className="text-[9px] uppercase opacity-70">Creado:</span>
-                            <span className="text-[10px] font-medium leading-none capitalize">{timeString}</span>
-                        </div>
+                    </div>
 
-                        {scheduledTime && (
-                            <div className={cn(
-                                "flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm border",
-                                "bg-blue-50/50 border-blue-100/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
-                            )}>
-                                <Calendar className="h-3 w-3 opacity-90" />
-                                <span className="text-[9px] uppercase opacity-70 font-semibold">Entrega:</span>
-                                <span className="text-[10px] font-bold leading-none capitalize">{scheduledTime}</span>
-                            </div>
-                        )}
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 px-2.5 text-[10px] font-bold text-primary hover:bg-primary hover:text-primary transition-all rounded-full ml-2 border border-primary shadow-sm"
+                        asChild
+                    >
+                        <a href={`/business/${businessId}/orders/${order.id}`}>
+                            <Eye className="h-3 w-3" />
+                            Detalles
+                        </a>
+                    </Button>
+
+                </div>
+                {isEditMode && (
+                    <div className="flex items-center gap-1 absolute top-1 right-2.5">
+                        <CustomDialog
+                            open={open}
+                            setOpen={setOpen}
+                            modalTitle="Editar orden"
+                            modalDescription="Modifica los detalles de la orden"
+                            trigger={
+                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted transition-colors">
+                                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                                </Button>
+                            }
+                        >
+                            <FormOrder
+                                buttonTitle="Guardar cambios"
+                                loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                                handleSubmitButton={handleUpdateOrder}
+                                onSuccess={() => setOpen(false)}
+                                defaultValues={{
+                                    customer_name: order.customer_name,
+                                    amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : parseFloat(order.total),
+                                    total: parseFloat(order.total),
+                                    notes: order.notes,
+                                    consumption_type: order.consumption_type as ConsumptionType,
+                                    scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
+                                    table_number: order.table_number,
+                                }}
+                            />
+                        </CustomDialog>
+
+                        <DeleteDialogConfirmation
+                            title="Eliminar orden"
+                            description="¿Estás seguro de que deseas eliminar esta orden?"
+                            handleContinue={async () => {
+                                try {
+                                    await ordersApi.deleteOrder(order.id, businessId);
+                                    removeOrder(order.id);
+                                    toast.success("Orden eliminada", { style: toastSuccessStyle });
+                                } catch (error) {
+                                    handleApiError(error);
+                                }
+                            }}
+                        />
                     </div>
                 )}
+
+                <div className="flex flex-col">
+                    <div className={cn(
+                        "flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm border",
+                        "bg-muted/10 border-border/30 text-muted-foreground"
+                    )}>
+                        <Clock className="h-3 w-3 opacity-70" />
+                        <span className="text-[9px] uppercase opacity-70">Creado:</span>
+                        <span className="text-[10px] font-medium leading-none capitalize">{timeString}</span>
+                    </div>
+
+                    {scheduledTime && (
+                        <div className={cn(
+                            "flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm border",
+                            "bg-blue-50/50 border-blue-100/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
+                        )}>
+                            <Calendar className="h-3 w-3 opacity-90" />
+                            <span className="text-[9px] uppercase opacity-70 font-semibold">Entrega:</span>
+                            <span className="text-[10px] font-bold leading-none capitalize">{scheduledTime}</span>
+                        </div>
+                    )}
+                </div>
+
                 <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground mt-1.5 pt-1.5 border-t border-dashed border-border/40">
                     <div className="flex flex-col md:flex-row gap-1.5 w-full">
                         <div className="flex items-center gap-1.5 min-w-0 bg-primary/10 dark:bg-primary/20 text-primary px-2 py-0.5 rounded-md border border-primary/10 flex-1 shadow-sm h-6">
@@ -333,19 +361,9 @@ export function OrderCard({ order }: OrderCardProps) {
                     </CustomDialog>
                 )}
 
-                <div className="flex flex-col gap-1.5">
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full h-7 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-                        asChild
-                    >
-                        <a href={`/business/${businessId}/orders/${order.id}`}>
-                            <Eye className="h-3.5 w-3.5 mr-2 opacity-70 group-hover:opacity-100 transition-opacity" />
-                            Ver Detalles
-                        </a>
-                    </Button>
 
+
+                <div className="flex flex-col gap-1.5">
                     {isEditMode && (
                         <DeleteDialogConfirmation
                             title="Cancelar orden"
@@ -365,6 +383,6 @@ export function OrderCard({ order }: OrderCardProps) {
                     )}
                 </div>
             </div>
-        </Card>
+        </Card >
     );
 }
