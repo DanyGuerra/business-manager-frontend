@@ -1,25 +1,18 @@
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { OrderItem, useOrderItemGroupsApi } from "@/lib/useOrderItemGroups";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/utils/handleApiError";
-import { useEditModeStore } from "@/store/editModeStore";
-import { toast } from "sonner";
-import { toastSuccessStyle } from "@/lib/toastStyles";
-import { useOrdersApi } from "@/lib/useOrdersApi";
-import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
-import { useOrdersStore } from "@/store/ordersStore";
-import { useGetOrders } from "@/app/hooks/useGetOrders";
 
-export default function OrderItemRow({ item: initialItem, businessId, orderId }: { item: OrderItem, businessId: string, orderId: string }) {
+export default function OrderItemRow({ item: initialItem, businessId }: { item: OrderItem, businessId: string, orderId: string }) {
     const [isReady, setIsReady] = useState<boolean>(initialItem.is_ready);
     const [item] = useState(initialItem);
     const { updateOrderItem } = useOrderItemGroupsApi();
-    const { deleteOrderItem } = useOrdersApi();
-    const { isEditMode } = useEditModeStore();
-    const { setActiveOrder: setOrder } = useOrdersStore();
-    const { getOrders } = useGetOrders();
+
+    useEffect(() => {
+        setIsReady(initialItem.is_ready);
+    }, [initialItem]);
 
     const handleToggleReady = async () => {
         const newState = !isReady;
@@ -33,33 +26,11 @@ export default function OrderItemRow({ item: initialItem, businessId, orderId }:
         }
     };
 
-    const handleDelete = async (orderId: string, itemId: string, idBusiness: string) => {
-        try {
-            const { data } = await deleteOrderItem(orderId, itemId, idBusiness);
-            toast.success("Item eliminado correctamente", { style: toastSuccessStyle });
-            getOrders()
-            setOrder(data)
-        } catch (error) {
-            handleApiError(error);
-        }
-    };
-
     return (
         <div className={cn(
             "flex items-start gap-2 py-1.5 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
             isReady && "opacity-40"
         )}>
-            <div className="flex justify-stretch items-center gap-2">
-                {isEditMode && (
-
-                    <DeleteDialogConfirmation
-                        handleContinue={() => handleDelete(orderId, item.id, businessId)}
-                        title="Eliminar item"
-                        description="¿Estás seguro de eliminar este item?"
-                    ></DeleteDialogConfirmation >
-
-                )}
-            </div>
             <div
                 onClick={handleToggleReady}
                 className={cn(

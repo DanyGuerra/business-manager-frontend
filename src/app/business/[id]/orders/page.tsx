@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { OrderCard } from "@/components/OrderCard";
-import { RefreshCw, ShoppingBag, Filter, XCircle } from "lucide-react";
+import { ShoppingBag, Filter, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
@@ -61,10 +61,6 @@ export default function OrdersPage() {
                         <h2 className="text-xl md:text-2xl font-bold tracking-tight">Pedidos</h2>
                         <p className="text-sm text-muted-foreground">Gestiona y visualiza los pedidos de tu negocio.</p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => getOrders()} disabled={loading} className="w-full sm:w-auto">
-                        <RefreshCw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-                        Actualizar
-                    </Button>
                 </div>
 
 
@@ -153,7 +149,7 @@ export default function OrdersPage() {
                     <div className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                             {orders.map(order => (
-                                <OrderCard key={order.id} order={order} />
+                                <OrderCard key={order.id} order={order} onOrderUpdate={getOrders} />
                             ))}
                         </div>
 
