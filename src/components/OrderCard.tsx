@@ -176,7 +176,7 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                     <Button
                         variant="ghost"
                         size="sm"
-                        className="h-5 px-2.5 text-[10px] font-bold text-primary hover:bg-primary hover:text-primary transition-all rounded-full ml-2 border border-primary shadow-sm"
+                        className="h-5 px-2.5 text-[10px] font-bold text-primary hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-full ml-2 border border-primary shadow-sm"
                         asChild
                     >
                         <a href={`/business/${businessId}/orders/${order.id}`}>
