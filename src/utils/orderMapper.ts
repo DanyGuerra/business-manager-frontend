@@ -32,6 +32,7 @@ function mapOrderItemToLocalItem(item: OrderItem): CartItem {
         selected_options_ids: options.map(o => o.id),
         quantity: item.quantity,
         total_price: parseFloat(item.item_total),
+        is_ready: item.is_ready,
     };
 }
 

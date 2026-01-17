@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { handleApiError } from "@/utils/handleApiError";
 
-export default function OrderItemRow({ item: initialItem, businessId }: { item: OrderItem, businessId: string, orderId: string }) {
+export default function OrderItemRow({ item: initialItem, businessId, enableReadyToggle = true }: { item: OrderItem, businessId: string, orderId: string, enableReadyToggle?: boolean }) {
     const [isReady, setIsReady] = useState<boolean>(initialItem.is_ready);
     const [item] = useState(initialItem);
     const { updateOrderItem } = useOrderItemGroupsApi();
@@ -15,6 +15,8 @@ export default function OrderItemRow({ item: initialItem, businessId }: { item: 
     }, [initialItem]);
 
     const handleToggleReady = async () => {
+        if (!enableReadyToggle) return;
+
         const newState = !isReady;
         setIsReady(newState);
 
@@ -29,15 +31,17 @@ export default function OrderItemRow({ item: initialItem, businessId }: { item: 
     return (
         <div className={cn(
             "flex items-start gap-2 py-1.5 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
-            isReady && "opacity-40"
+            isReady && enableReadyToggle && "opacity-40"
         )}>
             <div
                 onClick={handleToggleReady}
                 className={cn(
-                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold shadow-sm mt-0.5 cursor-pointer transition-all duration-200 select-none c",
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-md border text-xs font-bold shadow-sm mt-0.5 transition-all duration-200 select-none",
+                    enableReadyToggle ? "cursor-pointer" : "cursor-default",
                     isReady
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "border-primary/20 bg-primary/5 text-primary hover:bg-primary/10"
+                        : "border-primary/20 bg-primary/5 text-primary",
+                    enableReadyToggle && !isReady && "hover:bg-primary/10"
                 )}
             >
                 {item.quantity}

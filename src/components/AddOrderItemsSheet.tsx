@@ -112,7 +112,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
             selected_options: options,
             selected_options_ids: options.map(o => o.id),
             quantity,
-            total_price: total
+            total_price: total,
+            is_ready: false
         };
 
         setCartGroups(prev => {
@@ -248,7 +249,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                     items: group.items.map(item => ({
                         product_id: item.product.id,
                         selected_options_ids: item.selected_options.map(opt => opt.id),
-                        quantity: item.quantity
+                        quantity: item.quantity,
+                        is_ready: item.is_ready
                     }))
                 }))
             };

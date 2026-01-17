@@ -64,7 +64,7 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
                     </div>
 
                     <div className="p-3">
-                        <OrderItemGroup group={group} orderId={order.id} />
+                        <OrderItemGroup group={group} orderId={order.id} enableReadyToggle={false} />
                     </div>
                 </div>
             ))}

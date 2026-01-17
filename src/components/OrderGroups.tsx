@@ -41,7 +41,7 @@ export function OrderGroups({ order }: OrderDetailsProps) {
 
                         <CollapsibleContent>
                             <div className="pt-3">
-                                <OrderItemGroup group={group} orderId={order.id} />
+                                <OrderItemGroup group={group} orderId={order.id} enableReadyToggle={true} />
                                 <div className="flex justify-end items-center mt-2 pt-2 border-t border-dashed border-muted/60">
                                     <div className="flex items-baseline gap-2">
                                         <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground/80">
