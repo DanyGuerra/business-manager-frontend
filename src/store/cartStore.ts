@@ -14,6 +14,7 @@ export type CartItem = {
     selected_options_ids: string[];
     quantity: number;
     total_price: number;
+    is_ready?: boolean;
 };
 
 export type OrderDetails = {
