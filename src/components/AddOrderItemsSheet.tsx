@@ -1,5 +1,15 @@
 import { useState, useCallback, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useBusinessStore } from "@/store/businessStore";
@@ -39,6 +49,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         customer_name: "", notes: "", scheduled_at: "", consumption_type: ConsumptionType.TAKE_AWAY, amount_paid: undefined, table_number: ""
     });
     const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+    const [showExitConfirmation, setShowExitConfirmation] = useState(false);
 
     useEffect(() => {
         if (open && order) {
@@ -302,6 +313,12 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
 
     return (
         <Sheet open={open} onOpenChange={(val) => {
+            if (!val) {
+                if (hasChanges()) {
+                    setShowExitConfirmation(true);
+                    return;
+                }
+            }
             setOpen(val);
             if (!val) {
                 setView(defaultView);
@@ -415,6 +432,26 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                     </div>
                 )}
             </SheetContent>
+            <AlertDialog open={showExitConfirmation} onOpenChange={setShowExitConfirmation}>
+                <AlertDialogContent className="z-[105]">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>¿Estás seguro de que deseas salir?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Tienes cambios sin guardar. Si sales ahora, se perderán todos los cambios.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Continuar editando</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => {
+                            setShowExitConfirmation(false);
+                            setOpen(false);
+                            setView(defaultView);
+                        }}>
+                            Salir sin guardar
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </Sheet>
     );
 }

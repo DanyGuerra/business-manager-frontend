@@ -47,7 +47,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
 
         const availableWidth = width - yAxisWidth;
 
-        const ITEMS_PER_VIEW = 150;
+        const ITEMS_PER_VIEW = width < 400 ? 10 : width < 600 ? 30 : width < 1024 ? 80 : 120;
         const isScrollable = data.length > ITEMS_PER_VIEW;
 
         const chartWidth = isScrollable
@@ -187,7 +187,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .attr("width", yAxisWidth)
             .attr("height", height)
             .append("g")
-            .attr("transform", `translate(${yAxisWidth},${margin.top})`); // Align to right of container
+            .attr("transform", `translate(${yAxisWidth},${margin.top})`) // Align to right of container
 
         yAxisSvg.append("g")
             .call(yAxis)
@@ -216,7 +216,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             .style("visibility", "hidden")
             .style("padding", "8px")
             .style("font-size", "12px")
-            .style("z-index", "50")
+            .style("z-index", "5")
             .style("pointer-events", "none");
 
     }, [data, width, height]);
@@ -230,7 +230,7 @@ export function DailySalesChart({ data, className }: DailySalesChartProps) {
             ) : (
                 <div className="flex w-full">
                     {/* Sticky Y-Axis */}
-                    <div className="shrink-0 relative z-10 bg-card border-r border-border/50" style={{ width: width < 600 ? 45 : 60, height }}>
+                    <div className="shrink-0 relative bg-card border-r border-border/50" style={{ width: width < 600 ? 45 : 60, height }}>
                         <svg ref={yAxisRef} className="overflow-visible w-full h-full" />
                     </div>
 

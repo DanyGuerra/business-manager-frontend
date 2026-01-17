@@ -169,11 +169,9 @@ export default function OrderDetailsPage() {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-lg sm:text-2xl font-bold tracking-tight">Orden #{order.order_number}</h2>
-                                    {!isEditMode && (
-                                        <Badge variant="outline" className={cn("text-[10px] h-5 px-2", getStatusColor(order.status))}>
-                                            {getStatusLabel(order.status)}
-                                        </Badge>
-                                    )}
+                                    <Badge variant="outline" className={cn("text-[10px] h-5 px-2", getStatusColor(order.status))}>
+                                        {getStatusLabel(order.status)}
+                                    </Badge>
                                 </div>
                                 <span className="text-[10px] text-muted-foreground font-mono bg-muted/50 px-1.5 py-0.5 rounded break-all sm:break-normal">
                                     ID: {order.id}
