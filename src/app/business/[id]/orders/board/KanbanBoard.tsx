@@ -80,11 +80,12 @@ export default function KanbanBoard() {
             } else {
                 const responses = await Promise.all(
                     statuses.map(status => {
-                        const params: GetOrdersParams = { ...commonParams, status };
+                        const params: GetOrdersParams & { t: number } = { ...commonParams, status, t: Date.now() };
                         if (status === OrderStatus.COMPLETED) {
                             params.sort = 'DESC';
                         }
-                        return ordersApi.getOrdersByBusinessId(businessId, params);
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        return ordersApi.getOrdersByBusinessId(businessId, params as any);
                     })
                 );
 
