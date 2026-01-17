@@ -18,17 +18,17 @@ export function formatCurrency(value: number | string) {
 export const getStatusColor = (status: string) => {
   switch (status) {
     case OrderStatus.PENDING:
-      return "bg-yellow-500 hover:bg-yellow-600";
+      return "bg-yellow-100/80 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20";
     case OrderStatus.PREPARING:
-      return "bg-blue-500 hover:bg-blue-600";
+      return "bg-blue-100/80 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20";
     case OrderStatus.READY:
-      return "bg-green-500 hover:bg-green-600";
+      return "bg-green-100/80 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20";
     case OrderStatus.COMPLETED:
-      return "bg-slate-500 hover:bg-slate-600";
+      return "bg-slate-100/80 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20";
     case OrderStatus.CANCELLED:
-      return "bg-red-500 hover:bg-red-600";
+      return "bg-red-100/80 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
     default:
-      return "bg-gray-500";
+      return "bg-muted text-muted-foreground border-border";
   }
 };
 

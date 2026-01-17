@@ -5,7 +5,7 @@ import { es } from "date-fns/locale";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal } from "lucide-react";
-import { formatCurrency, cn, getStatusColor, getStatusLabel } from "@/lib/utils";
+import { formatCurrency, cn, getStatusColor, getStatusLabel, getConsumptionLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import CustomDialog from "./customDialog";
@@ -39,36 +39,6 @@ const getConsumptionIcon = (type: string) => {
             return <Bike className="h-3 w-3" />;
         default:
             return <ShoppingBag className="h-3 w-3" />;
-    }
-};
-
-const getConsumptionLabel = (type: string) => {
-    switch (type) {
-        case ConsumptionType.DINE_IN:
-            return "Comer aqui";
-        case ConsumptionType.TAKE_AWAY:
-            return "Llevar";
-        case ConsumptionType.DELIVERY:
-            return "Domicilio";
-        default:
-            return type;
-    }
-};
-
-const getStatusBadgeStyle = (status: string) => {
-    switch (status) {
-        case OrderStatus.PENDING:
-            return "bg-yellow-100/80 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20";
-        case OrderStatus.PREPARING:
-            return "bg-blue-100/80 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20";
-        case OrderStatus.READY:
-            return "bg-green-100/80 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20";
-        case OrderStatus.COMPLETED:
-            return "bg-slate-100/80 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20";
-        case OrderStatus.CANCELLED:
-            return "bg-red-100/80 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20";
-        default:
-            return "bg-muted text-muted-foreground border-border";
     }
 };
 
@@ -167,7 +137,7 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                         <span className="text-sm font-bold text-foreground tracking-tight"># {order?.order_number?.toString().slice(-2)}</span>
                         <Badge variant="outline" className={cn(
                             "text-[10px] px-2 py-0.5 h-5 font-semibold capitalize border max-w-[100px] truncate flex justify-center items-center shadow-sm",
-                            getStatusBadgeStyle(order.status)
+                            getStatusColor(order.status)
                         )}>
                             {getStatusLabel(order.status)}
                         </Badge>
