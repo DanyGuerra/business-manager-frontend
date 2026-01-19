@@ -55,7 +55,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold">Gestión de Menús</h3>
               <p className="text-muted-foreground">
-                Organice sus productos en menús dinámicos. Actualice precios y disponibilidad en tiempo real.
+                Organice sus productos en menús dinámicos y gestione sus precios de manera eficiente.
               </p>
             </div>
 
@@ -65,14 +65,14 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-bold">Usuarios y Roles</h3>
               <p className="text-muted-foreground">
-                Control total sobre su equipo. Asigne roles granulares (Admin, Mesero, Cocina) y gestione permisos de acceso de forma segura.
+                Control total sobre su equipo. Asigne roles y gestione permisos de acceso de forma segura.
               </p>
             </div>
             <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-2xl bg-background border shadow-sm hover:shadow-md transition-shadow">
               <div className="p-4 rounded-full bg-primary/10 text-primary">
                 <BarChart3 className="h-8 w-8" />
               </div>
-              <h3 className="text-xl font-bold">Reportes en Tiempo Real</h3>
+              <h3 className="text-xl font-bold">Reportes y estadísticas</h3>
               <p className="text-muted-foreground">
                 Tome decisiones informadas con análisis detallados de ventas y rendimiento.
               </p>
