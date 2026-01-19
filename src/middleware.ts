@@ -14,17 +14,18 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    const hasToken = request.cookies.has("accessToken");
+    const hasToken = request.cookies.get("accessToken")?.value;
+    const hasRefreshToken = request.cookies.get("refreshToken")?.value;
     const isPublicPath = publicPaths.includes(pathname);
 
-    if (!isPublicPath && !hasToken) {
+    if (!isPublicPath && !hasToken && !hasRefreshToken) {
         const loginUrl = new URL("/login", request.url);
         loginUrl.searchParams.set("callbackUrl", pathname);
         return NextResponse.redirect(loginUrl);
     }
 
     if (isPublicPath && hasToken && pathname !== "/") {
-        if (pathname === "/login" || pathname === "/register") {
+        if (pathname === "/login" || pathname === "/signup") {
             return NextResponse.redirect(new URL("/profile", request.url));
         }
     }

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { getMe, getUserRoles } from "@/lib/serverApi";
+import { refreshServerToken } from "@/lib/serverAuth";
 import BusinessLayoutClient from "./BusinessLayoutClient";
 import { UserRolesBusiness } from "@/lib/useUserRolesBusiness";
 
@@ -12,11 +13,17 @@ export default async function BusinessLayout({
 }) {
   const { id } = await params;
   const cookieStore = await cookies();
-  const token = cookieStore.get("accessToken")?.value || "";
+  let token = cookieStore.get("accessToken")?.value || "";
 
-  const mePromise = getMe(token);
+  let me = await getMe(token);
 
-  const [me] = await Promise.all([mePromise]);
+  if (!me) {
+    const newToken = await refreshServerToken();
+    if (newToken) {
+      token = newToken;
+      me = await getMe(newToken);
+    }
+  }
 
   let userRoles: UserRolesBusiness[] = [];
   if (me) {
