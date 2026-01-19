@@ -56,14 +56,17 @@ export default function BusinessLayoutClient({
     const businessApi = useBusinessApi();
     const pathname = usePathname();
     const router = useRouter();
-    const { setUserRoles } = useUserRolesStore();
+    const { setUserRoles, setCurrentBusinessId } = useUserRolesStore();
     const { canEdit, canDelete } = useUserRolesStore();
 
     const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
 
     useEffect(() => {
-        setUserRoles(initialUserRoles);
-    }, [initialUserRoles, setUserRoles]);
+        setCurrentBusinessId(businessId);
+        if (initialUserRoles && initialUserRoles.length > 0) {
+            setUserRoles(businessId, initialUserRoles);
+        }
+    }, [businessId, initialUserRoles, setCurrentBusinessId, setUserRoles]);
 
     const fetchBusiness = useCallback(async (businessId: string) => {
         try {
