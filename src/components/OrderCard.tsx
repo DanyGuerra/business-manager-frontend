@@ -202,7 +202,7 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                     </div>
                 )}
 
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-wrap">
                     <div className={cn(
                         "flex items-center gap-1.5 px-1.5 py-0.5 rounded-sm border",
                         "bg-muted/10 border-border/30 text-muted-foreground"
@@ -222,36 +222,42 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                             <span className="text-[10px] font-bold leading-none capitalize">{scheduledTime}</span>
                         </div>
                     )}
+
+                    {order.user?.name && (
+                        <div className={cn(
+                            "flex items-center gap-1.5 px-1.5 py-0.5 text-muted-foreground",
+                        )}>
+                            <span className="text-[9px] opacity-70 font-medium">Atendido por:</span>
+                            <span className="text-[10px] font-bold leading-none capitalize truncate max-w-[80px]">{order.user.name}</span>
+                        </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col gap-1 w-full text-[10px] text-muted-foreground mt-1.5 pt-1.5 border-t border-dashed border-border/40">
-                    <div className="flex flex-col md:flex-row gap-1.5 w-full">
-                        <div className="flex items-center gap-1.5 min-w-0 bg-primary/10 dark:bg-primary/20 text-primary px-2 py-0.5 rounded-md border border-primary/10 flex-1 shadow-sm h-6">
-                            <User className="h-3 w-3 shrink-0" />
-                            <span className="font-bold text-xs truncate capitalize tracking-tight" title={order.customer_name || "Cliente"}>
+                <div className="flex flex-col w-full mt-2 pt-2 border-t border-dashed border-border/50 gap-1.5">
+                    <div className="flex items-center w-full">
+                        <div className="flex items-center gap-2 min-w-0 p-1 border rounded-md w-full bg-muted">
+                            <div className="h-5 w-5 rounded-full bg-background flex items-center justify-center shrink-0 border border-border/60 shadow-sm">
+                                <User className="h-3 w-3 text-primary/80" />
+                            </div>
+                            <span className="text-xs font-bold text-foreground truncate capitalize tracking-tight" title={order.customer_name || "Cliente"}>
                                 {order.customer_name || "Cliente"}
                             </span>
                         </div>
-                        <div className="flex items-center gap-1.5 shrink-0 bg-muted/40 px-2 py-0.5 rounded-md border border-border/40 text-muted-foreground whitespace-nowrap h-6">
-                            {getConsumptionIcon(order.consumption_type)}
-                            <span className="font-medium text-[10px] uppercase tracking-wide">{getConsumptionLabel(order.consumption_type)}</span>
-                            {order.consumption_type === ConsumptionType.DINE_IN && order.table_number && (
-                                <>
-                                    <div className="w-px h-2.5 bg-border/60 mx-1" />
-                                    <div className="flex items-center gap-1">
-                                        <span className="text-[9px] text-muted-foreground/70 font-medium">Mesa</span>
-                                        <span className="font-bold bg-background text-foreground px-1.5 pt-[1px] rounded-[3px] border border-border/50 shadow-sm min-w-[18px] text-center leading-none">{order.table_number}</span>
-                                    </div>
-                                </>
-                            )}
-                        </div>
                     </div>
-                    {order.user?.name && (
-                        <div className="flex items-center gap-1 text-[9px] opacity-80">
-                            <User className="h-2.5 w-2.5 opacity-50" />
-                            <span>Atendido por: {order.user.name}</span>
+
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                        <div className="flex items-center gap-1 bg-muted/20 px-1.5 py-0.5 rounded border border-border/30">
+                            {getConsumptionIcon(order.consumption_type)}
+                            <span className="font-medium">{getConsumptionLabel(order.consumption_type)}</span>
                         </div>
-                    )}
+
+                        {order.consumption_type === ConsumptionType.DINE_IN && order.table_number && (
+                            <div className="flex items-center gap-1 bg-muted/20 px-1.5 py-0.5 rounded border border-border/30">
+                                <span className="font-medium">Mesa</span>
+                                <span className="font-bold text-foreground">{order.table_number}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </CardHeader>
 
