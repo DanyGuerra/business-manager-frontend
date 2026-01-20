@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCurrency, cn } from "@/lib/utils";
 import {
     Form,
     FormControl,
@@ -274,6 +275,10 @@ export default function FormOrder({
                                         onChange={(e) => field.onChange(parseFloat(e.target.value))}
                                     />
                                 </FormControl>
+                                <div className="flex justify-between items-center text-xs px-1 pt-1">
+                                    <span className="text-muted-foreground">Total: <span className="font-semibold text-foreground">{formatCurrency(form.watch("total") || 0)}</span></span>
+                                    <span className="text-muted-foreground">Cambio: <span className={cn("font-bold", (field.value || 0) - (form.watch("total") || 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-destructive")}>{formatCurrency(((field.value || 0) - (form.watch("total") || 0)))}</span></span>
+                                </div>
                                 <FormMessage />
                             </FormItem>
                         )}
