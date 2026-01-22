@@ -130,7 +130,7 @@ export default function KanbanBoard() {
         };
 
         const handleOrderCreated = (status: OrderStatus) => {
-            const audio = new Audio('/sounds/notification.wav');
+            const audio = new Audio('/sounds/notification.m4a');
             audio.play();
             handleOrderUpdate(status);
         };
