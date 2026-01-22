@@ -129,13 +129,19 @@ export default function KanbanBoard() {
             fetchKanbanOrders(status);
         };
 
-        socket.on('orderCreated', handleOrderUpdate);
+        const handleOrderCreated = (status: OrderStatus) => {
+            const audio = new Audio('/sounds/notification.wav');
+            audio.play();
+            handleOrderUpdate(status);
+        };
+
+        socket.on('orderCreated', handleOrderCreated);
         socket.on('orderUpdated', handleOrderUpdate);
         socket.on('orderDeleted', handleOrderDelete);
 
         return () => {
             socket.emit('leaveBusiness', businessId);
-            socket.off('orderCreated', handleOrderUpdate);
+            socket.off('orderCreated', handleOrderCreated);
             socket.off('orderUpdated', handleOrderUpdate);
             socket.off('orderDeleted', handleOrderDelete);
         };
