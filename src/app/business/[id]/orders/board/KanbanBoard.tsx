@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderStatus, useOrdersApi, GetOrdersParams } from "@/lib/useOrdersApi";
 import { KanbanColumn } from "./KanbanColumn";
@@ -21,8 +21,8 @@ import { OrderCard } from "@/components/OrderCard";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
-import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useSocket } from "@/context/SocketContext";
+import { Bell } from "lucide-react";
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -39,6 +39,29 @@ export default function KanbanBoard() {
     const { businessId } = useBusinessStore();
     const ordersApi = useOrdersApi();
     const [loading, setLoading] = useState(true);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    useEffect(() => {
+        audioRef.current = new Audio('/sounds/notification.m4a');
+
+        const unlockAudio = () => {
+            if (audioRef.current) {
+                audioRef.current.play().catch(() => { });
+                audioRef.current.pause();
+                audioRef.current.currentTime = 0;
+            }
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
+
+        return () => {
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+    }, []);
 
     const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING);
     const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING);
@@ -130,8 +153,34 @@ export default function KanbanBoard() {
         };
 
         const handleOrderCreated = (status: OrderStatus) => {
-            const audio = new Audio('/sounds/notification.m4a');
-            audio.play();
+            if (audioRef.current) {
+                audioRef.current.play()
+            }
+
+            toast.custom((t) => (
+                <div
+                    className="group flex w-full max-w-sm items-start gap-4 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:bg-card hover:shadow-primary/10 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] dark:hover:shadow-primary/5 cursor-pointer"
+                    onClick={() => toast.dismiss(t)}
+                >
+                    <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 ring-2 ring-background">
+                        <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-primary opacity-60 duration-1000" />
+                        <Bell className="h-6 w-6 text-primary-foreground fill-primary-foreground/20 transition-transform duration-500 group-hover:rotate-12" />
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-1 pt-0.5">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-sm text-foreground leading-tight tracking-tight">
+                                ¡Nuevo Pedido!
+                            </h3>
+                            <span className="flex h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_2px_rgba(var(--primary),0.5)] animate-pulse" />
+                        </div>
+                        <p className="text-xs text-muted-foreground font-medium leading-relaxed opacity-90">
+                            Has recibido una nueva orden. <span className="text-primary font-bold hover:underline">Toca para cerrar</span>
+                        </p>
+                    </div>
+                </div>
+            ), { duration: 10000 });
+
             handleOrderUpdate(status);
         };
 
@@ -191,7 +240,7 @@ export default function KanbanBoard() {
 
         try {
             await ordersApi.updateOrder(activeId, { status: newStatus }, businessId);
-            toast.success(`Pedido movido a ${newStatus}`, { style: toastSuccessStyle });
+            toast.success(`Pedido movido a ${newStatus}`);
         } catch (error) {
             updateOrder(activeId, { status: originalStatus });
             handleApiError(error);
