@@ -30,7 +30,7 @@ export default function OrderItemRow({ item: initialItem, businessId, enableRead
 
     return (
         <div className={cn(
-            "flex items-start gap-2 py-1.5 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
+            "flex items-center gap-2 py-1.5 border-b border-dashed border-muted-foreground/20 last:border-0 first:pt-0 last:pb-0 transition-opacity duration-200",
             isReady && enableReadyToggle && "opacity-40"
         )}>
             <div
