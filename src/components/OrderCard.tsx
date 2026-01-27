@@ -3,8 +3,9 @@ import { Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal, ChevronDown } from "lucide-react";
 import { formatCurrency, cn, getStatusColor, getStatusLabel, getConsumptionLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -53,6 +54,7 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
 
     const [open, setOpen] = useState(false);
     const [openPay, setOpenPay] = useState(false);
+    const [isItemsOpen, setIsItemsOpen] = useState(true);
 
     async function handleUpdateOrder(data: OrderValues) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -112,6 +114,10 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
     const scheduledTime = order.scheduled_at
         ? format(new Date(order.scheduled_at), "d MMM yyyy • h:mm a", { locale: es })
         : null;
+
+    const totalItems = order.itemGroups.reduce((acc, group) =>
+        acc + group.items.reduce((acc2, item) => acc2 + item.quantity, 0), 0
+    );
 
     return (
         <Card className={cn(
@@ -261,9 +267,25 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                 </div>
             </CardHeader>
 
-            <CardContent className="px-2.5 py-1 text-xs">
-                <OrderGroups order={order} />
-            </CardContent>
+            <Collapsible open={isItemsOpen} onOpenChange={setIsItemsOpen}>
+                <div className="px-2 pb-1">
+                    <CollapsibleTrigger asChild>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            className="w-full h-7 mt-1 text-[11px] font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 bg-muted/50 border border-transparent hover:border-primary/20 shadow-sm transition-all rounded-md gap-2"
+                        >
+                            {isItemsOpen ? "Ocultar Productos" : `Ver Productos (${totalItems})`}
+                            <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-200", isItemsOpen && "rotate-180")} />
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+                <CollapsibleContent className="animate-slide-down">
+                    <CardContent className="px-2.5 py-1 text-xs">
+                        <OrderGroups order={order} />
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
 
             <CardFooter className="px-2.5 pt-1 flex flex-col gap-1.5">
 
