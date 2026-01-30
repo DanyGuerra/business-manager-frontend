@@ -346,7 +346,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                             </SheetTitle>
                         </SheetHeader>
 
-                        <div className="flex-1 overflow-y-auto p-6">
+                        <div className="flex-1 overflow-y-auto p-6 pb-16">
                             <div className="flex flex-col gap-5">
                                 <DataTableSearch
                                     onSearch={(val) => {
@@ -393,7 +393,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                         {totalItemsCount > 0 && (
                             <div className="absolute bottom-6 right-6 z-50 animate-in zoom-in duration-300">
                                 <Button
-                                    className="h-14 px-6 rounded-full shadow-xl bg-primary hover:bg-primary/90 flex items-center justify-center gap-3"
+                                    className="h-12 px-6 rounded-full shadow-xl bg-primary hover:bg-primary/90 flex items-center justify-center gap-3"
                                     onClick={() => setView('cart')}
                                 >
                                     <span className="font-semibold text-lg">Ver Orden Actual</span>
