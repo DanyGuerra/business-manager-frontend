@@ -270,6 +270,8 @@ export default function FormOrder({
                                 <FormControl>
                                     <Input
                                         type="number"
+                                        inputMode="decimal"
+                                        step="0.01"
                                         placeholder="0.00"
                                         {...field}
                                         onChange={(e) => field.onChange(parseFloat(e.target.value))}
