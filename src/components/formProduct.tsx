@@ -148,7 +148,12 @@ export default function FormProduct({
             <FormItem>
               <FormLabel>Precio base</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="10" {...field} min={0} />
+                <Input
+                  type="number"
+                  inputMode="decimal"
+                  step="0.01"
+                  placeholder="10" {...field}
+                  min={0} />
               </FormControl>
               <FormMessage />
             </FormItem>
