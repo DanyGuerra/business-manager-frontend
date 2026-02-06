@@ -50,7 +50,7 @@ export default function FormPayment({
     const form = useForm<PaymentValues>({
         resolver: zodResolver(paymentSchema),
         defaultValues: {
-            amount_paid: defaultValues?.amount_paid ?? total.toString(),
+            amount_paid: defaultValues?.amount_paid ? Number(defaultValues.amount_paid).toString() : Number(total).toString(),
             total: total,
         },
     });
@@ -59,7 +59,7 @@ export default function FormPayment({
 
     useEffect(() => {
         form.reset({
-            amount_paid: defaultValues?.amount_paid ?? total.toString(),
+            amount_paid: defaultValues?.amount_paid ? Number(defaultValues.amount_paid).toString() : Number(total).toString(),
             total: total,
         });
     }, [defaultValues, total, form]);
@@ -93,8 +93,11 @@ export default function FormPayment({
                                     <Input
                                         min={total}
                                         type="number"
+                                        inputMode="decimal"
+                                        step="0.01"
                                         placeholder="0.00"
                                         {...field}
+                                        onChange={field.onChange}
                                         autoFocus
                                     />
                                 </FormControl>

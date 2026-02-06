@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -10,7 +9,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronsUpDown, Utensils, ShoppingBag, Truck, Clock, CalendarIcon, Trash2Icon } from "lucide-react";
+import { ChevronDown, ClipboardList, Utensils, ShoppingBag, Truck, Clock, CalendarIcon, Trash2Icon } from "lucide-react";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { OrderDetails } from "@/store/cartStore";
 import ButtonLoading from "./buttonLoading";
@@ -92,225 +91,248 @@ export function CartOrderSummary({
     return (
         <div className="p-6 border-t bg-muted/90 space-y-4 shrink-0">
             <Collapsible className="space-y-2">
-                <div className="flex items-center justify-between px-1">
-                    <span className="text-sm font-medium">Detalles del pedido</span>
-                    <CollapsibleTrigger asChild>
-                        <Button variant="ghost" size="sm" className="w-9 p-0">
-                            <ChevronsUpDown className="h-4 w-4" />
-                            <span className="sr-only">Toggle details</span>
-                        </Button>
-                    </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent className="space-y-3">
-                    <div className="space-y-1">
-                        <Label htmlFor="buyer-name" className="text-xs font-medium">Nombre del comprador (opcional)</Label>
-                        <Input
-                            id="buyer-name"
-                            placeholder="Ej. Juan Pérez"
-                            value={orderDetails.customer_name}
-                            onChange={(e) => setOrderDetails(businessId, { customer_name: e.target.value })}
-                            className="h-8 text-sm bg-background"
-                        />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor="comments" className="text-xs font-medium">Comentarios (opcional)</Label>
-                        <Input
-                            id="comments"
-                            placeholder="Ej. Sin cebolla, salsa aparte..."
-                            value={orderDetails.notes}
-                            onChange={(e) => setOrderDetails(businessId, { notes: e.target.value })}
-                            className="h-8 text-sm bg-background"
-                        />
-                    </div>
-                    <div className="space-y-3 rounded-xl border bg-muted/30 p-3">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <CalendarIcon className="h-4 w-4 text-primary" />
-                                <Label className="text-sm font-semibold text-foreground">Programar entrega</Label>
+                <CollapsibleTrigger asChild>
+                    <Button
+                        variant="ghost"
+                        className="flex w-full items-center justify-between p-1 h-auto bg-primary/5 hover:bg-primary/10 border-l-4 border-primary rounded-none rounded-r-lg transition-all duration-300 group"
+                    >
+                        <div className="flex items-center gap-1 text-left">
+                            <div className="bg-background/80 p-1.5 rounded-full text-primary shadow-sm group-hover:scale-110 transition-transform duration-300">
+                                <ClipboardList className="h-4 w-4" />
                             </div>
-                            {currentDate && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => handleDateSelect(undefined)}
-                                    className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-transparent"
-                                >
-                                    <Trash2Icon className="h-4 w-4" />
-                                </Button>
-                            )}
+                            <div className="flex flex-col">
+                                <span className="font-bold text-sm">Detalles del pedido</span>
+                            </div>
                         </div>
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div className="space-y-1.5">
-                                <Label htmlFor="date-picker" className="px-1 text-xs font-medium text-muted-foreground">
-                                    Fecha
-                                </Label>
-                                <Popover open={open} onOpenChange={setOpen}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            id="date-picker"
-                                            className={cn(
-                                                "w-full justify-start font-normal text-left px-3 h-10",
-                                                !currentDate && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                                            {currentDate ? (
-                                                <span className="capitalize text-sm font-medium">
-                                                    {format(currentDate, "PPP", { locale: es })}
-                                                </span>
-                                            ) : (
-                                                <span>Seleccionar fecha</span>
-                                            )}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
-                                        <Calendar
-                                            mode="single"
-                                            selected={currentDate}
-                                            captionLayout="dropdown"
-                                            onSelect={handleDateSelect}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label htmlFor="time-picker" className="px-1 text-xs font-medium text-muted-foreground">
-                                    Hora
-                                </Label>
-                                <div className="relative">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                        <Clock className="h-4 w-4 text-muted-foreground/50" />
-                                    </div>
-                                    <Input
-                                        type="time"
-                                        id="time-picker"
-                                        value={currentDate ? format(currentDate, "HH:mm") : ""}
-                                        onChange={handleTimeChange}
-                                        className="pl-9 text-sm bg-background h-10 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
-                                    />
+                        <ChevronDown className="h-5 w-5 text-primary/70 transition-transform duration-300 group-data-[state=open]:rotate-180" />
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <div className="space-y-3">
+                        <div className="space-y-1 pt-1">
+                            <Label htmlFor="buyer-name" className="text-xs font-medium">Nombre del comprador (opcional)</Label>
+                            <Input
+                                id="buyer-name"
+                                placeholder="Ej. Juan Pérez"
+                                value={orderDetails.customer_name}
+                                onChange={(e) => setOrderDetails(businessId, { customer_name: e.target.value })}
+                                className="h-8 text-sm bg-background"
+                            />
+                        </div>
+                        <div className="space-y-1">
+                            <Label htmlFor="comments" className="text-xs font-medium">Comentarios (opcional)</Label>
+                            <Input
+                                id="comments"
+                                placeholder="Ej. Sin cebolla, salsa aparte..."
+                                value={orderDetails.notes}
+                                onChange={(e) => setOrderDetails(businessId, { notes: e.target.value })}
+                                className="h-8 text-sm bg-background"
+                            />
+                        </div>
+                        <div className="space-y-3 rounded-xl border bg-muted/30 p-3">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <CalendarIcon className="h-4 w-4 text-primary" />
+                                    <Label className="text-sm font-semibold text-foreground">Programar entrega</Label>
                                 </div>
+                                {currentDate && (
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => handleDateSelect(undefined)}
+                                        className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-transparent"
+                                    >
+                                        <Trash2Icon className="h-4 w-4" />
+                                    </Button>
+                                )}
                             </div>
-                        </div>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label className="text-xs font-medium">Tipo de consumo</Label>
-                            <div className="grid grid-cols-3 gap-3">
-                                {[
-                                    { value: ConsumptionType.DINE_IN, label: "Comer aquí", icon: Utensils },
-                                    { value: ConsumptionType.TAKE_AWAY, label: "Para llevar", icon: ShoppingBag },
-                                    { value: ConsumptionType.DELIVERY, label: "Domicilio", icon: Truck },
-                                ].map((option) => {
-                                    const isSelected = orderDetails.consumption_type === option.value;
-                                    const Icon = option.icon;
-                                    return (
-                                        <div
-                                            key={option.value}
-                                            onClick={() => setOrderDetails(businessId, { consumption_type: option.value, table_number: undefined })}
-                                            className={cn(
-                                                "cursor-pointer relative flex flex-col items-center justify-center gap-2 p-3 rounded-xl border-2 transition-all duration-200",
-                                                isSelected
-                                                    ? "border-primary bg-primary/5 text-primary"
-                                                    : "border-muted hover:border-muted-foreground/25 bg-background text-muted-foreground"
-                                            )}
-                                        >
-                                            <Icon className={cn("h-5 w-5", isSelected && "fill-current/20")} />
-                                            <span className="text-xs font-semibold">{option.label}</span>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="date-picker" className="px-1 text-xs font-medium text-muted-foreground">
+                                        Fecha
+                                    </Label>
+                                    <Popover open={open} onOpenChange={setOpen}>
+                                        <PopoverTrigger asChild>
+                                            <Button
+                                                variant="outline"
+                                                id="date-picker"
+                                                className={cn(
+                                                    "w-full justify-start font-normal text-left px-3 h-10",
+                                                    !currentDate && "text-muted-foreground"
+                                                )}
+                                            >
+                                                <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
+                                                {currentDate ? (
+                                                    <span className="capitalize text-sm font-medium">
+                                                        {format(currentDate!, "PPP", { locale: es })}
+                                                    </span>
+                                                ) : (
+                                                    <span>Seleccionar fecha</span>
+                                                )}
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={currentDate}
+                                                captionLayout="dropdown"
+                                                onSelect={handleDateSelect}
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                </div>
+
+                                <div className="space-y-1.5">
+                                    <Label htmlFor="time-picker" className="px-1 text-xs font-medium text-muted-foreground">
+                                        Hora
+                                    </Label>
+                                    <div className="relative">
+                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                            <Clock className="h-4 w-4 text-muted-foreground/50" />
                                         </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        <div className={cn(
-                            "grid transition-all duration-300 ease-in-out",
-                            orderDetails.consumption_type === ConsumptionType.DINE_IN
-                                ? "grid-rows-[1fr] opacity-100"
-                                : "grid-rows-[0fr] opacity-0"
-                        )}>
-                            <div className="overflow-hidden space-y-2">
-                                <Label htmlFor="table-number" className="text-xs font-medium">Número de mesa</Label>
-                                <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">#</span>
-                                    <Input
-                                        id="table-number"
-                                        type="number"
-                                        min="1"
-                                        placeholder="0"
-                                        value={orderDetails.table_number || ""}
-                                        onChange={(e) => setOrderDetails(businessId, { table_number: e.target.value })}
-                                        className="pl-7 h-11 bg-background text-base font-medium"
-                                        autoComplete="off"
-                                    />
+                                        <Input
+                                            type="time"
+                                            id="time-picker"
+                                            value={currentDate ? format(currentDate!, "HH:mm") : ""}
+                                            onChange={handleTimeChange}
+                                            className="pl-9 text-sm bg-background h-10 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+                                        />
+                                    </div>
                                 </div>
                             </div>
+                        </div>
+                        <div className="space-y-4 pb-1">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-medium">Tipo de consumo</Label>
+                                <div className="grid grid-cols-3 gap-1">
+                                    {[
+                                        { value: ConsumptionType.DINE_IN, label: "Mesa", icon: Utensils },
+                                        { value: ConsumptionType.TAKE_AWAY, label: "Para llevar", icon: ShoppingBag },
+                                        { value: ConsumptionType.DELIVERY, label: "Domicilio", icon: Truck },
+                                    ].map((option) => {
+                                        const isSelected = orderDetails.consumption_type === option.value;
+                                        const Icon = option.icon;
+                                        return (
+                                            <div
+                                                key={option.value}
+                                                onClick={() => setOrderDetails(businessId, { consumption_type: option.value, table_number: undefined })}
+                                                className={cn(
+                                                    "cursor-pointer relative flex items-center justify-center gap-1.5 h-8 rounded-lg border transition-all duration-200",
+                                                    isSelected
+                                                        ? "border-primary bg-primary/10 text-primary shadow-sm"
+                                                        : "border-transparent hover:bg-muted text-muted-foreground"
+                                                )}
+                                            >
+                                                <Icon className={cn("h-3.5 w-3.5", isSelected && "fill-current/20")} />
+                                                <span className="text-[10px] font-bold uppercase tracking-tight">{option.label}</span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            {orderDetails.consumption_type === ConsumptionType.DINE_IN && (
+                                <div className="flex items-center justify-between p-2 rounded-lg border bg-muted/20">
+                                    <Label htmlFor="table-number" className="text-[10px] font-bold uppercase text-muted-foreground tracking-wider">
+                                        Número de mesa
+                                    </Label>
+                                    <div className="relative w-24">
+                                        <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-xs">#</span>
+                                        <Input
+                                            id="table-number"
+                                            type="number"
+                                            min="1"
+                                            placeholder="0"
+                                            value={orderDetails.table_number || ""}
+                                            onChange={(e) => setOrderDetails(businessId, { table_number: e.target.value })}
+                                            className="pl-6 h-7 text-sm font-bold bg-background text-right"
+                                            autoComplete="off"
+                                        />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </CollapsibleContent>
             </Collapsible>
-            <Separator />
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <Label htmlFor="pay-later-switch" className="text-xs font-medium">Pagar después</Label>
-                    <Switch
-                        defaultChecked={false}
-                        id="pay-later-switch"
-                        checked={orderDetails.amount_paid === null}
-                        onCheckedChange={(checked) => {
-                            if (checked) {
-                                setOrderDetails(businessId, { amount_paid: null });
-                            } else {
-                                setOrderDetails(businessId, { amount_paid: 0 });
-                            }
-                        }}
-                    />
-                </div>
 
-                <div className={cn("space-y-2 transition-opacity duration-200", orderDetails.amount_paid === null && "opacity-50 pointer-events-none")}>
-                    <div className="flex items-center justify-between gap-4">
-                        <Label htmlFor="amount-paid" className="text-xs font-medium">Paga con</Label>
-                        <div className="relative w-28">
-                            <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
-                            <Input
-                                id="amount-paid"
-                                type="number"
-                                min="0"
-                                placeholder="0.00"
-                                disabled={orderDetails.amount_paid === null}
-                                value={orderDetails.amount_paid ?? ""}
-                                onChange={(e) => {
-                                    const val = parseFloat(e.target.value);
-                                    if (val < 0) return;
-                                    setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
-                                }}
-                                className={cn(
-                                    "pl-5 h-7 text-xs bg-background text-right",
-                                    orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid < totalPrice && "border-destructive focus-visible:ring-destructive"
-                                )}
-                            />
-                        </div>
+            <div className="pt-1.5 border-t">
+                <div className="flex items-end justify-between mb-1">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-none mb-0.5">Total a pagar</span>
+                        <span className="text-2xl font-black text-foreground tracking-tighter leading-none">${totalPrice}</span>
                     </div>
 
-                    {orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (
-                        <div className="flex justify-between font-medium text-xs">
-                            <span>Cambio</span>
-                            <span className={cn(
-                                (orderDetails.amount_paid - totalPrice) < 0 ? "text-destructive" : "text-green-600"
-                            )}>
-                                ${(orderDetails.amount_paid - totalPrice).toFixed(2)}
-                            </span>
-                        </div>
-                    )}
+                    <div className="flex flex-col items-end gap-1 mb-0.5">
+                        <Label htmlFor="pay-later-switch" className="text-[9px] font-bold uppercase text-muted-foreground cursor-pointer hover:text-primary transition-colors">
+                            {orderDetails.amount_paid === null ? "Pagar después" : "Pago inmediato"}
+                        </Label>
+                        <Switch
+                            className="h-3.5 w-6 data-[state=checked]:bg-primary/50"
+                            defaultChecked={false}
+                            id="pay-later-switch"
+                            checked={orderDetails.amount_paid === null}
+                            onCheckedChange={(checked) => {
+                                if (checked) {
+                                    setOrderDetails(businessId, { amount_paid: null });
+                                } else {
+                                    setOrderDetails(businessId, { amount_paid: 0 });
+                                }
+                            }}
+                        />
+                    </div>
                 </div>
 
-                <div className="flex justify-between font-bold text-base border-t border-dashed pt-2">
-                    <span>Total</span>
-                    <span>${totalPrice}</span>
+                <div className={cn(
+                    "grid transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
+                    orderDetails.amount_paid === null
+                        ? "grid-rows-[0fr] opacity-0"
+                        : "grid-rows-[1fr] opacity-100"
+                )}>
+                    <div className="min-h-0">
+                        <div className="flex items-center justify-between gap-3 p-1.5 bg-muted/20 rounded-lg border border-muted/20 mt-1">
+                            <div className="flex flex-col gap-0.5 w-1/2 cursor-text" onClick={() => document.getElementById('amount-paid')?.focus()}>
+                                <Label htmlFor="amount-paid" className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider cursor-pointer pl-1">
+                                    Paga con
+                                </Label>
+                                <div className="flex items-center">
+                                    <span className="text-muted-foreground/70 font-medium text-xs ml-1">$</span>
+                                    <Input
+                                        id="amount-paid"
+                                        type="number"
+                                        min="0"
+                                        placeholder="0.00"
+                                        value={orderDetails.amount_paid ?? ""}
+                                        onChange={(e) => {
+                                            const val = parseFloat(e.target.value);
+                                            if (val < 0) return;
+                                            setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
+                                        }}
+                                        className={cn(
+                                            "h-6 text-base font-bold bg-transparent border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-1 w-full",
+                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive"
+                                        )}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="w-px h-7 bg-border/40" />
+
+                            <div className="flex flex-col items-end gap-0.5 w-1/2 pr-1">
+                                <span className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider">Cambio</span>
+                                <span className={cn(
+                                    "text-base font-black tracking-tight leading-6",
+                                    orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (orderDetails.amount_paid! - totalPrice) < 0 ? "text-destructive" : "text-green-600"
+                                )}>
+                                    ${orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null ? (orderDetails.amount_paid! - totalPrice).toFixed(2) : "0.00"}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <div className="grid grid-cols-2 gap-2">
                 <SheetClose asChild>
                     <Button variant="outline" className="w-full h-10 text-sm font-bold shadow-sm">
