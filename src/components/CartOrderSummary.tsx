@@ -10,7 +10,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronsUpDown, Utensils, ShoppingBag, Truck, ChevronDownIcon, Trash2Icon } from "lucide-react";
+import { ChevronsUpDown, Utensils, ShoppingBag, Truck, Clock, CalendarIcon, Trash2Icon } from "lucide-react";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { OrderDetails } from "@/store/cartStore";
 import ButtonLoading from "./buttonLoading";
@@ -60,7 +60,7 @@ export function CartOrderSummary({
 
         if (!currentDate) {
             const now = new Date();
-            newDate.setHours(now.getHours(), now.getMinutes(), 0, 0);
+            newDate.setHours(now.getHours() + 1, 0, 0, 0);
         }
 
         setOrderDetails(businessId, { scheduled_at: newDate.toISOString() });
@@ -122,68 +122,77 @@ export function CartOrderSummary({
                             className="h-8 text-sm bg-background"
                         />
                     </div>
-                    <div className="flex gap-4">
-                        <div className="flex flex-col gap-3 flex-1">
-                            <Label htmlFor="date-picker" className="px-1 text-xs font-medium">
-                                Fecha
-                            </Label>
-                            <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        id="date-picker"
-                                        className={cn(
-                                            "w-full justify-between font-normal text-left px-3",
-                                            !currentDate && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-2">
+                    <div className="space-y-3 rounded-xl border bg-muted/30 p-3">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <CalendarIcon className="h-4 w-4 text-primary" />
+                                <Label className="text-sm font-semibold text-foreground">Programar entrega</Label>
+                            </div>
+                            {currentDate && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleDateSelect(undefined)}
+                                    className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-transparent"
+                                >
+                                    <Trash2Icon className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                                <Label htmlFor="date-picker" className="px-1 text-xs font-medium text-muted-foreground">
+                                    Fecha
+                                </Label>
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            id="date-picker"
+                                            className={cn(
+                                                "w-full justify-start font-normal text-left px-3 h-10",
+                                                !currentDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                                             {currentDate ? (
-                                                <span className="capitalize">
+                                                <span className="capitalize text-sm font-medium">
                                                     {format(currentDate, "PPP", { locale: es })}
                                                 </span>
                                             ) : (
                                                 <span>Seleccionar fecha</span>
                                             )}
-                                        </div>
-                                        <ChevronDownIcon className="h-4 w-4 opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={currentDate}
-                                        captionLayout="dropdown"
-                                        onSelect={handleDateSelect}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            <Label htmlFor="time-picker" className="px-1 text-xs font-medium">
-                                Hora
-                            </Label>
-                            <Input
-                                type="time"
-                                id="time-picker"
-                                value={currentDate ? format(currentDate, "HH:mm") : ""}
-                                onChange={handleTimeChange}
-                                step="1"
-                                className="text-sm bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={currentDate}
+                                            captionLayout="dropdown"
+                                            onSelect={handleDateSelect}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
 
-                            />
-                        </div>
-                        <div className="flex flex-col gap-3">
-                            <Label className="opacity-0 px-1 text-xs font-medium">Clear</Label>
-                            <Button
-                                variant="outline"
-                                size="icon"
-                                className="h-10 w-10 shrink-0"
-                                onClick={() => handleDateSelect(undefined)}
-                                disabled={!currentDate}
-                            >
-                                <Trash2Icon className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="time-picker" className="px-1 text-xs font-medium text-muted-foreground">
+                                    Hora
+                                </Label>
+                                <div className="relative">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <Clock className="h-4 w-4 text-muted-foreground/50" />
+                                    </div>
+                                    <Input
+                                        type="time"
+                                        id="time-picker"
+                                        value={currentDate ? format(currentDate, "HH:mm") : ""}
+                                        onChange={handleTimeChange}
+                                        className="pl-9 text-sm bg-background h-10 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div className="space-y-4">
