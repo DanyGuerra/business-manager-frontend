@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useOrdersApi, ConsumptionType } from "@/lib/useOrdersApi";
+import { useOrdersApi, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderDetailsList } from "@/components/OrderDetailsList";
 import { Button } from "@/components/ui/button";
@@ -204,6 +204,7 @@ export default function OrderDetailsPage() {
                                                 consumption_type: order.consumption_type as ConsumptionType,
                                                 scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
                                                 table_number: order.table_number,
+                                                status: order.status as OrderStatus,
                                             }}
                                         />
                                     </CustomDialog>
