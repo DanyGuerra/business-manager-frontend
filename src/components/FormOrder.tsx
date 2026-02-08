@@ -1,6 +1,6 @@
 "use client";
 
-import { formatCurrency, cn } from "@/lib/utils";
+import { formatCurrency, cn, getStatusColor, getStatusLabel } from "@/lib/utils";
 import {
     Form,
     FormControl,
@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import { ConsumptionType } from "@/lib/useOrdersApi";
+import { ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { DatePicker } from "./ui/date-picker";
 import { useEffect } from "react";
 import z from "zod";
@@ -22,15 +22,17 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Utensils, ShoppingBag, Truck } from "lucide-react";
 import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const orderSchema = z.object({
     customer_name: z.string().optional(),
     amount_paid: z.number().optional(),
     total: z.number().optional(),
     notes: z.string().optional(),
-    consumption_type: z.nativeEnum(ConsumptionType),
+    consumption_type: z.enum([ConsumptionType.DINE_IN, ConsumptionType.TAKE_AWAY, ConsumptionType.DELIVERY]),
     scheduled_at: z.date().optional(),
     table_number: z.number().nullable().optional(),
+    status: z.enum([OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELLED]),
 }).refine((data) => {
     if (data.amount_paid !== undefined && data.total !== undefined) {
         return data.amount_paid >= data.total;
@@ -68,6 +70,7 @@ export default function FormOrder({
             consumption_type: defaultValues?.consumption_type ?? ConsumptionType.DINE_IN,
             scheduled_at: defaultValues?.scheduled_at,
             table_number: defaultValues?.table_number,
+            status: defaultValues?.status ?? OrderStatus.PENDING,
         },
     });
 
@@ -83,6 +86,7 @@ export default function FormOrder({
                 consumption_type: defaultValues.consumption_type ?? ConsumptionType.DINE_IN,
                 scheduled_at: defaultValues.scheduled_at,
                 table_number: defaultValues.table_number,
+                status: defaultValues.status ?? OrderStatus.PENDING,
             });
         }
     }, [defaultValues, form]);
@@ -131,6 +135,48 @@ export default function FormOrder({
                                         disabled={form.watch("consumption_type") !== ConsumptionType.DINE_IN}
                                     />
                                 </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="status"
+                        render={({ field }) => (
+                            <FormItem className="w-2/3">
+                                <FormLabel>Estado</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger className="h-10">
+                                            <SelectValue placeholder="Seleccionar estado">
+                                                {field.value && (() => {
+                                                    return (
+                                                        <div className={cn(
+                                                            "px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-2 w-fit",
+                                                            getStatusColor(field.value)
+                                                        )}>
+                                                            <span className="uppercase text-[10px] font-bold">{getStatusLabel(field.value)}</span>
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </SelectValue>
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        {Object.values(OrderStatus).map((status) => {
+                                            return (
+                                                <SelectItem key={status} value={status}>
+                                                    <div className={cn(
+                                                        "px-2 py-0.5 rounded-full text-xs font-medium border flex items-center gap-2 w-fit",
+                                                        getStatusColor(status)
+                                                    )}>
+                                                        <span className="uppercase text-[10px] font-bold">{getStatusLabel(status)}</span>
+                                                    </div>
+                                                </SelectItem>
+                                            )
+                                        })}
+                                    </SelectContent>
+                                </Select>
                                 <FormMessage />
                             </FormItem>
                         )}

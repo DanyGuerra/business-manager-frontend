@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { Order, OrderStatus, ConsumptionType } from '@/lib/useOrdersApi';
 
-const ORDER_LIMIT = 10;
+const ORDER_LIMIT = 30;
 
 type PaginationState = {
     page: number;

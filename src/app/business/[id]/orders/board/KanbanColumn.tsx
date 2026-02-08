@@ -5,7 +5,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableItem } from "./SortableItem";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Clock, ChefHat, CheckCircle2, Flag, Ghost } from "lucide-react";
+import { Clock, Ghost, Flame, Bell, CheckCheck } from "lucide-react";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 
 interface KanbanColumnProps {
@@ -19,9 +19,9 @@ interface KanbanColumnProps {
 const getStatusIcon = (status: OrderStatus) => {
     switch (status) {
         case OrderStatus.PENDING: return <Clock className="w-4 h-4" />;
-        case OrderStatus.PREPARING: return <ChefHat className="w-4 h-4" />;
-        case OrderStatus.READY: return <CheckCircle2 className="w-4 h-4" />;
-        case OrderStatus.COMPLETED: return <Flag className="w-4 h-4" />;
+        case OrderStatus.PREPARING: return <Flame className="w-4 h-4" />;
+        case OrderStatus.READY: return <Bell className="w-4 h-4" />;
+        case OrderStatus.COMPLETED: return <CheckCheck className="w-4 h-4" />;
         default: return <Clock className="w-4 h-4" />;
     }
 };

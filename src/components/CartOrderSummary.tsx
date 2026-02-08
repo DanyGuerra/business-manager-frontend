@@ -147,58 +147,48 @@ export function CartOrderSummary({
                                 )}
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="date-picker" className="px-1 text-xs font-medium text-muted-foreground">
-                                        Fecha
-                                    </Label>
-                                    <Popover open={open} onOpenChange={setOpen}>
-                                        <PopoverTrigger asChild>
-                                            <Button
-                                                variant="outline"
-                                                id="date-picker"
-                                                className={cn(
-                                                    "w-full justify-start font-normal text-left px-3 h-10",
-                                                    !currentDate && "text-muted-foreground"
-                                                )}
-                                            >
-                                                <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-                                                {currentDate ? (
-                                                    <span className="capitalize text-sm font-medium">
-                                                        {format(currentDate!, "PPP", { locale: es })}
-                                                    </span>
-                                                ) : (
-                                                    <span>Seleccionar fecha</span>
-                                                )}
-                                            </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
-                                            <Calendar
-                                                mode="single"
-                                                selected={currentDate}
-                                                captionLayout="dropdown"
-                                                onSelect={handleDateSelect}
-                                            />
-                                        </PopoverContent>
-                                    </Popover>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <Label htmlFor="time-picker" className="px-1 text-xs font-medium text-muted-foreground">
-                                        Hora
-                                    </Label>
-                                    <div className="relative">
-                                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                                            <Clock className="h-4 w-4 text-muted-foreground/50" />
-                                        </div>
-                                        <Input
-                                            type="time"
-                                            id="time-picker"
-                                            value={currentDate ? format(currentDate!, "HH:mm") : ""}
-                                            onChange={handleTimeChange}
-                                            className="pl-9 text-sm bg-background h-10 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <Popover open={open} onOpenChange={setOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            id="date-picker"
+                                            className={cn(
+                                                "w-full justify-start font-normal text-left px-3 h-8 text-xs",
+                                                !currentDate && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-3.5 w-3.5 opacity-50" />
+                                            {currentDate ? (
+                                                <span className="capitalize font-medium">
+                                                    {format(currentDate!, "PPP", { locale: es })}
+                                                </span>
+                                            ) : (
+                                                <span>Seleccionar fecha</span>
+                                            )}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto overflow-hidden p-0 z-[200]" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={currentDate}
+                                            captionLayout="dropdown"
+                                            onSelect={handleDateSelect}
                                         />
+                                    </PopoverContent>
+                                </Popover>
+
+                                <div className="relative">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                        <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
                                     </div>
+                                    <Input
+                                        type="time"
+                                        id="time-picker"
+                                        value={currentDate ? format(currentDate!, "HH:mm") : ""}
+                                        onChange={handleTimeChange}
+                                        className="pl-9 text-xs bg-background h-8 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -277,7 +267,7 @@ export function CartOrderSummary({
                                 if (checked) {
                                     setOrderDetails(businessId, { amount_paid: null });
                                 } else {
-                                    setOrderDetails(businessId, { amount_paid: 0 });
+                                    setOrderDetails(businessId, { amount_paid: totalPrice });
                                 }
                             }}
                         />
@@ -296,22 +286,22 @@ export function CartOrderSummary({
                                 <Label htmlFor="amount-paid" className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider cursor-pointer pl-1">
                                     Paga con
                                 </Label>
-                                <div className="flex items-center">
-                                    <span className="text-muted-foreground/70 font-medium text-xs ml-1">$</span>
+                                <div className="relative">
+                                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">$</span>
                                     <Input
                                         id="amount-paid"
                                         type="number"
                                         min="0"
                                         placeholder="0.00"
-                                        value={orderDetails.amount_paid ?? ""}
+                                        value={orderDetails.amount_paid ?? totalPrice}
                                         onChange={(e) => {
-                                            const val = parseFloat(e.target.value);
-                                            if (val < 0) return;
-                                            setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
+                                            const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                                            if (val !== undefined && val < 0) return;
+                                            setOrderDetails(businessId, { amount_paid: isNaN(val as number) ? undefined : val });
                                         }}
                                         className={cn(
-                                            "h-6 text-base font-bold bg-transparent border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-1 w-full",
-                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive"
+                                            "pl-6 h-9 text-lg font-bold bg-background border-2 border-primary/20 shadow-sm focus-visible:border-primary focus-visible:ring-0",
+                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive border-destructive/50 focus-visible:border-destructive"
                                         )}
                                     />
                                 </div>
