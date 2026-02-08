@@ -188,6 +188,7 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
                                     consumption_type: order.consumption_type as ConsumptionType,
                                     scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
                                     table_number: order.table_number,
+                                    status: order.status as OrderStatus,
                                 }}
                             />
                         </CustomDialog>

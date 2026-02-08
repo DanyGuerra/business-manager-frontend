@@ -267,7 +267,7 @@ export function CartOrderSummary({
                                 if (checked) {
                                     setOrderDetails(businessId, { amount_paid: null });
                                 } else {
-                                    setOrderDetails(businessId, { amount_paid: 0 });
+                                    setOrderDetails(businessId, { amount_paid: totalPrice });
                                 }
                             }}
                         />
@@ -286,22 +286,22 @@ export function CartOrderSummary({
                                 <Label htmlFor="amount-paid" className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider cursor-pointer pl-1">
                                     Paga con
                                 </Label>
-                                <div className="flex items-center">
-                                    <span className="text-muted-foreground/70 font-medium text-xs ml-1">$</span>
+                                <div className="relative">
+                                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">$</span>
                                     <Input
                                         id="amount-paid"
                                         type="number"
                                         min="0"
                                         placeholder="0.00"
-                                        value={orderDetails.amount_paid ?? ""}
+                                        value={orderDetails.amount_paid ?? totalPrice}
                                         onChange={(e) => {
-                                            const val = parseFloat(e.target.value);
-                                            if (val < 0) return;
-                                            setOrderDetails(businessId, { amount_paid: isNaN(val) ? undefined : val });
+                                            const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                                            if (val !== undefined && val < 0) return;
+                                            setOrderDetails(businessId, { amount_paid: isNaN(val as number) ? undefined : val });
                                         }}
                                         className={cn(
-                                            "h-6 text-base font-bold bg-transparent border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 p-0 pl-1 w-full",
-                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive"
+                                            "pl-6 h-9 text-lg font-bold bg-background border-2 border-primary/20 shadow-sm focus-visible:border-primary focus-visible:ring-0",
+                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive border-destructive/50 focus-visible:border-destructive"
                                         )}
                                     />
                                 </div>
