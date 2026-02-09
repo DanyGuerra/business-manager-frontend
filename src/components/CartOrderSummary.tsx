@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,6 +49,12 @@ export function CartOrderSummary({
     const [open, setOpen] = useState(false);
 
     const currentDate = orderDetails.scheduled_at ? new Date(orderDetails.scheduled_at) : undefined;
+
+    useEffect(() => {
+        if (orderDetails.amount_paid === undefined) {
+            setOrderDetails(businessId, { amount_paid: totalPrice });
+        }
+    }, [businessId, orderDetails.amount_paid, setOrderDetails, totalPrice]);
 
     const handleDateSelect = (date: Date | undefined) => {
         setOpen(false);
@@ -293,15 +299,15 @@ export function CartOrderSummary({
                                         type="number"
                                         min="0"
                                         placeholder="0.00"
-                                        value={orderDetails.amount_paid ?? totalPrice}
+                                        value={Number.isNaN(orderDetails.amount_paid) ? '' : (orderDetails.amount_paid ?? '')}
                                         onChange={(e) => {
-                                            const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
-                                            if (val !== undefined && val < 0) return;
-                                            setOrderDetails(businessId, { amount_paid: isNaN(val as number) ? undefined : val });
+                                            const val = e.target.value === '' ? NaN : parseFloat(e.target.value);
+                                            if (!Number.isNaN(val) && val < 0) return;
+                                            setOrderDetails(businessId, { amount_paid: val });
                                         }}
                                         className={cn(
                                             "pl-6 h-9 text-lg font-bold bg-background border-2 border-primary/20 shadow-sm focus-visible:border-primary focus-visible:ring-0",
-                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && orderDetails.amount_paid! < totalPrice && "text-destructive border-destructive/50 focus-visible:border-destructive"
+                                            orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (Number.isNaN(orderDetails.amount_paid) || (orderDetails.amount_paid! < totalPrice)) && "text-destructive border-destructive/50 focus-visible:border-destructive"
                                         )}
                                     />
                                 </div>
@@ -313,9 +319,9 @@ export function CartOrderSummary({
                                 <span className="text-[9px] font-bold uppercase text-muted-foreground tracking-wider">Cambio</span>
                                 <span className={cn(
                                     "text-base font-black tracking-tight leading-6",
-                                    orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (orderDetails.amount_paid! - totalPrice) < 0 ? "text-destructive" : "text-green-600"
+                                    orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (Number.isNaN(orderDetails.amount_paid) || (orderDetails.amount_paid! - totalPrice) < 0) ? "text-destructive" : "text-green-600"
                                 )}>
-                                    ${orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null ? (orderDetails.amount_paid! - totalPrice).toFixed(2) : "0.00"}
+                                    ${orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && !Number.isNaN(orderDetails.amount_paid) ? (orderDetails.amount_paid! - totalPrice).toFixed(2) : "0.00"}
                                 </span>
                             </div>
                         </div>
@@ -337,7 +343,7 @@ export function CartOrderSummary({
                             handleAction();
                             return;
                         }
-                        if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice) {
+                        if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice || Number.isNaN(orderDetails.amount_paid)) {
                             toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
                             return;
                         }
