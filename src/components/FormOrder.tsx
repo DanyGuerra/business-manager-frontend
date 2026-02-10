@@ -320,7 +320,11 @@ export default function FormOrder({
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        onChange={(e) => field.onChange(parseFloat(e.target.value))}
+                                        value={field.value ?? ''}
+                                        onChange={(e) => {
+                                            const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                                            field.onChange(val);
+                                        }}
                                     />
                                 </FormControl>
                                 <div className="flex justify-between items-center text-xs px-1 pt-1">
