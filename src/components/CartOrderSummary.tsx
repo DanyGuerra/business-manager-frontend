@@ -115,7 +115,7 @@ export function CartOrderSummary({
                     </Button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="overflow-hidden data-[state=open]:flex-1 min-h-0 flex flex-col">
-                    <ScrollArea className="h-[35vh] sm:h-[45vh] pr-2 -mr-2">
+                    <ScrollArea className="h-auto max-h-[45vh] sm:max-h-[55vh] landscape:max-h-[40vh] pr-2 -mr-2">
 
                         <div className="space-y-3 pt-2">
                             <div className="space-y-1 pt-1">
