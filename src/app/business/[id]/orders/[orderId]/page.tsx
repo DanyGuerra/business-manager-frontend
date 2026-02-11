@@ -198,7 +198,7 @@ export default function OrderDetailsPage() {
                                             onSuccess={() => setOpen(false)}
                                             defaultValues={{
                                                 customer_name: order.customer_name,
-                                                amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : parseFloat(order.total),
+                                                amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : null,
                                                 total: parseFloat(order.total),
                                                 notes: order.notes,
                                                 consumption_type: order.consumption_type as ConsumptionType,

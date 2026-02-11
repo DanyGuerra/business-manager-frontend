@@ -146,7 +146,7 @@ export function CartOrderSummary({
                                         variant="ghost"
                                         size="icon"
                                         onClick={() => handleDateSelect(undefined)}
-                                        className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-transparent"
+                                        className="h-6 w-6 text-destructive hover:text-destructive/80 hover:bg-transparent"
                                     >
                                         <Trash2Icon className="h-4 w-4" />
                                     </Button>
