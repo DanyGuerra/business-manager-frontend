@@ -213,11 +213,12 @@ export function CartOrderSummary({
                                             const isSelected = orderDetails.consumption_type === option.value;
                                             const Icon = option.icon;
                                             return (
-                                                <div
+                                                <button
+                                                    type="button"
                                                     key={option.value}
                                                     onClick={() => setOrderDetails(businessId, { consumption_type: option.value, table_number: undefined })}
                                                     className={cn(
-                                                        "cursor-pointer relative flex items-center justify-center gap-1.5 h-8 rounded-lg border transition-all duration-200",
+                                                        "cursor-pointer relative flex items-center justify-center gap-1.5 h-8 rounded-lg border transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
                                                         isSelected
                                                             ? "border-primary bg-primary/10 text-primary shadow-sm"
                                                             : "border-transparent hover:bg-muted text-muted-foreground"
@@ -225,7 +226,7 @@ export function CartOrderSummary({
                                                 >
                                                     <Icon className={cn("h-3.5 w-3.5", isSelected && "fill-current/20")} />
                                                     <span className="text-[10px] font-bold uppercase tracking-tight">{option.label}</span>
-                                                </div>
+                                                </button>
                                             );
                                         })}
                                     </div>
