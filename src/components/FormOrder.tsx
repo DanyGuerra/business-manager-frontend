@@ -32,7 +32,7 @@ const orderSchema = z.object({
     consumption_type: z.enum([ConsumptionType.DINE_IN, ConsumptionType.TAKE_AWAY, ConsumptionType.DELIVERY]),
     scheduled_at: z.date().optional(),
     table_number: z.number().nullable().optional(),
-    status: z.enum([OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELLED]),
+    status: z.enum([OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.SCHEDULED]),
 }).refine((data) => {
     if (data.amount_paid !== undefined && data.amount_paid !== null && data.total !== undefined) {
         return data.amount_paid >= data.total;
