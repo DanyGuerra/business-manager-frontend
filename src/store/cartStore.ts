@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Product } from '@/lib/useBusinessApi';
 import { Option } from '@/lib/useOptionGroupApi';
-import { ConsumptionType } from '@/lib/useOrdersApi';
+import { ConsumptionType, OrderStatus } from '@/lib/useOrdersApi';
 
 type BusinessId = string;
 
@@ -20,10 +20,11 @@ export type CartItem = {
 export type OrderDetails = {
     customer_name: string;
     notes: string;
-    scheduled_at: string;
+    scheduled_at: string | null;
     consumption_type: ConsumptionType;
+    status: OrderStatus;
     amount_paid?: number | null;
-    table_number?: string;
+    table_number?: string | null;
 };
 
 export type CartGroup = {
@@ -64,10 +65,11 @@ type CartState = {
 const DEFAULT_ORDER_DETAILS: OrderDetails = {
     customer_name: "",
     notes: "",
-    scheduled_at: "",
+    scheduled_at: null,
     consumption_type: ConsumptionType.TAKE_AWAY,
     amount_paid: undefined,
-    table_number: ""
+    table_number: null,
+    status: OrderStatus.PENDING
 };
 
 export const useCartStore = create<CartState>()(

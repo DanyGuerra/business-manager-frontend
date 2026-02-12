@@ -20,21 +20,21 @@ import z from "zod";
 import ButtonLoading from "./buttonLoading";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Utensils, ShoppingBag, Truck } from "lucide-react";
+import { Utensils, ShoppingBag, Truck, CalendarIcon, Clock, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const orderSchema = z.object({
     customer_name: z.string().optional(),
-    amount_paid: z.number().optional(),
+    amount_paid: z.number().nullable().optional(),
     total: z.number().optional(),
     notes: z.string().optional(),
     consumption_type: z.enum([ConsumptionType.DINE_IN, ConsumptionType.TAKE_AWAY, ConsumptionType.DELIVERY]),
     scheduled_at: z.date().optional(),
     table_number: z.number().nullable().optional(),
-    status: z.enum([OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELLED]),
+    status: z.enum([OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED, OrderStatus.CANCELLED, OrderStatus.SCHEDULED]),
 }).refine((data) => {
-    if (data.amount_paid !== undefined && data.total !== undefined) {
+    if (data.amount_paid !== undefined && data.amount_paid !== null && data.total !== undefined) {
         return data.amount_paid >= data.total;
     }
     return true;
@@ -231,61 +231,78 @@ export default function FormOrder({
                         )}
                     />
 
-                    <div className="flex gap-4">
-                        <FormField
-                            control={form.control}
-                            name="scheduled_at"
-                            render={({ field }) => (
-                                <>
-                                    <FormItem className="flex flex-col flex-1">
-                                        <FormLabel className="text-xs font-medium">Fecha programada</FormLabel>
-                                        <FormControl>
-                                            <DatePicker
-                                                date={field.value}
-                                                setDate={(date) => {
-                                                    if (!date) {
-                                                        field.onChange(undefined);
-                                                        return;
-                                                    }
-                                                    const newDate = new Date(date);
-                                                    if (field.value) {
-                                                        newDate.setHours(field.value.getHours(), field.value.getMinutes());
-                                                    } else {
-                                                        const now = new Date();
-                                                        newDate.setHours(now.getHours(), now.getMinutes());
-                                                    }
-                                                    field.onChange(newDate);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
+                    <FormField
+                        control={form.control}
+                        name="scheduled_at"
+                        render={({ field }) => (
+                            <FormItem className="flex flex-col flex-1">
+                                <div className="space-y-3 rounded-xl border bg-muted/30 p-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <CalendarIcon className="h-4 w-4 text-primary" />
+                                            <FormLabel className="text-sm font-semibold text-foreground">Programar entrega</FormLabel>
+                                        </div>
+                                        {field.value && (
+                                            <div
+                                                onClick={() => field.onChange(null)}
+                                                className="cursor-pointer h-6 w-6 flex items-center justify-center text-destructive hover:text-destructive/80 transition-colors"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </div>
+                                        )}
+                                    </div>
 
-                                    <FormItem className="flex flex-col w-[120px]">
-                                        <FormLabel className="text-xs font-medium">Hora</FormLabel>
-                                        <FormControl>
-                                            <Input
-                                                type="time"
-                                                className="text-sm bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                                                value={field.value ? format(field.value, "HH:mm") : ""}
-                                                onChange={(e) => {
-                                                    const time = e.target.value;
-                                                    if (!time) return;
-                                                    const [hours, minutes] = time.split(':').map(Number);
-                                                    const newDate = field.value ? new Date(field.value) : new Date();
-                                                    newDate.setHours(hours);
-                                                    newDate.setMinutes(minutes);
-                                                    newDate.setSeconds(0);
-                                                    field.onChange(newDate);
-                                                }}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                </>
-                            )}
-                        />
-                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                        <div className="space-y-1">
+                                            <FormControl>
+                                                <DatePicker
+                                                    date={field.value}
+                                                    setDate={(date) => {
+                                                        if (!date) {
+                                                            field.onChange(undefined);
+                                                            return;
+                                                        }
+                                                        const newDate = new Date(date);
+                                                        if (field.value) {
+                                                            newDate.setHours(field.value.getHours(), field.value.getMinutes());
+                                                        } else {
+                                                            const now = new Date();
+                                                            newDate.setHours(now.getHours() + 1, 0);
+                                                        }
+                                                        field.onChange(newDate);
+                                                    }}
+                                                />
+                                            </FormControl>
+                                        </div>
+
+                                        <div className="relative space-y-1">
+                                            <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                                                <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />
+                                            </div>
+                                            <FormControl>
+                                                <Input
+                                                    type="time"
+                                                    className="pl-9 text-sm bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                                    value={field.value ? format(field.value, "HH:mm") : ""}
+                                                    onChange={(e) => {
+                                                        const time = e.target.value;
+                                                        if (!time) return;
+                                                        const [hours, minutes] = time.split(':').map(Number);
+                                                        const newDate = field.value ? new Date(field.value) : new Date();
+                                                        newDate.setHours(hours);
+                                                        newDate.setMinutes(minutes);
+                                                        newDate.setSeconds(0);
+                                                        field.onChange(newDate);
+                                                    }}
+                                                />
+                                            </FormControl>
+                                        </div>
+                                    </div>
+                                    <FormMessage />
+                                </div>
+                            </FormItem>
+                        )}
+                    />
                 </div>
 
                 <FormField
@@ -320,9 +337,9 @@ export default function FormOrder({
                                         step="0.01"
                                         placeholder="0.00"
                                         {...field}
-                                        value={field.value ?? ''}
+                                        value={field.value === null || field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
                                         onChange={(e) => {
-                                            const val = e.target.value === '' ? undefined : parseFloat(e.target.value);
+                                            const val = e.target.value === '' ? null : parseFloat(e.target.value);
                                             field.onChange(val);
                                         }}
                                     />

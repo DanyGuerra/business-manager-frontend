@@ -27,6 +27,9 @@ export const getStatusColor = (status: string) => {
       return "text-white bg-slate-100 border-slate-200 bg-slate-500/70 border-slate-500/70";
     case OrderStatus.CANCELLED:
       return "text-black dark:text-white bg-red-100 border-red-200 bg-red-500/70 border-red-500/70";
+
+    case OrderStatus.SCHEDULED:
+      return "text-white bg-violet-100 border-violet-200 bg-violet-500/70 border-violet-500/70";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -44,6 +47,9 @@ export const getStatusLabel = (status: string) => {
       return "Completado";
     case OrderStatus.CANCELLED:
       return "Cancelado";
+
+    case OrderStatus.SCHEDULED:
+      return "Agendado";
     default:
       return status;
   }
