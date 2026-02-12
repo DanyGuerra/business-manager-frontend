@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ShoppingCartIcon } from "lucide-react";
 import { useState } from "react";
-import { useOrdersApi } from "@/lib/useOrdersApi";
+import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
@@ -41,6 +41,7 @@ export default function CartDrawer() {
                 ...orderDetails,
                 scheduled_at: orderDetails.scheduled_at || undefined,
                 table_number: Number(orderDetails.table_number) || undefined,
+                status: orderDetails.scheduled_at ? OrderStatus.SCHEDULED : OrderStatus.PENDING,
                 group_items: groups
                     .filter((group) => group.items.length > 0)
                     .map((group) => ({

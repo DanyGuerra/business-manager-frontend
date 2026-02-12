@@ -16,8 +16,8 @@ export enum OrderStatus {
     READY = 'ready',
     COMPLETED = 'completed',
     CANCELLED = 'cancelled',
+    SCHEDULED = 'scheduled',
 }
-
 
 export type CreateOrderDto = {
     customer_name?: string | null,

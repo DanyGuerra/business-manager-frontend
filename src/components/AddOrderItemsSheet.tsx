@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { PlusIcon } from "lucide-react";
 import { useBusinessStore } from "@/store/businessStore";
-import { useOrdersApi, Order, ConsumptionType } from "@/lib/useOrdersApi";
+import { useOrdersApi, Order, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { toast } from "sonner";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
@@ -46,7 +46,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
 
     const [cartGroups, setCartGroups] = useState<CartGroup[]>([]);
     const [orderDetails, setOrderDetails] = useState<OrderDetails>({
-        customer_name: "", notes: "", scheduled_at: "", consumption_type: ConsumptionType.TAKE_AWAY, amount_paid: undefined, table_number: ""
+        customer_name: "", notes: "", scheduled_at: "", consumption_type: ConsumptionType.TAKE_AWAY, amount_paid: undefined, table_number: "", status: OrderStatus.PENDING
     });
     const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
     const [showExitConfirmation, setShowExitConfirmation] = useState(false);
@@ -60,7 +60,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                 scheduled_at: order.scheduled_at || "",
                 consumption_type: order.consumption_type as ConsumptionType || ConsumptionType.TAKE_AWAY,
                 amount_paid: order.amount_paid !== null ? parseFloat(order.amount_paid) : undefined,
-                table_number: order.table_number?.toString() || ""
+                table_number: order.table_number?.toString() || "",
+                status: order.status as OrderStatus
             });
 
             if (order.itemGroups && order.itemGroups.length > 0) {

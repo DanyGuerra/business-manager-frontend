@@ -63,6 +63,7 @@ export default function KanbanBoard() {
         };
     }, []);
 
+    const scheduledOrders = orders.filter(o => o.status === OrderStatus.SCHEDULED);
     const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING);
     const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING);
     const readyOrders = orders.filter(o => o.status === OrderStatus.READY);
@@ -86,7 +87,7 @@ export default function KanbanBoard() {
         try {
             const statuses = targetStatus
                 ? [targetStatus]
-                : [OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
+                : [OrderStatus.SCHEDULED, OrderStatus.PENDING, OrderStatus.PREPARING, OrderStatus.READY, OrderStatus.COMPLETED];
 
             const commonParams = {
                 limit: pagination.limit,
@@ -197,6 +198,7 @@ export default function KanbanBoard() {
     }, [socket, isConnected, businessId, fetchKanbanOrders]);
 
     const columns = [
+        { title: "Agendados", status: OrderStatus.SCHEDULED, orders: scheduledOrders, color: "border-l-violet-500" },
         { title: "Pendientes", status: OrderStatus.PENDING, orders: pendingOrders, color: "border-l-yellow-500" },
         { title: "En Preparación", status: OrderStatus.PREPARING, orders: preparingOrders, color: "border-l-blue-500" },
         { title: "Listos", status: OrderStatus.READY, orders: readyOrders, color: "border-l-green-500" },

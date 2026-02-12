@@ -81,6 +81,7 @@ export default function OrdersPage() {
                             <SelectItem value={OrderStatus.READY}>Listo</SelectItem>
                             <SelectItem value={OrderStatus.COMPLETED}>Completado</SelectItem>
                             <SelectItem value={OrderStatus.CANCELLED}>Cancelado</SelectItem>
+                            <SelectItem value={OrderStatus.SCHEDULED}>Agendado</SelectItem>
                         </SelectContent>
                     </Select>
 
