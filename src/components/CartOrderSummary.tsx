@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +48,7 @@ export function CartOrderSummary({
     disableSubmit
 }: CartOrderSummaryProps) {
     const [open, setOpen] = useState(false);
+    const amountPaidInputRef = useRef<HTMLInputElement>(null);
 
     const currentDate = orderDetails.scheduled_at ? new Date(orderDetails.scheduled_at) : undefined;
 
@@ -275,6 +276,9 @@ export function CartOrderSummary({
                                         setOrderDetails(businessId, { amount_paid: null });
                                     } else {
                                         setOrderDetails(businessId, { amount_paid: totalPrice });
+                                        setTimeout(() => {
+                                            amountPaidInputRef.current?.focus();
+                                        }, 0);
                                     }
                                 }}
                             />
@@ -291,6 +295,7 @@ export function CartOrderSummary({
                                     <div className="relative">
                                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">$</span>
                                         <Input
+                                            ref={amountPaidInputRef}
                                             id="amount-paid"
                                             type="number"
                                             min="0"
