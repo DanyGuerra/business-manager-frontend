@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ClipboardList, Utensils, ShoppingBag, Truck, Clock, CalendarIcon, Trash2Icon } from "lucide-react";
+import { ChevronDown, ClipboardList, Utensils, ShoppingBag, Truck, Clock, CalendarIcon, Trash2Icon, X } from "lucide-react";
 import { ConsumptionType } from "@/lib/useOrdersApi";
 import { OrderDetails } from "@/store/cartStore";
 import ButtonLoading from "./buttonLoading";
@@ -50,12 +50,6 @@ export function CartOrderSummary({
     const [open, setOpen] = useState(false);
 
     const currentDate = orderDetails.scheduled_at ? new Date(orderDetails.scheduled_at) : undefined;
-
-    useEffect(() => {
-        if (orderDetails.amount_paid === undefined) {
-            setOrderDetails(businessId, { amount_paid: totalPrice });
-        }
-    }, [businessId, orderDetails.amount_paid, setOrderDetails, totalPrice]);
 
     const handleDateSelect = (date: Date | undefined) => {
         setOpen(false);
@@ -297,22 +291,29 @@ export function CartOrderSummary({
                                     <div className="relative">
                                         <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-sm">$</span>
                                         <Input
-                                            autoFocus
                                             id="amount-paid"
                                             type="number"
                                             min="0"
                                             placeholder="0.00"
-                                            value={Number.isNaN(orderDetails.amount_paid) ? '' : (orderDetails.amount_paid ?? '')}
+                                            value={orderDetails.amount_paid ?? ''}
                                             onChange={(e) => {
                                                 const val = e.target.value === '' ? NaN : parseFloat(e.target.value);
                                                 if (!Number.isNaN(val) && val < 0) return;
                                                 setOrderDetails(businessId, { amount_paid: val });
                                             }}
                                             className={cn(
-                                                "pl-6 h-9 text-lg font-bold bg-background border-2 border-primary/20 shadow-sm focus-visible:border-primary focus-visible:ring-0",
+                                                "pl-6 pr-8 h-9 text-lg font-bold bg-background border-2 border-primary/20 shadow-sm focus-visible:border-primary focus-visible:ring-0",
                                                 orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && (Number.isNaN(orderDetails.amount_paid) || (orderDetails.amount_paid! < totalPrice)) && "text-destructive border-destructive/50 focus-visible:border-destructive"
                                             )}
                                         />
+                                        {orderDetails.amount_paid !== undefined && orderDetails.amount_paid !== null && !isNaN(orderDetails.amount_paid) && (
+                                            <button
+                                                onClick={() => setOrderDetails(businessId, { amount_paid: undefined })}
+                                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                            >
+                                                <X className="h-4 w-4" />
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
 
