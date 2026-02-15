@@ -19,6 +19,11 @@ export type UpdatePasswordDto = {
   newPassword?: string;
 };
 
+export type ResetPasswordDto = {
+  token: string;
+  newPassword: string;
+};
+
 export type UpdateUserDto = {
   name?: string;
 };

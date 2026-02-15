@@ -168,6 +168,15 @@ export default function Login() {
                 )}
               />
 
+              <div className="flex justify-end !mt-2">
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
+
               <ButtonLoading
                 loadingState={loadings[LoadingsKeyEnum.LOGIN]}
                 buttonTitle="Iniciar Sesión"
@@ -185,6 +194,6 @@ export default function Login() {
           </div>
         </CardFooter>
       </Card>
-    </div>
+    </div >
   );
 }
