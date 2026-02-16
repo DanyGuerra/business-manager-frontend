@@ -23,6 +23,7 @@ export enum LoadingsKeyEnum {
   UPDATE_ORDER = "updateOrder",
   RESEND_VERIFICATION = "resendVerification",
   CONFIRM_EMAIL = "confirmEmail",
+  RESET_PASSWORD = "resetPassword",
 }
 
 type LoadingState = {

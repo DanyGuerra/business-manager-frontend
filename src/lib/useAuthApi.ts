@@ -1,4 +1,4 @@
-import { ApiResponse, User, LoginDto, SignupDto, UpdatePasswordDto, UpdateUserDto } from "@/app/types/auth";
+import { ApiResponse, User, LoginDto, SignupDto, UpdatePasswordDto, UpdateUserDto, ResetPasswordDto } from "@/app/types/auth";
 import { useAxios } from "@/lib/axios";
 
 type LoginResponse = { access_token: string };
@@ -41,6 +41,16 @@ export function useAuthApi() {
     resendVerificationEmail: (email: string) =>
       api
         .post<ApiResponse>("auth/email/resend", { email })
+        .then((res) => res.data),
+
+    resetPassword: (data: ResetPasswordDto) =>
+      api
+        .post<ApiResponse>("auth/reset-password", data)
+        .then((res) => res.data),
+
+    requestResetPassword: (email: string) =>
+      api
+        .post<ApiResponse>("auth/forgot-password", { email })
         .then((res) => res.data),
 
     verifyEmail: (token: string) =>
