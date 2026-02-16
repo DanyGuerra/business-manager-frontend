@@ -1,11 +1,11 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { XCircle } from "lucide-react";
+import { XCircle, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-// import { toast } from "sonner"; // Removed toast import from here since it's used directly in onSubmit
+import { Suspense } from "react";
 import {
     Card,
     CardContent,
@@ -42,7 +42,7 @@ const resetPasswordSchema = z
 
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
     const searchParams = useSearchParams();
     const token = searchParams.get("token");
     const router = useRouter();
@@ -148,5 +148,24 @@ export default function ResetPasswordPage() {
                 </CardContent>
             </Card>
         </div>
+    );
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex flex-col min-h-[calc(100vh-13.5rem)] justify-center items-center p-4">
+                <Card className="w-full max-w-md">
+                    <CardHeader>
+                        <CardTitle className="text-center">Cargando...</CardTitle>
+                    </CardHeader>
+                    <CardContent className="flex justify-center py-6">
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </CardContent>
+                </Card>
+            </div>
+        }>
+            <ResetPasswordContent />
+        </Suspense>
     );
 }
