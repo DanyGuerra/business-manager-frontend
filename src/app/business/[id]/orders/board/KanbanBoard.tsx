@@ -198,11 +198,11 @@ export default function KanbanBoard() {
     }, [socket, isConnected, businessId, fetchKanbanOrders]);
 
     const columns = [
-        { title: "Agendados", status: OrderStatus.SCHEDULED, orders: scheduledOrders, color: "border-l-violet-500" },
-        { title: "Pendientes", status: OrderStatus.PENDING, orders: pendingOrders, color: "border-l-yellow-500" },
-        { title: "En Preparación", status: OrderStatus.PREPARING, orders: preparingOrders, color: "border-l-blue-500" },
-        { title: "Listos", status: OrderStatus.READY, orders: readyOrders, color: "border-l-green-500" },
-        { title: "Completados", status: OrderStatus.COMPLETED, orders: completedOrders, color: "border-l-primary-500" },
+        { title: "Agendados", status: OrderStatus.SCHEDULED, orders: scheduledOrders, colorScheme: "violet" },
+        { title: "Pendientes", status: OrderStatus.PENDING, orders: pendingOrders, colorScheme: "yellow" },
+        { title: "En Preparación", status: OrderStatus.PREPARING, orders: preparingOrders, colorScheme: "blue" },
+        { title: "Listos", status: OrderStatus.READY, orders: readyOrders, colorScheme: "green" },
+        { title: "Completados", status: OrderStatus.COMPLETED, orders: completedOrders, colorScheme: "primary" },
     ];
 
     function handleDragStart(event: DragStartEvent) {
@@ -262,7 +262,7 @@ export default function KanbanBoard() {
                         title={column.title}
                         status={column.status}
                         orders={column.orders}
-                        color={column.color}
+                        colorScheme={column.colorScheme}
                         loading={loading}
                     />
                 ))}
@@ -270,7 +270,7 @@ export default function KanbanBoard() {
 
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeOrder ? (
-                    <div className="opacity-90 rotate-2 cursor-grabbing">
+                    <div className="opacity-80 rotate-2 cursor-grabbing">
                         <OrderCard order={activeOrder} />
                     </div>
                 ) : null}
