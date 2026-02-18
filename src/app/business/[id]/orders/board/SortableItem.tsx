@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ReactNode, createContext } from "react";
+import { ReactNode, createContext, useMemo } from "react";
 
 interface SortableItemProps {
     id: string;
@@ -21,13 +21,19 @@ export function SortableItem({ id, children }: SortableItemProps) {
     } = useSortable({ id });
 
     const style = {
-        transform: CSS.Transform.toString(transform),
+        transform: CSS.Translate.toString(transform),
         transition,
         opacity: isDragging ? 0.4 : 1,
     };
 
+    const contextValue = useMemo(() => ({
+        attributes,
+        listeners,
+        isDragging
+    }), [attributes, listeners, isDragging]);
+
     return (
-        <SortableItemContext.Provider value={{ attributes, listeners, isDragging }}>
+        <SortableItemContext.Provider value={contextValue}>
             <div ref={setNodeRef} style={style} className="touch-manipulation select-none">
                 {children}
             </div>
