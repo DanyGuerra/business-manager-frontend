@@ -14,13 +14,20 @@ import {
     TouchSensor,
     useSensor,
     useSensors,
-    DragEndEvent
+    DragEndEvent,
+    DragStartEvent,
+    DragOverlay,
+    defaultDropAnimationSideEffects,
+    DropAnimation,
+    useDndContext
 } from '@dnd-kit/core';
+import { cn } from "@/lib/utils";
 import {
     SortableContext,
     verticalListSortingStrategy,
     useSortable
 } from '@dnd-kit/sortable';
+import { useState } from "react";
 
 
 interface CartDrawerContentProps {
@@ -51,6 +58,16 @@ interface CartDrawerContentProps {
     onContinueShopping?: () => void;
 }
 
+const dropAnimation: DropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+        styles: {
+            active: {
+                opacity: '0.5',
+            },
+        },
+    }),
+};
+
 export function CartDrawerContent({
     groups,
     totalItems,
@@ -74,6 +91,7 @@ export function CartDrawerContent({
     onAddProductsToGroup,
     onContinueShopping
 }: CartDrawerContentProps) {
+    const [activeItem, setActiveItem] = useState<CartItem | null>(null);
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -90,8 +108,20 @@ export function CartDrawerContent({
         useSensor(KeyboardSensor)
     );
 
+    const handleDragStart = (event: DragStartEvent) => {
+        const { active } = event;
+        const activeGroup = groups.find(g => g.items.some(i => i.cart_item_id === active.id));
+        const item = activeGroup?.items.find(i => i.cart_item_id === active.id);
+        if (item) setActiveItem(item);
+    };
+
+    const handleDragCancel = () => {
+        setActiveItem(null);
+    };
+
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        setActiveItem(null);
 
         if (!over) return;
 
@@ -140,7 +170,9 @@ export function CartDrawerContent({
                     <DndContext
                         sensors={sensors}
                         collisionDetection={closestCenter}
+                        onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
+                        onDragCancel={handleDragCancel}
                     >
                         <ScrollArea className="flex-1 min-h-0 w-full">
                             <div className="flex flex-col gap-6 p-6">
@@ -176,6 +208,7 @@ export function CartDrawerContent({
                                             onRemoveItem={onRemoveItem}
                                             businessId={businessId}
                                             onAddProducts={onAddProductsToGroup}
+                                            activeId={activeItem?.cart_item_id}
                                         />
                                     ))}
                                 </div>
@@ -190,6 +223,17 @@ export function CartDrawerContent({
                                 </Button>
                             </div>
                         </ScrollArea>
+                        <DragOverlay dropAnimation={dropAnimation}>
+                            {activeItem ? (
+                                <CartItemRow
+                                    item={activeItem}
+                                    businessId={businessId}
+                                    groupId="" // Not needed for overlay
+                                    updateQuantity={() => { }}
+                                    removeFromCart={() => { }}
+                                />
+                            ) : null}
+                        </DragOverlay>
                     </DndContext>
 
                     <CartOrderSummary
@@ -217,9 +261,10 @@ interface SortableGroupProps {
     onUpdateQuantity: (groupId: string, itemId: string, quantity: number) => void;
     onRemoveItem: (groupId: string, itemId: string) => void;
     onAddProducts?: (groupId: string) => void;
+    activeId?: string;
 }
 
-function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, onUpdateQuantity, onRemoveItem, businessId, onAddProducts }: SortableGroupProps) {
+function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, onUpdateQuantity, onRemoveItem, businessId, onAddProducts, activeId }: SortableGroupProps) {
     const { setNodeRef } = useSortable({
         id: group.group_id,
         data: {
@@ -227,22 +272,42 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
             group
         }
     });
+    const { over } = useDndContext();
 
     const isSelected = selectedGroupId === group.group_id;
     const groupTotal = group.items.reduce((acc: number, item: CartItem) => acc + item.total_price, 0);
 
+    const isOverGroup = over?.id === group.group_id;
+    const isOverItemInGroup = group.items.some(item => item.cart_item_id === over?.id);
+    const isOver = isOverGroup || isOverItemInGroup;
+
+    // Check if the dragged item belongs to this group
+    const isSourceGroup = group.items.some(item => item.cart_item_id === activeId);
+    const isDropTarget = activeId && isOver && !isSourceGroup;
+
     return (
         <div
             ref={setNodeRef}
-            className={`space-y-4 border rounded-lg p-3 transition-colors cursor-pointer ${isSelected ? 'border-primary bg-primary/5' : 'border-transparent hover:bg-muted/50'}`}
+            className={cn(
+                "space-y-4 border rounded-lg p-3 transition-all duration-300 cursor-pointer relative overflow-hidden",
+                isSelected
+                    ? "border-primary bg-primary/5 shadow-sm"
+                    : "border-transparent hover:bg-muted/50",
+                isDropTarget && "ring-1 ring-primary ring-offset-1 bg-primary/10 border-primary shadow-md scale-[1.01]"
+            )}
             onClick={() => onSelectGroup(group.group_id)}
         >
-            <div className="flex items-center justify-between pb-2 border-b border-dashed">
+            {isDropTarget && (
+                <div className="absolute inset-0 bg-primary/5 pointer-events-none z-0" />
+            )}
+
+            <div className="flex items-center justify-between pb-2 border-b border-dashed relative z-10">
                 <div>
                     {isSelected && <Badge variant='default'>
                         {group.group_name}
                         {isSelected && " (Seleccionada)"}
                     </Badge>}
+                    {!isSelected && <span className="text-sm font-medium">{group.group_name}</span>}
                 </div>
                 <div className="flex items-center gap-1">
                     {onAddProducts && (
@@ -276,11 +341,16 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
                 items={group.items.map((i: CartItem) => i.cart_item_id)}
                 strategy={verticalListSortingStrategy}
             >
-                <div className="space-y-2 min-h-[50px]">
+                <div className="space-y-2 min-h-[50px] relative z-10">
                     {group.items.length === 0 ? (
-                        <p className="text-center text-xs text-muted-foreground italic pl-2 py-4">
-                            Bolsa vacía - Arrastra productos aquí
-                        </p>
+                        <div className={cn(
+                            "flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-md transition-colors",
+                            isDropTarget ? "border-primary/50 bg-primary/5" : "border-muted-foreground/20"
+                        )}>
+                            <p className="text-xs text-muted-foreground italic">
+                                {isDropTarget ? "¡Suelta aquí!" : "Bolsa vacía - Arrastra productos aquí"}
+                            </p>
+                        </div>
                     ) : (
                         group.items.map((item: CartItem) => (
                             <CartItemRow
@@ -297,7 +367,7 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
             </SortableContext>
 
             {group.items.length > 0 && (
-                <div className="flex justify-end pt-3 mt-3 border-t border-dashed">
+                <div className="flex justify-end pt-3 mt-3 border-t border-dashed relative z-10">
                     <span className="text-sm font-medium text-muted-foreground">
                         Subtotal: <span className="text-foreground font-bold">${groupTotal}</span>
                     </span>
