@@ -20,7 +20,7 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { CartDrawerContent } from "@/components/CartDrawerContent";
 
 export default function CartDrawer() {
-    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup, moveItem } = useCartStore();
+    const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup, moveItem, createGroupWithItem } = useCartStore();
     const { businessId } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
@@ -97,6 +97,7 @@ export default function CartDrawer() {
                     onUpdateQuantity={(groupId, itemId, quantity) => updateQuantity(businessId, groupId, itemId, quantity)}
                     onRemoveItem={(groupId, itemId) => removeFromCart(businessId, groupId, itemId)}
                     onMoveItem={(from, to, item) => moveItem(businessId, from, to, item)}
+                    onCreateGroupWithItem={(fromGroupId, cartItemId) => createGroupWithItem(businessId, fromGroupId, cartItemId)}
                     setOrderDetails={(details) => setOrderDetails(businessId, details)}
                     businessId={businessId}
                     onContinueShopping={() => {

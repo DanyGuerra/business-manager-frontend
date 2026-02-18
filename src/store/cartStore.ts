@@ -58,6 +58,8 @@ type CartState = {
     getTotalPrice: (businessId: string) => number;
     getTotalItems: (businessId: string) => number;
     getGroups: (businessId: string) => CartGroup[];
+    // New action
+    createGroupWithItem: (businessId: string, fromGroupId: string, cartItemId: string) => void;
     getOrderDetails: (businessId: string) => OrderDetails;
     getSelectedGroupId: (businessId: string) => string | null;
 };
@@ -131,6 +133,51 @@ export const useCartStore = create<CartState>()(
                         }
                     };
                 });
+            },
+
+            createGroupWithItem: (businessId, fromGroupId, cartItemId) => {
+                const currentGroups = get().carts[businessId] || [];
+                const sourceGroup = currentGroups.find(g => g.group_id === fromGroupId);
+                if (!sourceGroup) return;
+
+                const itemToMove = sourceGroup.items.find(i => i.cart_item_id === cartItemId);
+                if (!itemToMove) return;
+
+                // Create new group
+                const newGroupId = crypto.randomUUID();
+                const newGroup: CartGroup = {
+                    group_id: newGroupId,
+                    group_name: null,
+                    items: []
+                };
+
+                // Remove item from source
+                get().removeFromCart(businessId, fromGroupId, cartItemId);
+
+                // Add item to new group (using addToCart to handle potential logic/merging although irrelevant here, ensures consistency)
+                // Actually better to use addToCart so it correctly constructs the item structure if needed, 
+                // BUT addToCart calculates ID from options. Here we have existing ID.
+                // Re-using addToCart is safest for data integrity.
+
+                // Add the new group through set first? 
+                // No, addToCart can CREATE a group if none exists, or add to existing.
+                // But addToCart logic (line 193) finds group by ID.
+
+                // So steps:
+                // 1. Add empty group to state.
+                // 2. Call addToCart targeting that group.
+
+                set((state) => ({
+                    carts: {
+                        ...state.carts,
+                        [businessId]: [...(state.carts[businessId] || []), newGroup]
+                    }
+                }));
+
+                get().addToCart(businessId, itemToMove.product, itemToMove.selected_options, itemToMove.quantity, newGroupId);
+
+                // Select the new group
+                get().selectGroup(businessId, newGroupId);
             },
 
             removeGroup: (businessId, groupId) => {
