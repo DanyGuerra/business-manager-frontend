@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ShoppingCartIcon, PlusIcon, Trash2Icon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -8,7 +7,6 @@ import { CartItemRow } from "@/components/CartItemRow";
 import { CartGroup, CartItem, OrderDetails } from "@/store/cartStore";
 import {
     DndContext,
-    closestCenter,
     KeyboardSensor,
     MouseSensor,
     TouchSensor,
@@ -19,7 +17,9 @@ import {
     DragOverlay,
     defaultDropAnimationSideEffects,
     DropAnimation,
-    useDndContext
+    useDndContext,
+    pointerWithin,
+    useDroppable
 } from '@dnd-kit/core';
 import { cn } from "@/lib/utils";
 import {
@@ -56,13 +56,14 @@ interface CartDrawerContentProps {
     disableSubmit?: boolean;
     onAddProductsToGroup?: (groupId: string) => void;
     onContinueShopping?: () => void;
+    onCreateGroupWithItem?: (fromGroupId: string, cartItemId: string) => void;
 }
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
         styles: {
             active: {
-                opacity: '0.5',
+                opacity: '0.1',
             },
         },
     }),
@@ -89,9 +90,11 @@ export function CartDrawerContent({
     businessId = "default",
     disableSubmit,
     onAddProductsToGroup,
-    onContinueShopping
+    onContinueShopping,
+    onCreateGroupWithItem
 }: CartDrawerContentProps) {
     const [activeItem, setActiveItem] = useState<CartItem | null>(null);
+    const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
 
     const sensors = useSensors(
         useSensor(MouseSensor, {
@@ -110,36 +113,54 @@ export function CartDrawerContent({
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-        const activeGroup = groups.find(g => g.items.some(i => i.cart_item_id === active.id));
-        const item = activeGroup?.items.find(i => i.cart_item_id === active.id);
+        const activeIdString = active.id as string;
+        if (!activeIdString.includes('::')) return;
+
+        const [groupId, itemId] = activeIdString.split('::');
+        setActiveGroupId(groupId);
+        const activeGroup = groups.find(g => g.group_id === groupId);
+        const item = activeGroup?.items.find(i => i.cart_item_id === itemId);
         if (item) setActiveItem(item);
     };
 
     const handleDragCancel = () => {
         setActiveItem(null);
+        setActiveGroupId(null);
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
         setActiveItem(null);
+        setActiveGroupId(null);
 
         if (!over) return;
 
-        const activeId = active.id as string;
-        const overId = over.id as string;
+        const activeIdString = active.id as string;
+        if (!activeIdString.includes('::')) return;
 
-        const activeGroup = groups.find(g => g.items.some(i => i.cart_item_id === activeId));
-        if (!activeGroup) return;
+        const [activeGroupId, activeItemId] = activeIdString.split('::');
+        const overId = over.id as string;
 
         let targetGroupId = groups.find(g => g.group_id === overId)?.group_id;
 
         if (!targetGroupId) {
-            const overGroup = groups.find(g => g.items.some(i => i.cart_item_id === overId));
-            if (overGroup) targetGroupId = overGroup.group_id;
+            // Check if dropped on "CREATE_NEW_GROUP"
+            if (overId === 'CREATE_NEW_GROUP') {
+                if (activeGroupId && onCreateGroupWithItem) {
+                    onCreateGroupWithItem(activeGroupId, activeItemId);
+                }
+                return;
+            }
+
+            if (overId.includes('::')) {
+                const [overGroupId] = overId.split('::');
+                const overGroup = groups.find(g => g.group_id === overGroupId);
+                if (overGroup) targetGroupId = overGroup.group_id;
+            }
         }
 
-        if (targetGroupId && activeGroup.group_id !== targetGroupId) {
-            onMoveItem(activeGroup.group_id, targetGroupId, activeId);
+        if (targetGroupId && activeGroupId && activeGroupId !== targetGroupId) {
+            onMoveItem(activeGroupId, targetGroupId, activeItemId);
         }
     };
 
@@ -169,7 +190,7 @@ export function CartDrawerContent({
                 <>
                     <DndContext
                         sensors={sensors}
-                        collisionDetection={closestCenter}
+                        collisionDetection={pointerWithin}
                         onDragStart={handleDragStart}
                         onDragEnd={handleDragEnd}
                         onDragCancel={handleDragCancel}
@@ -209,29 +230,28 @@ export function CartDrawerContent({
                                             businessId={businessId}
                                             onAddProducts={onAddProductsToGroup}
                                             activeId={activeItem?.cart_item_id}
+                                            activeGroupId={activeGroupId}
                                         />
                                     ))}
                                 </div>
 
-                                <Button
+                                <DroppableNewGroupArea
                                     onClick={onAddGroup}
-                                    variant="secondary"
-                                    className="w-full gap-2 border-dashed border-2"
-                                >
-                                    <PlusIcon className="h-4 w-4" />
-                                    Nueva Bolsa
-                                </Button>
+                                    isDroppable={activeItem !== null}
+                                />
                             </div>
                         </ScrollArea>
                         <DragOverlay dropAnimation={dropAnimation}>
                             {activeItem ? (
-                                <CartItemRow
-                                    item={activeItem}
-                                    businessId={businessId}
-                                    groupId="" // Not needed for overlay
-                                    updateQuantity={() => { }}
-                                    removeFromCart={() => { }}
-                                />
+                                <div className="opacity-80">
+                                    <CartItemRow
+                                        item={activeItem}
+                                        businessId={businessId}
+                                        groupId=""
+                                        updateQuantity={() => { }}
+                                        removeFromCart={() => { }}
+                                    />
+                                </div>
                             ) : null}
                         </DragOverlay>
                     </DndContext>
@@ -262,9 +282,10 @@ interface SortableGroupProps {
     onRemoveItem: (groupId: string, itemId: string) => void;
     onAddProducts?: (groupId: string) => void;
     activeId?: string;
+    activeGroupId?: string | null;
 }
 
-function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, onUpdateQuantity, onRemoveItem, businessId, onAddProducts, activeId }: SortableGroupProps) {
+function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, onUpdateQuantity, onRemoveItem, businessId, onAddProducts, activeId, activeGroupId }: SortableGroupProps) {
     const { setNodeRef } = useSortable({
         id: group.group_id,
         data: {
@@ -278,27 +299,31 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
     const groupTotal = group.items.reduce((acc: number, item: CartItem) => acc + item.total_price, 0);
 
     const isOverGroup = over?.id === group.group_id;
-    const isOverItemInGroup = group.items.some(item => item.cart_item_id === over?.id);
+    const isOverItemInGroup = group.items.some(item => `${group.group_id}::${item.cart_item_id}` === over?.id);
     const isOver = isOverGroup || isOverItemInGroup;
 
     // Check if the dragged item belongs to this group
-    const isSourceGroup = group.items.some(item => item.cart_item_id === activeId);
+    const isSourceGroup = group.group_id === activeGroupId;
     const isDropTarget = activeId && isOver && !isSourceGroup;
 
     return (
         <div
             ref={setNodeRef}
             className={cn(
-                "space-y-4 border rounded-lg p-3 transition-all duration-300 cursor-pointer relative overflow-hidden",
+                "space-y-4 border rounded-lg p-3 transition-all duration-300 cursor-pointer relative overflow-hidden bg-muted/40",
                 isSelected
                     ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-transparent hover:bg-muted/50",
-                isDropTarget && "ring-1 ring-primary ring-offset-1 bg-primary/10 border-primary shadow-md scale-[1.01]"
+                    : "border-transparent hover:bg-muted/60",
+                isDropTarget && "bg-primary/5 shadow-md scale-[1.01] border-primary"
             )}
             onClick={() => onSelectGroup(group.group_id)}
         >
-            {isDropTarget && (
-                <div className="absolute inset-0 bg-primary/5 pointer-events-none z-0" />
+            {isDropTarget && group.items.length > 0 && (
+                <div className="absolute inset-0 bg-background/60 pointer-events-none z-20 flex items-center justify-center">
+                    <div className="bg-background/95 shadow-sm border border-primary/20 text-primary text-xs font-semibold px-4 py-1.5 rounded-full animate-in fade-in zoom-in duration-200 ring-2 ring-primary/10">
+                        Suelta aquí
+                    </div>
+                </div>
             )}
 
             <div className="flex items-center justify-between pb-2 border-b border-dashed relative z-10">
@@ -338,7 +363,7 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
             </div>
 
             <SortableContext
-                items={group.items.map((i: CartItem) => i.cart_item_id)}
+                items={group.items.map((i: CartItem) => `${group.group_id}::${i.cart_item_id}`)}
                 strategy={verticalListSortingStrategy}
             >
                 <div className="space-y-2 min-h-[50px] relative z-10">
@@ -348,13 +373,13 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
                             isDropTarget ? "border-primary/50 bg-primary/5" : "border-muted-foreground/20"
                         )}>
                             <p className="text-xs text-muted-foreground italic">
-                                {isDropTarget ? "¡Suelta aquí!" : "Bolsa vacía - Arrastra productos aquí"}
+                                {isDropTarget ? "Suelta aquí" : "Bolsa vacía - Arrastra productos aquí"}
                             </p>
                         </div>
                     ) : (
                         group.items.map((item: CartItem) => (
                             <CartItemRow
-                                key={item.cart_item_id}
+                                key={`${group.group_id}::${item.cart_item_id}`}
                                 item={item}
                                 businessId={businessId}
                                 groupId={group.group_id}
@@ -375,4 +400,29 @@ function SortableGroup({ group, selectedGroupId, onSelectGroup, onRemoveGroup, o
             )}
         </div>
     );
+}
+
+function DroppableNewGroupArea({ onClick, isDroppable }: { onClick: () => void, isDroppable: boolean }) {
+    const { setNodeRef, isOver } = useDroppable({
+        id: 'CREATE_NEW_GROUP',
+        data: { type: 'new-group-zone' },
+        disabled: !isDroppable
+    });
+
+    const isTarget = isOver && isDroppable;
+
+    return (
+        <Button
+            ref={setNodeRef}
+            onClick={onClick}
+            variant="secondary"
+            className={cn(
+                "w-full gap-2 border-dashed border-2 transition-all duration-200",
+                isTarget ? "border-primary bg-primary/10 text-primary scale-[1.02] shadow-md ring-2 ring-primary/20" : "hover:border-primary/50"
+            )}
+        >
+            <PlusIcon className={cn("h-4 w-4", isTarget && "animate-bounce")} />
+            {isTarget ? "Soltar para crear nueva bolsa" : "Nueva Bolsa"}
+        </Button>
+    )
 }
