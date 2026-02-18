@@ -20,7 +20,7 @@ import { useOrdersApi } from "@/lib/useOrdersApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";
-import { useContext, useState } from "react";
+import { useContext, useState, memo } from "react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useOrdersStore } from "@/store/ordersStore";
 import { SortableItemContext } from "@/app/business/[id]/orders/board/SortableItem";
@@ -43,7 +43,7 @@ const getConsumptionIcon = (type: string) => {
     }
 };
 
-export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
+export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
     const { isEditMode } = useEditModeStore();
     const { businessId } = useBusinessStore();
     const ordersApi = useOrdersApi();
@@ -384,4 +384,4 @@ export function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
             </div>
         </Card >
     );
-}
+});

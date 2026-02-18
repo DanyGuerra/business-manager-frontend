@@ -5,7 +5,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
 import { SortableItem } from "./SortableItem";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Clock, Ghost, Flame, Bell, CheckCheck } from "lucide-react";
+import { Clock, Ghost, Flame, Bell, CheckCheck, ArrowDown } from "lucide-react";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 import { cn } from "@/lib/utils";
 
@@ -100,7 +100,7 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
             )}
         >
             <div className={cn(
-                "p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 z-30 relative",
+                "p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 relative z-9",
                 isActive ? styles.headerBorder : "border-border/40"
             )}>
                 <div className="flex items-center gap-2.5">
@@ -134,7 +134,10 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                     items={orders.map(o => o.id)}
                     strategy={verticalListSortingStrategy}
                 >
-                    <div className="flex flex-col gap-3 py-3 min-h-[150px]">
+                    <div className={cn(
+                        "flex flex-col gap-3 py-3 min-h-[150px] transition-all duration-300",
+                        isActive ? "blur-sm opacity-90" : ""
+                    )}>
                         {loading ? (
                             Array.from({ length: 3 }).map((_, i) => (
                                 <OrderCardSkeleton key={i} />
@@ -156,18 +159,19 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                 </SortableContext>
             </ScrollArea>
 
-            {isActive && orders.length > 0 && (
+            {isActive && (
                 <div className={cn(
-                    "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24",
-                    "backdrop-blur-[2px] bg-background/50"
+                    "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24 transition-all duration-300",
+                    "bg-background/40"
                 )}>
                     <div className={cn(
-                        "px-6 py-2 rounded-full font-bold shadow-xl border-2 transform transition-all duration-200 scale-110",
-                        "bg-background/95 backdrop-blur-lg",
+                        "flex items-center gap-2 px-6 py-3 rounded-full shadow-2xl border-2",
+                        "bg-transparent",
                         styles.border,
                         styles.title
                     )}>
-                        Soltar aquí
+                        <ArrowDown className="w-5 h-5" />
+                        <span className="font-bold text-sm uppercase tracking-wider">Soltar aquí</span>
                     </div>
                 </div>
             )}
