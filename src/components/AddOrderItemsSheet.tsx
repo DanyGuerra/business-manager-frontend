@@ -238,14 +238,55 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         });
     };
 
+    const handleCreateGroupWithItem = (fromGroupId: string, cartItemId: string) => {
+        setCartGroups(prev => {
+            const newGroups = [...prev];
+            const sourceGroupIdx = newGroups.findIndex(g => g.group_id === fromGroupId);
+
+            if (sourceGroupIdx === -1) return prev;
+
+            const sourceGroup = { ...newGroups[sourceGroupIdx] };
+            const itemIndex = sourceGroup.items.findIndex(i => i.cart_item_id === cartItemId);
+
+            if (itemIndex === -1) return prev;
+
+            // Remove item from source
+            const [itemToMove] = sourceGroup.items.splice(itemIndex, 1);
+            newGroups[sourceGroupIdx] = sourceGroup;
+
+            // Create new group
+            const newGroupId = Math.random().toString(36).substr(2, 9);
+            const newGroup: CartGroup = {
+                group_id: newGroupId,
+                group_name: "",
+                items: [itemToMove]
+            };
+
+            // Add new group to groups list
+            newGroups.push(newGroup);
+
+            // Queue state update for selection (can't do inside reducer, so usage in useEffect or direct logic if possible)
+            // But we can't side-effect safely in setState. 
+            // We'll update the selected group ID after state update via effect or just assume the UI updates.
+            // React batching might let us call setSelectedGroupId here but it's cleaner to just update state.
+            // However, to select it immediately, we need to know the ID.
+
+            // Side effect: Select the new group
+            setTimeout(() => setSelectedGroupId(newGroupId), 0);
+
+            return newGroups;
+        });
+    };
+
     const handleConfirmUpdate = async () => {
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
+            const filteredCartGroups = cartGroups.filter(group => group.items.length > 0);
             const payload = {
                 ...orderDetails,
                 scheduled_at: orderDetails.scheduled_at || undefined,
                 table_number: Number(orderDetails.table_number) || undefined,
-                group_items: cartGroups.map(group => ({
+                group_items: filteredCartGroups.map(group => ({
                     group_name: group.group_name,
                     items: group.items.map(item => ({
                         product_id: item.product.id,
@@ -423,6 +464,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                             onUpdateQuantity={handleUpdateQuantity}
                             onRemoveItem={handleRemoveItem}
                             onMoveItem={handleMoveItem}
+                            onCreateGroupWithItem={handleCreateGroupWithItem}
                             setOrderDetails={(details) => setOrderDetails(prev => ({ ...prev, ...details }))}
                             businessId={businessId}
                             disableSubmit={!hasChanges()}

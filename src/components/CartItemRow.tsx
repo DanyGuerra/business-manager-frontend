@@ -27,7 +27,7 @@ export function CartItemRow({
         transform,
         transition,
         isDragging
-    } = useSortable({ id: item.cart_item_id, data: { type: 'item', item } });
+    } = useSortable({ id: `${groupId}::${item.cart_item_id}`, data: { type: 'item', item } });
 
     const style = {
         transform: CSS.Transform.toString(transform),
