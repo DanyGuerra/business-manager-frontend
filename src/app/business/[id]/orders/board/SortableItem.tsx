@@ -20,6 +20,14 @@ export function SortableItem({ id, children }: SortableItemProps) {
         isDragging,
     } = useSortable({ id });
 
+    const setNodeRefWithScroll = (node: HTMLElement | null) => {
+        setNodeRef(node);
+        if (node) {
+            // Prevent auto-scroll on drop in dnd-kit
+            node.scrollIntoView = () => { };
+        }
+    };
+
     const style = {
         transform: CSS.Translate.toString(transform),
         transition,
@@ -34,7 +42,7 @@ export function SortableItem({ id, children }: SortableItemProps) {
 
     return (
         <SortableItemContext.Provider value={contextValue}>
-            <div ref={setNodeRef} style={style} className="touch-manipulation select-none">
+            <div ref={setNodeRefWithScroll} style={style} className="touch-manipulation select-none">
                 {children}
             </div>
         </SortableItemContext.Provider>
