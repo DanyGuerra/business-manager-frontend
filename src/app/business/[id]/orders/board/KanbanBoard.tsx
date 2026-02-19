@@ -23,6 +23,7 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useSocket } from "@/context/SocketContext";
 import { Bell } from "lucide-react";
+import { getStatusLabel } from "@/lib/utils";
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -242,7 +243,7 @@ export default function KanbanBoard() {
 
         try {
             await ordersApi.updateOrder(activeId, { status: newStatus }, businessId);
-            toast.success(`Pedido movido a ${newStatus}`);
+            toast.success(`Pedido movido a "${getStatusLabel(newStatus)}"`);
         } catch (error) {
             updateOrder(activeId, { status: originalStatus });
             handleApiError(error);
