@@ -83,6 +83,14 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
     });
     const { active, over } = useDndContext();
 
+    const setNodeRefWithScroll = (node: HTMLElement | null) => {
+        setNodeRef(node);
+        if (node) {
+            // Prevent auto-scroll on drop in dnd-kit
+            node.scrollIntoView = () => { };
+        }
+    };
+
     const isOverItem = orders.some(order => order.id === over?.id);
     const isSourceColumn = orders.some(order => order.id === active?.id);
     const isActive = (isOver || isOverItem) && !isSourceColumn;
@@ -91,7 +99,7 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
 
     return (
         <div
-            ref={setNodeRef}
+            ref={setNodeRefWithScroll}
             className={cn(
                 "flex flex-col h-full min-w-[300px] w-full rounded-xl border relative overflow-hidden",
                 isActive
@@ -161,16 +169,16 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
 
             {isActive && (
                 <div className={cn(
-                    "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24 transition-all duration-300",
+                    "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24 transition-all duration-700 animate-in fade-in",
                     "bg-background/40"
                 )}>
                     <div className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-full shadow-2xl border-2",
+                        "flex items-center gap-2 px-6 py-3 rounded-full shadow-2xl border-2 transition-all duration-700 animate-in zoom-in-95",
                         "bg-transparent",
                         styles.border,
                         styles.title
                     )}>
-                        <ArrowDown className="w-5 h-5" />
+                        <ArrowDown className="w-5 h-5 animate-bounce" />
                         <span className="font-bold text-sm uppercase tracking-wider">Soltar aquí</span>
                     </div>
                 </div>

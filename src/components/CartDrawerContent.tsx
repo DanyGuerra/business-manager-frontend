@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { CartOrderSummary } from "@/components/CartOrderSummary";
 import { CartItemRow } from "@/components/CartItemRow";
+import { CartItemDragPreview } from "@/components/CartItemDragPreview";
 import { CartGroup, CartItem, OrderDetails } from "@/store/cartStore";
 import {
     DndContext,
@@ -243,14 +244,8 @@ export function CartDrawerContent({
                         </ScrollArea>
                         <DragOverlay dropAnimation={dropAnimation}>
                             {activeItem ? (
-                                <div className="opacity-80">
-                                    <CartItemRow
-                                        item={activeItem}
-                                        businessId={businessId}
-                                        groupId=""
-                                        updateQuantity={() => { }}
-                                        removeFromCart={() => { }}
-                                    />
+                                <div className="opacity-70">
+                                    <CartItemDragPreview item={activeItem} />
                                 </div>
                             ) : null}
                         </DragOverlay>
@@ -426,3 +421,5 @@ function DroppableNewGroupArea({ onClick, isDroppable }: { onClick: () => void, 
         </Button>
     )
 }
+
+
