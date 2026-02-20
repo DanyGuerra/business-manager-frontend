@@ -12,8 +12,10 @@ import Link from "next/link";
 
 import CustomDialog from "@/components/customDialog";
 import ProductCardList from "./ProductCardList";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
 
-import { Edit2Icon, PlusIcon, ArrowUpRight } from "lucide-react";
+import { Edit2Icon, PlusIcon, ArrowUpRight, ChevronDown } from "lucide-react";
 import { DeleteDialogConfirmation } from "@/components/deleteDialogConfirmation";
 import { useProductGroupApi } from "@/lib/useProductGroupApi";
 import { toast } from "sonner";
@@ -54,6 +56,7 @@ export default function ProductGroupItem({
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [isCreateProductOpen, setIsCreateProductOpen] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     const fetchGroup = useCallback(async () => {
         try {
@@ -192,46 +195,73 @@ export default function ProductGroupItem({
                 </div>
             </CardHeader>
             <CardContent className="p-4 pt-2 flex-1 flex flex-col gap-4">
-                <div className="flex items-center justify-between border-b pb-4">
-                    <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                            Productos
-                        </h3>
-                        <span className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full text-[10px] font-medium">
-                            {products.length || 0}
-                        </span>
-                    </div>
-                    {isEditMode && (
-                        <CustomDialog
-                            open={isCreateProductOpen}
-                            setOpen={setIsCreateProductOpen}
-                            modalTitle="Agregar producto"
-                            modalDescription="Agrega un producto para tu menú"
-                            icon={<PlusIcon />}
-                        >
-                            <FormProduct
-                                buttonTitle="Guardar"
-                                loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
-                                handleSubmitButton={handleCreateProduct}
-                            ></FormProduct>
-                        </CustomDialog>
-                    )}
-                </div>
-                <div className="flex-1">
-                    {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {[1, 2, 3].map((i) => (
-                                <ProductCardSkeleton key={i} />
-                            ))}
+                <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="flex flex-col h-full gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 pb-4">
+                        <div className="flex items-center gap-3">
+                            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                                Productos
+                            </h3>
+                            <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold leading-none flex items-center justify-center">
+                                {products.length || 0}
+                            </span>
                         </div>
-                    ) : (
-                        <ProductCardList
-                            products={products}
-                            onRefresh={fetchProducts}
-                            onAddToCart={(product, options, quantity) => addToCart(businessId, product, options, quantity)}
-                        />
-                    )}
-                </div>
+                        <div className="flex items-center gap-2">
+                            <CollapsibleTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className={cn(
+                                        "h-8 px-3 gap-1.5 text-xs font-semibold rounded-full border border-transparent hover:border-border",
+                                        isExpanded
+                                            ? "bg-muted text-muted-foreground hover:bg-muted/80"
+                                            : "bg-primary/10 text-primary hover:bg-primary/20"
+                                    )}
+                                >
+                                    {isExpanded ? "Ocultar" : "Mostrar"}
+                                    <ChevronDown className={cn("h-3.5 w-3.5", isExpanded ? "rotate-180" : "")} />
+                                </Button>
+                            </CollapsibleTrigger>
+                            {isEditMode && (
+                                <CustomDialog
+                                    open={isCreateProductOpen}
+                                    setOpen={setIsCreateProductOpen}
+                                    modalTitle="Agregar producto"
+                                    modalDescription="Agrega un producto para tu menú"
+                                    trigger={
+                                        <Button size="sm" className="h-8 gap-1.5 px-3 text-xs font-bold shadow-sm rounded-md bg-primary hover:bg-primary/90 text-primary-foreground">
+                                            <PlusIcon className="h-4 w-4" />
+                                            <span className="hidden sm:inline">Agregar</span>
+                                        </Button>
+                                    }
+                                >
+                                    <FormProduct
+                                        buttonTitle="Guardar"
+                                        loadingKey={LoadingsKeyEnum.CREATE_PRODUCT}
+                                        handleSubmitButton={handleCreateProduct}
+                                    ></FormProduct>
+                                </CustomDialog>
+                            )}
+                        </div>
+                    </div>
+
+                    <CollapsibleContent>
+                        <div className="pt-2">
+                            {loading ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {[1, 2, 3].map((i) => (
+                                        <ProductCardSkeleton key={i} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <ProductCardList
+                                    products={products}
+                                    onRefresh={fetchProducts}
+                                    onAddToCart={(product, options, quantity) => addToCart(businessId, product, options, quantity)}
+                                />
+                            )}
+                        </div>
+                    </CollapsibleContent>
+                </Collapsible>
             </CardContent>
         </Card>
     );
