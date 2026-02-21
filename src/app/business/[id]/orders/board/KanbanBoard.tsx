@@ -64,7 +64,11 @@ export default function KanbanBoard() {
         };
     }, []);
 
-    const scheduledOrders = orders.filter(o => o.status === OrderStatus.SCHEDULED);
+    const scheduledOrders = orders.filter(o => o.status === OrderStatus.SCHEDULED).sort((a, b) => {
+        if (!a.scheduled_at) return 1;
+        if (!b.scheduled_at) return -1;
+        return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
+    });
     const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING);
     const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING);
     const readyOrders = orders.filter(o => o.status === OrderStatus.READY);
