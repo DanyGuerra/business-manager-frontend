@@ -5,8 +5,9 @@ import { useEffect, useState } from "react";
 import { OrderStatus, ConsumptionType } from "@/lib/useOrdersApi";
 import { useGetOrders } from "@/app/hooks/useGetOrders";
 import { OrderCard } from "@/components/OrderCard";
-import { ShoppingBag, Filter, XCircle } from "lucide-react";
+import { ShoppingBag, Filter, XCircle, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useOrdersStore } from "@/store/ordersStore";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 import { DataTablePagination } from "@/components/DataTablePagination";
@@ -23,6 +24,20 @@ export default function OrdersPage() {
     const { orders, pagination, filters, setFilters, resetFilters, setLimit, setPage } = useOrdersStore();
     const { loading, getOrders } = useGetOrders();
     const [initialized, setInitialized] = useState(false);
+
+    const { status, consumptionType, sort, startDate, endDate, customer_name } = filters;
+    const { page, limit } = pagination;
+
+    const [localCustomerName, setLocalCustomerName] = useState(customer_name);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (localCustomerName !== customer_name) {
+                setFilters({ customer_name: localCustomerName.trim() });
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [localCustomerName, customer_name, setFilters]);
 
     useEffect(() => {
         if (!initialized) {
@@ -46,12 +61,9 @@ export default function OrdersPage() {
         if (initialized) {
             getOrders();
         }
-    }, [getOrders, initialized]);
+    }, [getOrders, initialized, customer_name, status, consumptionType, sort, startDate, endDate, page, limit]);
 
-    const { status, consumptionType, sort, startDate, endDate } = filters;
-    const { page, limit } = pagination;
-
-    const hasActiveFilters = status !== "ALL" || consumptionType !== "ALL" || startDate !== undefined || endDate !== undefined;
+    const hasActiveFilters = status !== "ALL" || consumptionType !== "ALL" || startDate !== undefined || endDate !== undefined || customer_name !== "";
 
     return (
         <div className="flex flex-col h-full bg-muted/10">
@@ -68,6 +80,17 @@ export default function OrdersPage() {
                     <div className="flex items-center gap-2 mr-2">
                         <Filter className="w-4 h-4 text-muted-foreground" />
                         <span className="text-sm font-medium">Filtros:</span>
+                    </div>
+
+                    <div className="relative flex-1 min-w-[140px] max-w-[200px]">
+                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            type="text"
+                            placeholder="Buscar cliente..."
+                            value={localCustomerName}
+                            onChange={(e) => setLocalCustomerName(e.target.value.trimStart())}
+                            className="h-9 w-full pl-9 text-xs"
+                        />
                     </div>
 
                     <Select value={status} onValueChange={(val: OrderStatus | "ALL") => setFilters({ status: val })}>
