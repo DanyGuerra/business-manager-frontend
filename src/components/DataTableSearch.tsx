@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface DataTableSearchProps {
     onSearch: (value: string) => void;
@@ -17,10 +17,31 @@ export function DataTableSearch({
     children
 }: DataTableSearchProps) {
     const [inputValue, setInputValue] = useState(initialValue);
+    const isMounted = useRef(false);
 
     useEffect(() => {
         setInputValue(initialValue);
     }, [initialValue]);
+
+    useEffect(() => {
+        if (!isMounted.current) {
+            isMounted.current = true;
+            return;
+        }
+
+        const trimmedValue = inputValue.trim();
+
+        if (trimmedValue === "") {
+            onSearch("");
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            onSearch(trimmedValue);
+        }, 600);
+
+        return () => clearTimeout(timer);
+    }, [inputValue, onSearch]);
 
     return (
         <div className="flex flex-col sm:flex-row gap-2">
@@ -35,7 +56,7 @@ export function DataTableSearch({
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => {
                             if (e.key === "Enter") {
-                                onSearch(inputValue);
+                                onSearch(inputValue.trim());
                             }
                         }}
                     />

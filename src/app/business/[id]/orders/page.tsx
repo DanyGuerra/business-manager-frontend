@@ -144,7 +144,10 @@ export default function OrdersPage() {
                     />
 
                     {hasActiveFilters && (
-                        <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                            resetFilters();
+                            setLocalCustomerName("");
+                        }} className="h-9 px-2 text-muted-foreground hover:text-foreground">
                             <XCircle className="w-4 h-4 mr-2" />
                             Limpiar
                         </Button>
