@@ -98,6 +98,7 @@ export type GetOrdersParams = {
     sort?: 'ASC' | 'DESC';
     start_date?: string;
     end_date?: string;
+    customer_name?: string;
 }
 
 export function useOrdersApi() {

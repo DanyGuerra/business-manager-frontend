@@ -16,6 +16,7 @@ type FilterState = {
     sort: 'ASC' | 'DESC';
     startDate: Date | undefined;
     endDate: Date | undefined;
+    customer_name: string;
 };
 
 type OrderResponse = {
@@ -49,6 +50,7 @@ const initialFilters: FilterState = {
     sort: 'ASC',
     startDate: undefined,
     endDate: undefined,
+    customer_name: "",
 };
 
 export const useOrdersStore = create<OrdersState>((set) => ({
