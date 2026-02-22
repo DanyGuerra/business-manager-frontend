@@ -46,7 +46,7 @@ const getConsumptionIcon = (type: string) => {
 
 export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: OrderCardProps) {
     const { isEditMode } = useEditModeStore();
-    const { businessId } = useBusinessStore();
+    const { businessId, business } = useBusinessStore();
     const ordersApi = useOrdersApi();
     const { updateOrder, removeOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
@@ -112,7 +112,7 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
     const handlePrint = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        printOrderTicket(order);
+        printOrderTicket(order, business);
     };
 
     const date = new Date(order.created_at);

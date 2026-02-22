@@ -25,6 +25,7 @@ export type OrderDetails = {
     status: OrderStatus;
     amount_paid?: number | null;
     table_number?: string | null;
+    paid?: boolean;
 };
 
 export type CartGroup = {
