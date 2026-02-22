@@ -28,6 +28,8 @@ import { Option } from "@/lib/useOptionGroupApi";
 import { mapOrderToLocalCart } from "@/utils/orderMapper";
 import { CartGroup, CartItem, OrderDetails } from "@/store/cartStore";
 import { CartDrawerContent } from "@/components/CartDrawerContent";
+import { printOrderTicket } from "@/utils/printTicket";
+import { toastErrorStyle } from "@/lib/toastStyles";
 
 interface AddOrderItemsSheetProps {
     order: Order;
@@ -278,7 +280,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         });
     };
 
-    const handleConfirmUpdate = async () => {
+    const handleConfirmUpdate = async (shouldPrint?: boolean) => {
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
             const filteredCartGroups = cartGroups.filter(group => group.items.length > 0);
@@ -302,6 +304,15 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
 
             toast.success("Orden actualizada correctamente", { style: toastSuccessStyle });
             setOpen(false);
+
+            if (shouldPrint && updatedOrder) {
+                try {
+                    printOrderTicket(updatedOrder);
+                } catch {
+                    toast.error("Orden actualizada pero falló la impresión.", { style: toastErrorStyle });
+                }
+            }
+
             if (onSuccess) onSuccess(updatedOrder);
         } catch (error) {
             handleApiError(error);
