@@ -25,7 +25,7 @@ export default function OrdersPage() {
     const { loading, getOrders } = useGetOrders();
     const [initialized, setInitialized] = useState(false);
 
-    const { status, consumptionType, sort, startDate, endDate, customer_name } = filters;
+    const { status, consumptionType, sort, startDate, endDate, customer_name, paid } = filters;
     const { page, limit } = pagination;
 
     const [localCustomerName, setLocalCustomerName] = useState(customer_name);
@@ -61,9 +61,9 @@ export default function OrdersPage() {
         if (initialized) {
             getOrders();
         }
-    }, [getOrders, initialized, customer_name, status, consumptionType, sort, startDate, endDate, page, limit]);
+    }, [getOrders, initialized, customer_name, status, consumptionType, sort, startDate, endDate, paid, page, limit]);
 
-    const hasActiveFilters = status !== "ALL" || consumptionType !== "ALL" || startDate !== undefined || endDate !== undefined || customer_name !== "";
+    const hasActiveFilters = status !== "ALL" || consumptionType !== "ALL" || startDate !== undefined || endDate !== undefined || paid !== "ALL" || customer_name !== "";
 
     return (
         <div className="flex flex-col h-full bg-muted/10">
@@ -105,6 +105,19 @@ export default function OrdersPage() {
                             <SelectItem value={OrderStatus.COMPLETED}>Completado</SelectItem>
                             <SelectItem value={OrderStatus.CANCELLED}>Cancelado</SelectItem>
                             <SelectItem value={OrderStatus.SCHEDULED}>Agendado</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={String(paid)} onValueChange={(val: "ALL" | "true" | "false") =>
+                        setFilters({ paid: val === "ALL" ? "ALL" : val === "true" })
+                    }>
+                        <SelectTrigger className="h-9 text-xs flex-1 min-w-[140px]">
+                            <SelectValue placeholder="Pago" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">Pagos (Todos)</SelectItem>
+                            <SelectItem value="true">Pagado</SelectItem>
+                            <SelectItem value="false">Pendiente de pago</SelectItem>
                         </SelectContent>
                     </Select>
 

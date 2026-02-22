@@ -5,12 +5,13 @@ import { es } from "date-fns/locale";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal, ChevronDown } from "lucide-react";
+import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal, ChevronDown, Printer } from "lucide-react";
 import { formatCurrency, cn, getStatusColor, getStatusLabel, getConsumptionLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 import CustomDialog from "./customDialog";
 import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
+import { printOrderTicket } from "@/utils/printTicket";
 import { useEditModeStore } from "@/store/editModeStore";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderGroups } from "./OrderGroups";
@@ -108,6 +109,12 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
         }
     }
 
+    const handlePrint = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        printOrderTicket(order);
+    };
+
     const date = new Date(order.created_at);
     const timeString = format(date, "d MMM yyyy • h:mm a", { locale: es });
 
@@ -149,17 +156,19 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
                         </Badge>
                     </div>
 
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-5 px-2.5 text-[10px] font-bold text-primary hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-full ml-2 border border-primary shadow-sm"
-                        asChild
-                    >
-                        <a href={`/business/${businessId}/orders/${order.id}`}>
-                            <Eye className="h-3 w-3" />
-                            Detalles
-                        </a>
-                    </Button>
+                    <div className="flex items-center gap-1.5 ml-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-5 px-2.5 text-[10px] font-bold text-primary hover:bg-primary hover:text-white dark:hover:bg-white dark:hover:text-black transition-all rounded-full border border-primary shadow-sm"
+                            asChild
+                        >
+                            <a href={`/business/${businessId}/orders/${order.id}`}>
+                                <Eye className="h-3 w-3" />
+                                Detalles
+                            </a>
+                        </Button>
+                    </div>
 
                 </div>
                 {isEditMode && (
@@ -333,7 +342,7 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
             </CardFooter>
 
             <div className="px-2.5 pb-2.5 pt-0 flex flex-col gap-1.5">
-                {!order.amount_paid && !isEditMode && (
+                {!order.paid && !isEditMode && (
                     <CustomDialog
                         open={openPay}
                         setOpen={setOpenPay}
@@ -381,6 +390,17 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
                         />
                     )}
                 </div>
+
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={handlePrint}
+                    className="w-full h-7 text-[12px] font-semibold text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80 transition-all rounded-md flex items-center justify-center gap-1.5"
+                    title="Imprimir Ticket"
+                >
+                    <Printer className="h-3.5 w-3.5" />
+                    Imprimir Ticket
+                </Button>
             </div>
         </Card >
     );

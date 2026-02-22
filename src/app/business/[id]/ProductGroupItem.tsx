@@ -153,24 +153,27 @@ export default function ProductGroupItem({
                 "border-2 border-dashed border-primary/50 hover:border-primary/90"
             )}
         >
-            <CardHeader className="bg-muted/20">
-                <div className="flex items-start justify-between gap-1">
+            <CardHeader className="bg-muted/30 px-5 py-4 border-b border-border/50">
+                <div className="flex items-center justify-between gap-4">
                     <Link
                         href={`/business/${businessId}/menus/${group.id}`}
-                        className="group/link flex flex-col items-center gap-2 transition-colors hover:text-primary w-fit"
+                        className="group/link flex-1 flex flex-col justify-center gap-1 min-w-0 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                     >
-                        <div className="flex items-center align-start gap-2">
-                            <CardTitle className="text-lg font-bold">{group.name}</CardTitle>
-                            <ArrowUpRight className="h-4 w-4 opacity-0 -translate-x-2 transition-all group-hover/link:opacity-100 group-hover/link:translate-x-0" />
+                        <div className="flex items-center gap-2">
+                            <CardTitle className="text-lg font-bold truncate group-hover/link:text-primary transition-colors">
+                                {group.name}
+                            </CardTitle>
+                            <ArrowUpRight className="h-4 w-4 text-muted-foreground opacity-0 -translate-x-2 transition-all group-hover/link:text-primary group-hover/link:opacity-100 group-hover/link:translate-x-0 shrink-0" />
                         </div>
                         {group.description && (
-                            <CardDescription className="text-sm line-clamp-2">
+                            <CardDescription className="text-sm line-clamp-1 group-hover/link:text-muted-foreground/80 transition-colors">
                                 {group.description}
                             </CardDescription>
                         )}
                     </Link>
+
                     {isEditMode && (
-                        <div className="flex items-center gap-1 shrink-0 transition-opacity duration-200  ">
+                        <div className="flex items-center gap-1.5 shrink-0">
                             <CustomDialog
                                 modalTitle="Editar menú"
                                 modalDescription="Edita el menú de productos"
@@ -196,25 +199,25 @@ export default function ProductGroupItem({
             </CardHeader>
             <CardContent className="p-4 pt-2 flex-1 flex flex-col gap-4">
                 <Collapsible open={isExpanded} onOpenChange={setIsExpanded} className="flex flex-col h-full gap-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/40 pb-4">
-                        <div className="flex items-center gap-3">
-                            <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 pb-4">
+                        <div className="flex items-center gap-2.5">
+                            <h3 className="text-sm font-bold text-foreground/80 uppercase tracking-widest flex items-center">
                                 Productos
                             </h3>
-                            <span className="bg-primary/10 text-primary px-2.5 py-0.5 rounded-full text-xs font-bold leading-none flex items-center justify-center">
+                            <div className="bg-muted text-muted-foreground px-2 py-0.5 rounded-md text-xs font-bold leading-none flex items-center justify-center border border-border/50 shadow-sm">
                                 {products.length || 0}
-                            </span>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2.5">
                             <CollapsibleTrigger asChild>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     className={cn(
-                                        "h-8 px-3 gap-1.5 text-xs font-semibold rounded-full border border-transparent hover:border-border",
+                                        "h-8 px-3.5 gap-2 text-xs font-bold rounded-full border border-transparent hover:border-border transition-colors",
                                         isExpanded
-                                            ? "bg-muted text-muted-foreground hover:bg-muted/80"
-                                            : "bg-primary/10 text-primary hover:bg-primary/20"
+                                            ? "bg-muted text-muted-foreground hover:bg-muted/80 shadow-sm"
+                                            : "bg-primary/10 text-primary hover:bg-primary/20 shadow-sm"
                                     )}
                                 >
                                     {isExpanded ? "Ocultar" : "Mostrar"}
@@ -228,9 +231,9 @@ export default function ProductGroupItem({
                                     modalTitle="Agregar producto"
                                     modalDescription="Agrega un producto para tu menú"
                                     trigger={
-                                        <Button size="sm" className="h-8 gap-1.5 px-3 text-xs font-bold shadow-sm rounded-md bg-primary hover:bg-primary/90 text-primary-foreground">
+                                        <Button size="sm" className="h-8 gap-1.5 px-4 text-xs font-bold shadow-md rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all hover:shadow-lg hover:-translate-y-0.5">
                                             <PlusIcon className="h-4 w-4" />
-                                            <span className="hidden sm:inline">Agregar</span>
+                                            <span>Nuevo Producto</span>
                                         </Button>
                                     }
                                 >
