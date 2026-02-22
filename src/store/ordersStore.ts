@@ -17,6 +17,7 @@ type FilterState = {
     startDate: Date | undefined;
     endDate: Date | undefined;
     customer_name: string;
+    paid: boolean | "ALL";
 };
 
 type OrderResponse = {
@@ -51,6 +52,7 @@ const initialFilters: FilterState = {
     startDate: undefined,
     endDate: undefined,
     customer_name: "",
+    paid: "ALL",
 };
 
 export const useOrdersStore = create<OrdersState>((set) => ({

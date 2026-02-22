@@ -15,9 +15,10 @@ import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
-import { toastSuccessStyle } from "@/lib/toastStyles";
+import { toastSuccessStyle, toastErrorStyle } from "@/lib/toastStyles";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { CartDrawerContent } from "@/components/CartDrawerContent";
+import { printOrderTicket } from "@/utils/printTicket";
 
 export default function CartDrawer() {
     const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup, moveItem, createGroupWithItem } = useCartStore();
@@ -33,7 +34,7 @@ export default function CartDrawer() {
     const orderDetails = getOrderDetails(businessId);
     const selectedGroupId = getSelectedGroupId(businessId);
 
-    async function handleConfirmOrder() {
+    async function handleConfirmOrder(shouldPrint?: boolean) {
         try {
             startLoading(LoadingsKeyEnum.CREATE_ORDER);
 
@@ -54,8 +55,20 @@ export default function CartDrawer() {
                     }))
             };
 
-            await ordersApi.createFullOrder(payload, businessId);
+            const response = await ordersApi.createFullOrder(payload, businessId);
             toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
+
+            if (shouldPrint && response.data?.id) {
+                try {
+                    const fullOrder = await ordersApi.getOrderById(response.data.id, businessId);
+                    if (fullOrder.data) {
+                        printOrderTicket(fullOrder.data);
+                    }
+                } catch {
+                    toast.error("Orden creada pero falló la impresión.", { style: toastErrorStyle });
+                }
+            }
+
             clearCart(businessId);
             setIsOpen(false);
         } catch (error) {

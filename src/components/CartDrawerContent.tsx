@@ -42,8 +42,8 @@ interface CartDrawerContentProps {
     // Actions
     onClose: () => void;
     onClearCart: () => void;
-    onConfirm?: () => void;
-    onUpdate?: () => void;
+    onConfirm?: (print?: boolean) => void;
+    onUpdate?: (print?: boolean) => void;
     onAddGroup: () => void;
     onRemoveGroup: (groupId: string) => void;
     onSelectGroup: (groupId: string) => void;
@@ -256,8 +256,8 @@ export function CartDrawerContent({
                         totalPrice={totalPrice}
                         orderDetails={orderDetails}
                         setOrderDetails={(_, details) => setOrderDetails(details)}
-                        onConfirm={onConfirm}
-                        onUpdate={onUpdate}
+                        onConfirm={onConfirm ? (print) => onConfirm(print) : undefined}
+                        onUpdate={onUpdate ? (print) => onUpdate(print) : undefined}
                         isLoading={isLoading}
                         disableSubmit={disableSubmit}
                     />

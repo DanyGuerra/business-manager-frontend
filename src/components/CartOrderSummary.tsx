@@ -31,8 +31,8 @@ interface CartOrderSummaryProps {
     totalPrice: number;
     orderDetails: OrderDetails;
     setOrderDetails: (businessId: string, details: Partial<OrderDetails>) => void;
-    onConfirm?: () => void;
-    onUpdate?: () => void;
+    onConfirm?: (print?: boolean) => void;
+    onUpdate?: (print?: boolean) => void;
     isLoading: boolean;
     disableSubmit?: boolean;
 }
@@ -82,11 +82,11 @@ export function CartOrderSummary({
         setOrderDetails(businessId, { scheduled_at: newDate.toISOString() });
     };
 
-    const handleAction = () => {
+    const handleAction = (print: boolean = false) => {
         if (onUpdate) {
-            onUpdate();
+            onUpdate(print);
         } else if (onConfirm) {
-            onConfirm();
+            onConfirm(print);
         }
     };
 
@@ -338,28 +338,46 @@ export function CartOrderSummary({
                     )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-2 gap-2 mt-2">
                     <SheetClose asChild>
-                        <Button variant="outline" className="w-full h-10 text-sm font-bold shadow-sm">
+                        <Button variant="outline" className="w-full h-10 text-sm font-bold shadow-sm col-span-2">
                             Cerrar
                         </Button>
                     </SheetClose>
-                    <ButtonLoading
-                        loadingState={isLoading}
-                        disabled={disableSubmit}
+                    <Button
+                        variant="secondary"
+                        disabled={disableSubmit || isLoading}
                         onClick={() => {
                             if (orderDetails.amount_paid === null) {
-                                handleAction();
+                                handleAction(true);
                                 return;
                             }
                             if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice || Number.isNaN(orderDetails.amount_paid)) {
                                 toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
                                 return;
                             }
-                            handleAction();
+                            handleAction(true);
+                        }}
+                        className="text-sm font-bold h-10 w-full overflow-hidden whitespace-nowrap overflow-ellipsis"
+                    >
+                        {onUpdate ? "Actualizar e Imprimir" : "Confirmar e Imprimir"}
+                    </Button>
+                    <ButtonLoading
+                        loadingState={isLoading}
+                        disabled={disableSubmit}
+                        onClick={() => {
+                            if (orderDetails.amount_paid === null) {
+                                handleAction(false);
+                                return;
+                            }
+                            if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice || Number.isNaN(orderDetails.amount_paid)) {
+                                toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
+                                return;
+                            }
+                            handleAction(false);
                         }}
                         buttonTitle={onUpdate ? "Actualizar" : "Confirmar"}
-                        className="text-sm font-bold h-10"
+                        className="text-sm font-bold h-10 w-full"
                         size="default"
                     />
                 </div>
