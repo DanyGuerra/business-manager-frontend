@@ -270,6 +270,7 @@ export function CartOrderSummary({
                                 className="h-3.5 w-6 data-[state=checked]:bg-primary/50"
                                 defaultChecked={false}
                                 id="pay-later-switch"
+                                disabled={orderDetails.paid}
                                 checked={orderDetails.amount_paid === null}
                                 onCheckedChange={(checked) => {
                                     if (checked) {

@@ -22,7 +22,7 @@ import { printOrderTicket } from "@/utils/printTicket";
 
 export default function CartDrawer() {
     const { updateQuantity, removeFromCart, getTotalPrice, getTotalItems, clearCart, getGroups, getOrderDetails, setOrderDetails, addGroup, getSelectedGroupId, selectGroup, removeGroup, moveItem, createGroupWithItem } = useCartStore();
-    const { businessId } = useBusinessStore();
+    const { businessId, business } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const ordersApi = useOrdersApi();
     const [isOpen, setIsOpen] = useState(false);
@@ -62,7 +62,7 @@ export default function CartDrawer() {
                 try {
                     const fullOrder = await ordersApi.getOrderById(response.data.id, businessId);
                     if (fullOrder.data) {
-                        printOrderTicket(fullOrder.data);
+                        printOrderTicket(fullOrder.data, business);
                     }
                 } catch {
                     toast.error("Orden creada pero falló la impresión.", { style: toastErrorStyle });

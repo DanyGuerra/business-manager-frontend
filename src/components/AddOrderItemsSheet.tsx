@@ -41,7 +41,7 @@ interface AddOrderItemsSheetProps {
 export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'products' }: AddOrderItemsSheetProps) {
     const [open, setOpen] = useState(false);
     const [view, setView] = useState<'products' | 'cart'>(defaultView);
-    const { businessId } = useBusinessStore();
+    const { businessId, business } = useBusinessStore();
     const { startLoading, stopLoading, loadings } = useLoadingStore();
     const apiOrders = useOrdersApi();
     const productApi = useProductApi();
@@ -63,7 +63,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                 consumption_type: order.consumption_type as ConsumptionType || ConsumptionType.TAKE_AWAY,
                 amount_paid: order.amount_paid !== null ? parseFloat(order.amount_paid) : undefined,
                 table_number: order.table_number?.toString() || "",
-                status: order.status as OrderStatus
+                status: order.status as OrderStatus,
+                paid: order.paid
             });
 
             if (order.itemGroups && order.itemGroups.length > 0) {
@@ -264,16 +265,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                 items: [itemToMove]
             };
 
-            // Add new group to groups list
             newGroups.push(newGroup);
 
-            // Queue state update for selection (can't do inside reducer, so usage in useEffect or direct logic if possible)
-            // But we can't side-effect safely in setState. 
-            // We'll update the selected group ID after state update via effect or just assume the UI updates.
-            // React batching might let us call setSelectedGroupId here but it's cleaner to just update state.
-            // However, to select it immediately, we need to know the ID.
-
-            // Side effect: Select the new group
             setTimeout(() => setSelectedGroupId(newGroupId), 0);
 
             return newGroups;
@@ -307,7 +300,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
 
             if (shouldPrint && updatedOrder) {
                 try {
-                    printOrderTicket(updatedOrder);
+                    printOrderTicket(updatedOrder, business);
                 } catch {
                     toast.error("Orden actualizada pero falló la impresión.", { style: toastErrorStyle });
                 }
