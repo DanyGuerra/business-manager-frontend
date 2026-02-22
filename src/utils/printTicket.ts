@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { Order } from "@/lib/useOrdersApi";
+import { ConsumptionType, Order } from "@/lib/useOrdersApi";
+import { Business } from "@/lib/useBusinessApi";
 
 export const formatCurrency = (value: number | string | undefined | null) => {
     if (value === undefined || value === null) return "$0.00";
@@ -11,16 +12,16 @@ export const formatCurrency = (value: number | string | undefined | null) => {
     }).format(numValue);
 };
 
-export const getConsumptionLabel = (type: string | undefined) => {
+export const getConsumptionLabel = (type: ConsumptionType) => {
     switch (type) {
-        case 'DINE_IN': return 'Mesa';
-        case 'TAKE_AWAY': return 'Para llevar';
-        case 'DELIVERY': return 'Domicilio';
+        case ConsumptionType.DINE_IN: return 'Comer aqui';
+        case ConsumptionType.TAKE_AWAY: return 'Para llevar';
+        case ConsumptionType.DELIVERY: return 'Domicilio';
         default: return type || '';
     }
 };
 
-export const printOrderTicket = (order: Order) => {
+export const printOrderTicket = (order: Order, business?: Business | null) => {
     const getOptionsHtml = (item: { grouped_options?: Record<string, { name: string, price: number | string }[]> }) => {
         if (!item.grouped_options) return '';
         let html = '';
@@ -60,6 +61,9 @@ export const printOrderTicket = (order: Order) => {
                 * {
                     box-sizing: border-box;
                 }
+                .business-info { text-align: center; margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px dashed #ccc; }
+                .business-info h1 { margin: 0; font-size: 13px; font-weight: 600; text-transform: uppercase; color: #444; }
+                .business-info p { margin: 2px 0 0 0; font-size: 10px; color: #666; }
                 .header { text-align: center; margin-bottom: 12px; }
                 .header h2 { margin: 0 0 4px 0; font-size: 18px; font-weight: 800; text-transform: uppercase; }
                 .header p { margin: 2px 0; font-size: 12px;}
@@ -79,13 +83,20 @@ export const printOrderTicket = (order: Order) => {
             </style>
         </head>
         <body>
+            ${business ? `
+            <div class="business-info">
+                <h1>${business.name}</h1>
+                ${business.address ? `<p>${business.address}</p>` : ''}
+            </div>
+            ` : ''}
+
             <div class="header">
                 <h2>Ticket #${order?.order_number?.toString().slice(-2)}</h2>
                 <p>Cliente: ${order.customer_name || 'General'}</p>
                 <p>Atendido por: ${order.user?.name || 'Cajero'}</p>
                 <p>Fecha: ${format(new Date(order.created_at), "dd/MM/yyyy HH:mm")}</p>
                 <p style="font-size: 10px; color: #555; word-break: break-all;">ID: ${order.id}</p>
-                <p>${getConsumptionLabel(order.consumption_type)}${order.table_number ? ' - Mesa ' + order.table_number : ''}</p>
+                <p>Consumo: ${getConsumptionLabel(order.consumption_type as ConsumptionType)}${order.table_number ? ' - Mesa ' + order.table_number : ''}</p>
             </div>
             
             <div class="divider"></div>
@@ -132,15 +143,37 @@ export const printOrderTicket = (order: Order) => {
         </html>
     `;
 
-    const printWindow = window.open('', '_blank', 'width=1000,height=1000');
-    if (printWindow) {
-        printWindow.document.write(printContent);
-        printWindow.document.close();
-        printWindow.focus();
-        // small delay to ensure rendering is fully complete
+    // Utilizamos un iframe en lugar de window.open() para evitar bloqueadores de popups móviles
+    const iframe = document.createElement('iframe');
+
+    // Ocultar el iframe. Evitamos display: none porque iOS Safari puede bloquear la impresión de elementos que no se renderizan
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+
+    document.body.appendChild(iframe);
+
+    const iframeDoc = iframe.contentWindow?.document;
+    if (iframeDoc) {
+        iframeDoc.open();
+        iframeDoc.write(printContent);
+        iframeDoc.close();
+
         setTimeout(() => {
-            printWindow.print();
-            printWindow.close();
-        }, 250);
+            try {
+                iframe.contentWindow?.focus();
+                iframe.contentWindow?.print();
+            } catch {
+            }
+
+            setTimeout(() => {
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }, 1000);
+        }, 500);
     }
 };
