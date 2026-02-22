@@ -333,7 +333,7 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
             </CardFooter>
 
             <div className="px-2.5 pb-2.5 pt-0 flex flex-col gap-1.5">
-                {!order.amount_paid && !isEditMode && (
+                {!order.paid && !isEditMode && (
                     <CustomDialog
                         open={openPay}
                         setOpen={setOpenPay}

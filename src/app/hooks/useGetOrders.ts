@@ -18,7 +18,7 @@ export function useGetOrders() {
 
 
     const { page, limit } = pagination;
-    const { status, consumptionType, sort, startDate, endDate, customer_name } = filters;
+    const { status, consumptionType, sort, startDate, endDate, customer_name, paid } = filters;
 
     const getOrders = useCallback(async () => {
         if (abortControllerRef.current) {
@@ -43,6 +43,7 @@ export function useGetOrders() {
                     ? format(endDate, "yyyy-MM-dd'T'HH:mm:ssXXX")
                     : undefined,
                 customer_name: customer_name || undefined,
+                paid: paid !== "ALL" ? paid : undefined,
             };
 
             const { data } = await ordersApi.getOrdersByBusinessId(
@@ -59,7 +60,7 @@ export function useGetOrders() {
                 setLoading(false);
             }
         }
-    }, [businessId, page, limit, status, consumptionType, sort, startDate, endDate, customer_name, ordersApi, setOrders]);
+    }, [businessId, page, limit, status, consumptionType, sort, startDate, endDate, customer_name, paid, ordersApi, setOrders]);
 
     return { loading, getOrders };
 }

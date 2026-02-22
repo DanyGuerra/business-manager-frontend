@@ -99,6 +99,7 @@ export type GetOrdersParams = {
     start_date?: string;
     end_date?: string;
     customer_name?: string;
+    paid?: boolean;
 }
 
 export function useOrdersApi() {
