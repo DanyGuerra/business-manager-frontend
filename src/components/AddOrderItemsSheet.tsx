@@ -277,8 +277,10 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
         try {
             startLoading(LoadingsKeyEnum.UPDATE_ORDER);
             const filteredCartGroups = cartGroups.filter(group => group.items.length > 0);
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { paid, ...restPayload } = orderDetails
             const payload = {
-                ...orderDetails,
+                ...restPayload,
                 scheduled_at: orderDetails.scheduled_at || undefined,
                 table_number: Number(orderDetails.table_number) || undefined,
                 group_items: filteredCartGroups.map(group => ({

@@ -6,7 +6,7 @@ import { useOrdersApi, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderDetailsList } from "@/components/OrderDetailsList";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign, PencilIcon } from "lucide-react";
+import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign, PencilIcon, Printer } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -24,6 +24,7 @@ import { Pencil } from "lucide-react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { AddOrderItemsSheet } from "@/components/AddOrderItemsSheet";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { printOrderTicket } from "@/utils/printTicket";
 
 const getConsumptionIcon = (type: string) => {
     switch (type) {
@@ -43,7 +44,7 @@ export default function OrderDetailsPage() {
     const router = useRouter();
     const isMobile = useIsMobile();
     const apiOrders = useOrdersApi();
-    const { businessId } = useBusinessStore();
+    const { businessId, business } = useBusinessStore();
     const { isEditMode } = useEditModeStore();
     const { removeOrder, updateOrder, activeOrder: order, setActiveOrder: setOrder } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
@@ -178,44 +179,56 @@ export default function OrderDetailsPage() {
                                 </span>
                             </div>
 
-                            {isEditMode && (
-                                <div className="flex items-center gap-2">
-                                    <CustomDialog
-                                        open={open}
-                                        setOpen={setOpen}
-                                        modalTitle="Editar orden"
-                                        modalDescription="Modifica los detalles de la orden"
-                                        trigger={
-                                            <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted transition-colors">
-                                                <Pencil className="h-3 w-3 text-muted-foreground" />
-                                            </Button>
-                                        }
-                                    >
-                                        <FormOrder
-                                            buttonTitle="Guardar cambios"
-                                            loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
-                                            handleSubmitButton={handleUpdateOrder}
-                                            onSuccess={() => setOpen(false)}
-                                            defaultValues={{
-                                                customer_name: order.customer_name,
-                                                amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : null,
-                                                total: parseFloat(order.total),
-                                                notes: order.notes,
-                                                consumption_type: order.consumption_type as ConsumptionType,
-                                                scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
-                                                table_number: order.table_number,
-                                                status: order.status as OrderStatus,
-                                            }}
-                                        />
-                                    </CustomDialog>
+                            <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => printOrderTicket(order, business)}
+                                    className="h-8 gap-1.5"
+                                >
+                                    <Printer className="h-4 w-4" />
+                                    <span>Imprimir</span>
+                                </Button>
 
-                                    <DeleteDialogConfirmation
-                                        title="Eliminar orden"
-                                        description="¿Estás seguro de que deseas eliminar esta orden?"
-                                        handleContinue={handleDeleteOrder}
-                                    />
-                                </div>
-                            )}
+                                {isEditMode && (
+                                    <>
+                                        <CustomDialog
+                                            open={open}
+                                            setOpen={setOpen}
+                                            modalTitle="Editar orden"
+                                            modalDescription="Modifica los detalles de la orden"
+                                            trigger={
+                                                <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-muted transition-colors">
+                                                    <Pencil className="h-3 w-3 text-muted-foreground" />
+                                                </Button>
+                                            }
+                                        >
+                                            <FormOrder
+                                                buttonTitle="Guardar cambios"
+                                                loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                                                handleSubmitButton={handleUpdateOrder}
+                                                onSuccess={() => setOpen(false)}
+                                                defaultValues={{
+                                                    customer_name: order.customer_name,
+                                                    amount_paid: order.amount_paid ? parseFloat(order.amount_paid) : null,
+                                                    total: parseFloat(order.total),
+                                                    notes: order.notes,
+                                                    consumption_type: order.consumption_type as ConsumptionType,
+                                                    scheduled_at: order.scheduled_at ? new Date(order.scheduled_at) : undefined,
+                                                    table_number: order.table_number,
+                                                    status: order.status as OrderStatus,
+                                                }}
+                                            />
+                                        </CustomDialog>
+
+                                        <DeleteDialogConfirmation
+                                            title="Eliminar orden"
+                                            description="¿Estás seguro de que deseas eliminar esta orden?"
+                                            handleContinue={handleDeleteOrder}
+                                        />
+                                    </>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
