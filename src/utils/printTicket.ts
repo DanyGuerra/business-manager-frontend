@@ -100,7 +100,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             ` : ''}
 
             <div class="header">
-                <h2>Ticket #${order?.order_number?.toString().slice(-2)}</h2>
+                <h2>Orden #${order?.order_number?.toString().slice(-2)}</h2>
                 <p>Cliente: ${order.customer_name || 'General'}</p>
                 <p>Atendido por: ${order.user?.name || 'Cajero'}</p>
                 <p>Fecha: ${format(new Date(order.created_at), "dd/MM/yyyy HH:mm")}</p>
