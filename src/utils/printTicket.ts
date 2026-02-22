@@ -42,7 +42,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Ticket - Orden #${order.id}</title>
+            <title>ticket_${order.id}</title>
             <style>
                 @page { 
                     margin: 0; 
@@ -143,29 +143,43 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
         </html>
     `;
 
-    // Utilizamos un iframe en lugar de window.open() para evitar bloqueadores de popups móviles
-    const iframe = document.createElement('iframe');
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media print {
+            body > *:not(#print-iframe) {
+                display: none !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 
-    // Ocultar el iframe. Evitamos display: none porque iOS Safari puede bloquear la impresión de elementos que no se renderizan
+    const iframe = document.createElement('iframe');
+    iframe.id = 'print-iframe';
+
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
     iframe.style.bottom = '0';
-    iframe.style.width = '0';
-    iframe.style.height = '0';
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.zIndex = '99999';
+    iframe.style.backgroundColor = 'white';
     iframe.style.border = '0';
 
     document.body.appendChild(iframe);
 
     const iframeDoc = iframe.contentWindow?.document;
     if (iframeDoc) {
-        iframeDoc.open();
-        iframeDoc.write(printContent);
-        iframeDoc.close();
+        iframeDoc.body.innerHTML = printContent;
 
         setTimeout(() => {
             try {
+                const originalTitle = document.title;
+                document.title = `ticket_${order.id}`;
+
                 iframe.contentWindow?.focus();
                 iframe.contentWindow?.print();
+
+                document.title = originalTitle;
             } catch {
             }
 
@@ -173,7 +187,10 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 if (document.body.contains(iframe)) {
                     document.body.removeChild(iframe);
                 }
-            }, 1000);
+                if (document.head.contains(style)) {
+                    document.head.removeChild(style);
+                }
+            }, 30);
         }, 500);
     }
 };
