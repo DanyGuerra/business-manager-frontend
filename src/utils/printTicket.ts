@@ -101,7 +101,9 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             
             <div class="divider"></div>
             
-            ${order.itemGroups.map(group => `
+            ${order.itemGroups.map((group, index) => {
+        const groupSubtotal = group.items.reduce((acc, item) => acc + Number(item.item_total), 0);
+        return `
                 ${group.name ? `<div class="group-name">${group.name}</div>` : ''}
                 ${group.items.map(item => `
                     <div class="item">
@@ -110,8 +112,16 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                     </div>
                     ${getOptionsHtml(item)}
                 `).join('')}
-            `).join('')}
-            
+                ${order.itemGroups.length > 1 ? `
+                    <div class="item" style="margin-top: 4px; justify-content: flex-end; font-size: 11px; color: #555;">
+                        <span style="font-weight: 600; margin-right: 8px;">Subtotal:</span>
+                        <span>${formatCurrency(groupSubtotal)}</span>
+                    </div>
+                    ${index < order.itemGroups.length - 1 ? `<div style="border-top: 1px dashed #e5e5e5; margin: 6px 0; width: 100%;"></div>` : ''}
+                ` : ''}
+            `;
+    }).join('')}
+
             <div class="item total">
                 <span>Total:</span>
                 <span class="item-price">${formatCurrency(order.total)}</span>
@@ -149,6 +159,20 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             body > *:not(#print-iframe) {
                 display: none !important;
             }
+            body {
+                margin: 0 !important;
+                padding: 0 !important;
+                background-color: white !important;
+            }
+            #print-iframe {
+                visibility: visible !important;
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 100vh !important;
+                border: none !important;
+            }
         }
     `;
     document.head.appendChild(style);
@@ -159,11 +183,11 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
     iframe.style.position = 'fixed';
     iframe.style.right = '0';
     iframe.style.bottom = '0';
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.zIndex = '99999';
-    iframe.style.backgroundColor = 'white';
+    iframe.style.width = '0px';
+    iframe.style.height = '0px';
     iframe.style.border = '0';
+    iframe.style.zIndex = '-9999';
+    iframe.style.visibility = 'hidden';
 
     document.body.appendChild(iframe);
 
@@ -183,14 +207,21 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             } catch {
             }
 
-            setTimeout(() => {
+
+            const cleanup = () => {
                 if (document.body.contains(iframe)) {
                     document.body.removeChild(iframe);
                 }
                 if (document.head.contains(style)) {
                     document.head.removeChild(style);
                 }
-            }, 30);
+                window.removeEventListener('afterprint', cleanup);
+            };
+
+            window.addEventListener('afterprint', cleanup);
+
+            // Respaldo para limpiar los elementos después de 2 minutos pase lo que pase
+            setTimeout(cleanup, 120000);
         }, 500);
     }
 };
