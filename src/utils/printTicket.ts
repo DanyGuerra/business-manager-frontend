@@ -24,18 +24,19 @@ export const getConsumptionLabel = (type: ConsumptionType) => {
 export const printOrderTicket = (order: Order, business?: Business | null) => {
     const getOptionsHtml = (item: { grouped_options?: Record<string, { name: string, price: number | string }[]> }) => {
         if (!item.grouped_options) return '';
-        let html = '';
+        const optionsArray: string[] = [];
         Object.keys(item.grouped_options).forEach(groupName => {
-            item.grouped_options![groupName].forEach((opt) => {
-                html += `
-                    <div class="item" style="font-size: 11px; color: #444; margin-top: -2px; padding-left: 10px;">
-                        <span class="item-name">+ ${opt.name}</span>
-                        <span>${Number(opt.price) > 0 ? formatCurrency(opt.price) : ''}</span>
-                    </div>
-                `;
-            });
+            const options = item.grouped_options![groupName];
+            if (!options || options.length === 0) return;
+
+            const groupOptionsText = options.map(opt =>
+                Number(opt.price) > 0 ? `${opt.name} +${formatCurrency(opt.price)}` : opt.name
+            ).join(', ');
+            optionsArray.push(groupOptionsText);
         });
-        return html;
+
+        if (optionsArray.length === 0) return '';
+        return ` <span style="font-size: 11px; color: #666; font-weight: normal; margin-left: 2px;">(${optionsArray.join(' - ')})</span>`;
     };
 
     const printContent = `
@@ -71,7 +72,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 .item-name { flex: 1; padding-right: 5px; word-break: break-word; font-size: 15px; font-weight: 500; }
                 .item-price { white-space: nowrap; font-weight: 700; font-size: 15px; }
                 .group-name { font-weight: 800; margin-top: 10px; margin-bottom: 6px; font-size: 16px; text-transform: uppercase; border-bottom: 1px solid #000; display: inline-block; padding-bottom: 2px; }
-                .total { font-weight: 900; margin-top: 10px; font-size: 20px; border-top: 2px dashed #000; padding-top: 10px; }
+                .total { font-weight: 900; margin-top: 10px; font-size: 20px; border-top: 1px solid #000; padding-top: 10px; }
                 .notes { margin-top: 10px; font-size: 14px; border: 1px solid #000; padding: 6px; }
                 .footer { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; padding-bottom: 15px; }
                 
@@ -116,14 +117,14 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 ${group.items.map(item => {
             const originalUnitPrice = Number(item.item_total) / Number(item.quantity);
             return `
-                    <div class="item">
-                        <div class="item-name">
+                    <div class="item" style="margin-bottom: 8px;">
+                        <div class="item-name" style="line-height: 1.2;">
                             <span><b>${item.quantity}x</b> ${item.product?.name || 'Producto'}</span>
-                            <span style="font-size: 11px; color: #555; margin-left: 4px; font-weight: normal;">${formatCurrency(originalUnitPrice)} c/u</span>
+                            ${getOptionsHtml(item)}
+                            ${Number(item.quantity) > 1 ? `<span style="font-size: 11px; color: #555; margin-left: 4px; font-weight: normal; white-space: nowrap;">${formatCurrency(originalUnitPrice)} c/u</span>` : ''}
                         </div>
                         <span class="item-price">${formatCurrency(item.item_total)}</span>
                     </div>
-                    ${getOptionsHtml(item)}
                 `}).join('')}
                 ${order.itemGroups.length > 1 ? `
                     <div class="item" style="margin-top: 4px; justify-content: flex-end; font-size: 11px; color: #555;">
