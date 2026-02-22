@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
 interface DataTableSearchProps {
@@ -49,9 +49,9 @@ export function DataTableSearch({
                 <div className="relative flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        type="search"
+                        type="text"
                         placeholder={placeholder}
-                        className="pl-8 w-full"
+                        className="pl-8 pr-12 w-full"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         onKeyDown={(e) => {
@@ -60,6 +60,22 @@ export function DataTableSearch({
                             }
                         }}
                     />
+                    {inputValue && (
+                        <div className="absolute right-1.5 top-1.5">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-muted-foreground hover:bg-muted/80"
+                                onClick={() => {
+                                    setInputValue("");
+                                    onSearch("");
+                                }}
+                            >
+                                <X className="h-4 w-4" />
+                                <span className="sr-only">Limpiar</span>
+                            </Button>
+                        </div>
+                    )}
                 </div>
                 <Button onClick={() => onSearch(inputValue)} className="shrink-0">
                     Buscar
