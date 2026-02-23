@@ -458,6 +458,7 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                             groups={cartGroups}
                             totalItems={totalItemsCount}
                             totalPrice={totalAmount}
+                            initialAmountPaid={order?.amount_paid ? parseFloat(order.amount_paid) : undefined}
                             orderDetails={orderDetails}
                             selectedGroupId={selectedGroupId}
                             isLoading={loadings[LoadingsKeyEnum.UPDATE_ORDER]}
