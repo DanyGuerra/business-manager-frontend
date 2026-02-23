@@ -1,15 +1,8 @@
-import { Order, useOrdersApi } from "@/lib/useOrdersApi";
+import { Order } from "@/lib/useOrdersApi";
 import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { OrderItemGroup } from "./OrderItemGroup";
-import { useBusinessStore } from "@/store/businessStore";
-import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
-import { toast } from "sonner";
-import { toastSuccessStyle } from "@/lib/toastStyles";
-import { handleApiError } from "@/utils/handleApiError";
-import { useEditModeStore } from "@/store/editModeStore";
-import { useOrdersStore } from "@/store/ordersStore";
 
 
 interface OrderDetailsListProps {
@@ -17,23 +10,6 @@ interface OrderDetailsListProps {
 }
 
 export function OrderDetailsList({ order }: OrderDetailsListProps) {
-    const { deleteOrderItemGroup } = useOrdersApi();
-    const { businessId } = useBusinessStore();
-    const { isEditMode } = useEditModeStore();
-    const { updateOrder, setActiveOrder } = useOrdersStore();
-
-
-    const handleDeleteGroup = async (groupId: string) => {
-        try {
-            const { data } = await deleteOrderItemGroup(order.id, groupId, businessId);
-            toast.success("Grupo eliminado correctamente", { style: toastSuccessStyle });
-            setActiveOrder(data);
-            updateOrder(data.id, data);
-        } catch (error) {
-            handleApiError(error);
-        }
-    };
-
     return (
         <div className="flex flex-col gap-6">
             {order.itemGroups && order.itemGroups.map((group) => (
@@ -48,15 +24,6 @@ export function OrderDetailsList({ order }: OrderDetailsListProps) {
                             </Badge>
                         </div>
                         <div className="flex items-center gap-2">
-                            {isEditMode && (
-                                <>
-                                    <DeleteDialogConfirmation
-                                        title="Eliminar grupo"
-                                        description="¿Estás seguro de que deseas eliminar este grupo y todos sus ítems?"
-                                        handleContinue={() => handleDeleteGroup(group.id)}
-                                    />
-                                </>
-                            )}
                             <Badge variant="outline" className="text-xs font-semibold bg-background">
                                 {formatCurrency(group.subtotal)}
                             </Badge>

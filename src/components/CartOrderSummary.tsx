@@ -35,6 +35,7 @@ interface CartOrderSummaryProps {
     onUpdate?: (print?: boolean) => void;
     isLoading: boolean;
     disableSubmit?: boolean;
+    initialAmountPaid?: number;
 }
 
 export function CartOrderSummary({
@@ -45,7 +46,8 @@ export function CartOrderSummary({
     onConfirm,
     onUpdate,
     isLoading,
-    disableSubmit
+    disableSubmit,
+    initialAmountPaid
 }: CartOrderSummaryProps) {
     const [open, setOpen] = useState(false);
     const amountPaidInputRef = useRef<HTMLInputElement>(null);
@@ -299,12 +301,11 @@ export function CartOrderSummary({
                                             ref={amountPaidInputRef}
                                             id="amount-paid"
                                             type="number"
-                                            min="0"
+                                            min={initialAmountPaid !== undefined ? Math.max(0, initialAmountPaid) : 0}
                                             placeholder="0.00"
                                             value={orderDetails.amount_paid ?? ''}
                                             onChange={(e) => {
                                                 const val = e.target.value === '' ? NaN : parseFloat(e.target.value);
-                                                if (!Number.isNaN(val) && val < 0) return;
                                                 setOrderDetails(businessId, { amount_paid: val });
                                             }}
                                             className={cn(
@@ -353,8 +354,9 @@ export function CartOrderSummary({
                                 handleAction(true);
                                 return;
                             }
-                            if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice || Number.isNaN(orderDetails.amount_paid)) {
-                                toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
+                            const minRequired = Math.max(totalPrice, initialAmountPaid || 0);
+                            if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < minRequired || Number.isNaN(orderDetails.amount_paid)) {
+                                toast.error(`El monto pagado debe ser mayor o igual a ${minRequired}`, { style: toastErrorStyle });
                                 return;
                             }
                             handleAction(true);
@@ -371,8 +373,9 @@ export function CartOrderSummary({
                                 handleAction(false);
                                 return;
                             }
-                            if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < totalPrice || Number.isNaN(orderDetails.amount_paid)) {
-                                toast.error("El monto pagado debe ser mayor o igual al total", { style: toastErrorStyle });
+                            const minRequired = Math.max(totalPrice, initialAmountPaid || 0);
+                            if (orderDetails.amount_paid === undefined || orderDetails.amount_paid < minRequired || Number.isNaN(orderDetails.amount_paid)) {
+                                toast.error(`El monto pagado debe ser mayor o igual a ${minRequired}`, { style: toastErrorStyle });
                                 return;
                             }
                             handleAction(false);

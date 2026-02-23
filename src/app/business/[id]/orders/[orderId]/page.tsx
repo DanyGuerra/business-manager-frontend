@@ -6,7 +6,7 @@ import { useOrdersApi, ConsumptionType, OrderStatus } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { OrderDetailsList } from "@/components/OrderDetailsList";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign, PencilIcon, Printer } from "lucide-react";
+import { ChevronLeft, User, Calendar, Clock, Utensils, ShoppingBag, Bike, DollarSign, PencilIcon, Printer, XCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -65,7 +65,6 @@ export default function OrderDetailsPage() {
                 setOrder(data);
             } catch (error) {
                 handleApiError(error);
-                toast.error("Error al cargar la orden");
             } finally {
                 setLoading(false);
             }
@@ -99,6 +98,22 @@ export default function OrderDetailsPage() {
             stopLoading(LoadingsKeyEnum.UPDATE_ORDER);
         }
     }
+
+    const handleCancelOrder = async () => {
+        if (!order) return;
+        try {
+            startLoading(LoadingsKeyEnum.UPDATE_ORDER);
+            const { data: updatedOrder } = await apiOrders.updateOrder(order.id, { status: OrderStatus.CANCELLED }, businessId);
+
+            setOrder(updatedOrder);
+            updateOrder(order.id, updatedOrder);
+            toast.success("Orden cancelada", { style: toastSuccessStyle });
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.UPDATE_ORDER);
+        }
+    };
 
     const handleDeleteOrder = async () => {
         if (!order) return;
@@ -134,9 +149,18 @@ export default function OrderDetailsPage() {
 
     if (!order) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen gap-4">
-                <p className="text-muted-foreground">Orden no encontrada</p>
-                <Button onClick={() => router.back()}>Volver</Button>
+            <div className="flex flex-col items-center justify-center h-[80vh] gap-4 p-8 text-center">
+                <div className="p-4 bg-muted rounded-full">
+                    <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight">Orden no encontrada</h2>
+                <p className="text-muted-foreground max-w-sm">
+                    El pedido que buscas no existe o fue eliminado.
+                </p>
+                <Button onClick={() => router.back()} className="mt-4" variant="outline">
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Volver
+                </Button>
             </div>
         );
     }
@@ -180,15 +204,21 @@ export default function OrderDetailsPage() {
                             </div>
 
                             <div className="flex items-center gap-2 mt-2 sm:mt-0">
-                                <Button
-                                    variant="default"
-                                    size="sm"
-                                    onClick={() => printOrderTicket(order, business)}
-                                    className="h-8 gap-1.5"
-                                >
-                                    <Printer className="h-4 w-4" />
-                                    <span>Imprimir</span>
-                                </Button>
+
+                                {isEditMode && order.status !== OrderStatus.CANCELLED && (
+                                    <DeleteDialogConfirmation
+                                        title="Cancelar orden"
+                                        description="¿Estás seguro de que deseas cancelar esta orden?"
+                                        handleContinue={handleCancelOrder}
+                                        trigger={
+                                            <Button variant="outline" size="sm" className="h-8 gap-1.5 focus-visible:ring-0 bg-destructive/10 border-destructive/20 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-all shadow-sm">
+                                                <XCircle className="h-4 w-4" />
+                                                <span className={cn(isMobile ? "hidden" : "inline")}>Cancelar orden</span>
+                                            </Button>
+                                        }
+                                        confirmText="Sí, cancelar"
+                                    />
+                                )}
 
                                 {isEditMode && (
                                     <>
@@ -219,6 +249,7 @@ export default function OrderDetailsPage() {
                                                     status: order.status as OrderStatus,
                                                 }}
                                             />
+
                                         </CustomDialog>
 
                                         <DeleteDialogConfirmation
@@ -226,8 +257,18 @@ export default function OrderDetailsPage() {
                                             description="¿Estás seguro de que deseas eliminar esta orden?"
                                             handleContinue={handleDeleteOrder}
                                         />
+
                                     </>
                                 )}
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    onClick={() => printOrderTicket(order, business)}
+                                    className="h-8 gap-1.5"
+                                >
+                                    <Printer className="h-4 w-4" />
+                                    <span className={cn(isMobile ? "hidden" : "inline")}>Imprimir</span>
+                                </Button>
                             </div>
                         </div>
 
@@ -263,19 +304,21 @@ export default function OrderDetailsPage() {
                                 <CardTitle className="text-base font-semibold">
                                     Detalle del Pedido
                                 </CardTitle>
-                                <AddOrderItemsSheet
-                                    order={order}
-                                    defaultView="cart"
-                                    onSuccess={(updatedOrder) => {
-                                        if (updatedOrder) setOrder(updatedOrder);
-                                    }}
-                                    trigger={
-                                        <Button variant="default" size="sm" className="flex items-center justify-center gap-1 h-8 px-2">
-                                            <PencilIcon className="h-4 w-4" />
-                                            <span className={cn(isMobile ? "hidden" : "inline")}>Editar Orden</span>
-                                        </Button>
-                                    }
-                                />
+                                <div className="flex items-center gap-2">
+                                    <AddOrderItemsSheet
+                                        order={order}
+                                        defaultView="cart"
+                                        onSuccess={(updatedOrder) => {
+                                            if (updatedOrder) setOrder(updatedOrder);
+                                        }}
+                                        trigger={
+                                            <Button variant="default" size="sm" className="flex items-center justify-center gap-1 h-8 px-2">
+                                                <PencilIcon className="h-4 w-4" />
+                                                <span className={cn(isMobile ? "hidden" : "inline")}>Editar Orden</span>
+                                            </Button>
+                                        }
+                                    />
+                                </div>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <OrderDetailsList order={order} />
@@ -353,36 +396,34 @@ export default function OrderDetailsPage() {
                                         </div>
                                     </>
                                 ) : (
-                                    !isEditMode && (
-                                        <div className="pt-2">
-                                            <CustomDialog
-                                                open={openPay}
-                                                setOpen={setOpenPay}
-                                                modalTitle="Pagar orden"
-                                                modalDescription="Ingresa el monto"
-                                                trigger={
-                                                    <Button className="font-bold w-full h-8 text-xs shadow-none bg-primary/90 hover:bg-primary" size="sm">
-                                                        <DollarSign className="h-3.5 w-3.5 mr-1.5" />
-                                                        Pagar Orden
-                                                    </Button>
-                                                }
-                                            >
-                                                <FormPayment
-                                                    total={Number(order.total)}
-                                                    buttonTitle="Confirmar pago"
-                                                    loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
-                                                    handleSubmitButton={(data: PaymentValues) => handleUpdateOrder({
-                                                        amount_paid: parseFloat(data.amount_paid),
-                                                    } as OrderValues)}
-                                                    onSuccess={() => setOpenPay(false)}
-                                                    defaultValues={{
-                                                        amount_paid: order.total.toString(),
-                                                        total: parseFloat(order.total),
-                                                    }}
-                                                />
-                                            </CustomDialog>
-                                        </div>
-                                    )
+                                    <div className="pt-2">
+                                        <CustomDialog
+                                            open={openPay}
+                                            setOpen={setOpenPay}
+                                            modalTitle="Pagar orden"
+                                            modalDescription="Ingresa el monto"
+                                            trigger={
+                                                <Button className="font-bold w-full h-8 text-xs shadow-none bg-primary/90 hover:bg-primary" size="sm">
+                                                    <DollarSign className="h-3.5 w-3.5 mr-1.5" />
+                                                    Pagar Orden
+                                                </Button>
+                                            }
+                                        >
+                                            <FormPayment
+                                                total={Number(order.total)}
+                                                buttonTitle="Confirmar pago"
+                                                loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                                                handleSubmitButton={(data: PaymentValues) => handleUpdateOrder({
+                                                    amount_paid: parseFloat(data.amount_paid),
+                                                } as OrderValues)}
+                                                onSuccess={() => setOpenPay(false)}
+                                                defaultValues={{
+                                                    amount_paid: order.total.toString(),
+                                                    total: parseFloat(order.total),
+                                                }}
+                                            />
+                                        </CustomDialog>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
