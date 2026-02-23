@@ -353,36 +353,34 @@ export default function OrderDetailsPage() {
                                         </div>
                                     </>
                                 ) : (
-                                    !isEditMode && (
-                                        <div className="pt-2">
-                                            <CustomDialog
-                                                open={openPay}
-                                                setOpen={setOpenPay}
-                                                modalTitle="Pagar orden"
-                                                modalDescription="Ingresa el monto"
-                                                trigger={
-                                                    <Button className="font-bold w-full h-8 text-xs shadow-none bg-primary/90 hover:bg-primary" size="sm">
-                                                        <DollarSign className="h-3.5 w-3.5 mr-1.5" />
-                                                        Pagar Orden
-                                                    </Button>
-                                                }
-                                            >
-                                                <FormPayment
-                                                    total={Number(order.total)}
-                                                    buttonTitle="Confirmar pago"
-                                                    loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
-                                                    handleSubmitButton={(data: PaymentValues) => handleUpdateOrder({
-                                                        amount_paid: parseFloat(data.amount_paid),
-                                                    } as OrderValues)}
-                                                    onSuccess={() => setOpenPay(false)}
-                                                    defaultValues={{
-                                                        amount_paid: order.total.toString(),
-                                                        total: parseFloat(order.total),
-                                                    }}
-                                                />
-                                            </CustomDialog>
-                                        </div>
-                                    )
+                                    <div className="pt-2">
+                                        <CustomDialog
+                                            open={openPay}
+                                            setOpen={setOpenPay}
+                                            modalTitle="Pagar orden"
+                                            modalDescription="Ingresa el monto"
+                                            trigger={
+                                                <Button className="font-bold w-full h-8 text-xs shadow-none bg-primary/90 hover:bg-primary" size="sm">
+                                                    <DollarSign className="h-3.5 w-3.5 mr-1.5" />
+                                                    Pagar Orden
+                                                </Button>
+                                            }
+                                        >
+                                            <FormPayment
+                                                total={Number(order.total)}
+                                                buttonTitle="Confirmar pago"
+                                                loadingKey={LoadingsKeyEnum.UPDATE_ORDER}
+                                                handleSubmitButton={(data: PaymentValues) => handleUpdateOrder({
+                                                    amount_paid: parseFloat(data.amount_paid),
+                                                } as OrderValues)}
+                                                onSuccess={() => setOpenPay(false)}
+                                                defaultValues={{
+                                                    amount_paid: order.total.toString(),
+                                                    total: parseFloat(order.total),
+                                                }}
+                                            />
+                                        </CustomDialog>
+                                    </div>
                                 )}
                             </CardContent>
                         </Card>
