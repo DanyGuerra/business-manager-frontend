@@ -73,7 +73,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 .item-price { white-space: nowrap; font-weight: 700; font-size: 15px; }
                 .group-name { font-weight: 800; margin-top: 10px; margin-bottom: 6px; font-size: 16px; text-transform: uppercase; border-bottom: 1px solid #000; display: inline-block; padding-bottom: 2px; }
                 .total { font-weight: 900; margin-top: 10px; font-size: 20px; border-top: 1px solid #000; padding-top: 10px; }
-                .notes { margin-top: 10px; font-size: 14px; border: 1px solid #000; padding: 6px; }
+                .notes { margin-top: 10px; font-size: 12px; border: 1px solid #000; padding: 6px; }
                 .footer { text-align: center; margin-top: 20px; font-size: 14px; font-weight: 700; padding-bottom: 15px; }
                 
                 @media print {
@@ -100,7 +100,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             ` : ''}
 
             <div class="header">
-                <h2>Ticket #${order?.order_number?.toString().slice(-2)}</h2>
+                <h2>Orden #${order?.order_number?.toString().slice(-2)}</h2>
                 <p>Cliente: ${order.customer_name || 'General'}</p>
                 <p>Atendido por: ${order.user?.name || 'Cajero'}</p>
                 <p>Fecha: ${format(new Date(order.created_at), "dd/MM/yyyy HH:mm")}</p>
@@ -117,7 +117,7 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 ${group.items.map(item => {
             const originalUnitPrice = Number(item.item_total) / Number(item.quantity);
             return `
-                    <div class="item" style="margin-bottom: 8px;">
+                    <div class="item" style="margin-bottom: 2px;">
                         <div class="item-name" style="line-height: 1.2;">
                             <span><b>${item.quantity}x</b> ${item.product?.name || 'Producto'}</span>
                             ${getOptionsHtml(item)}
@@ -136,22 +136,22 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
             `;
     }).join('')}
 
-            <div class="item total">
+            <div class="item total" style="margin-bottom: 0;">
                 <span>Total:</span>
-                <span class="item-price">${formatCurrency(order.total)}</span>
+                <span class="item-price" style="font-size: 20px;">${formatCurrency(order.total)}</span>
             </div>
 
             ${order.amount_paid ? `
-            <div class="item" style="margin-top: 5px;">
+            <div class="item" style="margin-top: 0; margin-bottom: 0;">
                 <span>Pagado:</span>
                 <span class="item-price">${formatCurrency(order.amount_paid)}</span>
             </div>
             ` : ''}
             
             ${order.change && Number(order.change) >= 0 ? `
-            <div class="item" style="margin-top: 2px;">
+            <div class="item" style="margin-top: 0; margin-bottom: 0; font-size: 13px;">
                 <span>Cambio:</span>
-                <span class="item-price">${formatCurrency(order.change)}</span>
+                <span class="item-price" style="font-size: 13px;">${formatCurrency(order.change)}</span>
             </div>
             ` : ''}
 
@@ -234,7 +234,6 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
 
             window.addEventListener('afterprint', cleanup);
 
-            // Respaldo para limpiar los elementos después de 2 minutos pase lo que pase
             setTimeout(cleanup, 120000);
         }, 500);
     }

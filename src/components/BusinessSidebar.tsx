@@ -12,10 +12,11 @@ import {
   ChevronsUpDown,
   LogOut,
   User as UserIcon,
-  Plus,
   Check,
   Kanban,
   BarChart3,
+  Wallet,
+  Plus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -138,11 +139,18 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
       allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
     {
+      title: "Caja registradora",
+      href: `/business/${businessId}/cash-register`,
+      icon: Wallet,
+      allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
+    },
+    {
       title: "Usuarios y roles",
       href: `/business/${businessId}/users`,
       icon: Users,
       allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
+
   ].filter((item) => {
     if (item.allowedRoles) {
       if (loadingRoles) return false;
