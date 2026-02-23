@@ -19,10 +19,18 @@ export interface Transaction {
     order?: Partial<Order>
 }
 
+export interface TransactionsPagination {
+    data: Transaction[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+}
+
 export interface CashRegister {
     id: string;
     balance: number;
-    transactions: Transaction[];
+    transactions: TransactionsPagination;
     business_id: string;
     created_at: string;
     updated_at: string;
@@ -42,12 +50,29 @@ export const useCashRegisterApi = () => {
     const api = useAxios();
 
     return useMemo(() => ({
-        getCashRegister: (businessId: string) =>
-            api
-                .get<ApiResponse<CashRegister>>(`/cash-register`, {
+        getCashRegister: (
+            businessId: string,
+            page: number = 1,
+            limit: number = 10,
+            startDate?: Date,
+            endDate?: Date,
+            sort: "ASC" | "DESC" = "DESC"
+        ) => {
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: limit.toString(),
+                sort: sort
+            });
+
+            if (startDate) params.append("start_date", startDate.toISOString());
+            if (endDate) params.append("end_date", endDate.toISOString());
+
+            return api
+                .get<ApiResponse<CashRegister>>(`/cash-register?${params.toString()}`, {
                     headers: { [BusinessIdHeader]: businessId }
                 })
-                .then((res) => res.data),
+                .then((res) => res.data);
+        },
 
         addMoney: (businessId: string, data: AddMoneyDto) =>
             api

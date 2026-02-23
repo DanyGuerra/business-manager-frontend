@@ -1,10 +1,9 @@
 "use client";
 
 import { use, useEffect, useState, useCallback } from "react";
-import { useCashRegisterApi, Transaction } from "@/lib/useCashRegisterApi";
+import { useCashRegisterApi, CashRegister } from "@/lib/useCashRegisterApi";
 import { formatCurrency } from "@/utils/printTicket";
-import { Button } from "@/components/ui/button";
-import { ArrowDownIcon, ArrowUpIcon, Wallet } from "lucide-react";
+import { ArrowDownIcon, ArrowUpIcon, Wallet, Filter, XCircle } from "lucide-react";
 import CustomDialog from "@/components/customDialog";
 import FormCashRegister, { CashRegisterTransactionValues } from "@/components/formCashRegister";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
@@ -12,6 +11,15 @@ import { toast } from "sonner";
 import { toastSuccessStyle, toastErrorStyle } from "@/lib/toastStyles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { handleApiError } from "@/utils/handleApiError";
+import { DataTablePagination } from "@/components/DataTablePagination";
+import { DateTimePicker } from "@/components/DateTimePicker";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
@@ -22,12 +30,22 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 interface CashRegisterPageProps {
     params: Promise<{
         id: string;
     }>;
 }
+
+const defaultCashRegister: CashRegister = {
+    id: "",
+    balance: 0,
+    transactions: { data: [], total: 0, page: 1, limit: 10, totalPages: 0 },
+    business_id: "",
+    created_at: "",
+    updated_at: "",
+};
 
 export default function CashRegisterPage({ params }: CashRegisterPageProps) {
     const resolvedParams = use(params);
@@ -36,33 +54,42 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
     const { getCashRegister, addMoney, withdrawMoney } = useCashRegisterApi();
     const { startLoading, stopLoading } = useLoadingStore();
 
-    const [balance, setBalance] = useState<number | null>(null);
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [cashRegister, setCashRegister] = useState<CashRegister>(defaultCashRegister);
     const [isLoading, setIsLoading] = useState(true);
 
     const [openAddModal, setOpenAddModal] = useState(false);
     const [openWithdrawModal, setOpenWithdrawModal] = useState(false);
 
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(10);
+    const [sort, setSort] = useState<"ASC" | "DESC">("DESC");
+    const [startDate, setStartDate] = useState<Date | undefined>();
+    const [endDate, setEndDate] = useState<Date | undefined>();
+
     const fetchBalance = useCallback(async () => {
         try {
             setIsLoading(true);
-            const { data } = await getCashRegister(businessId);
-            setBalance(Number(data.balance));
-            // Ordenar transacciones por fecha descendente (más recientes primero)
-            const sortedTxs = (data.transactions || []).sort(
-                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-            );
-            setTransactions(sortedTxs);
+            const { data } = await getCashRegister(businessId, page, limit, startDate, endDate, sort);
+            setCashRegister(data);
         } catch (error) {
             handleApiError(error);
         } finally {
             setIsLoading(false);
         }
-    }, [businessId, getCashRegister]);
+    }, [businessId, getCashRegister, page, limit, startDate, endDate, sort]);
 
     useEffect(() => {
         fetchBalance();
     }, [fetchBalance]);
+
+    const resetFilters = () => {
+        setSort("DESC");
+        setStartDate(undefined);
+        setEndDate(undefined);
+        setPage(1);
+    };
+
+    const hasActiveFilters = sort !== "DESC" || startDate !== undefined || endDate !== undefined;
 
     const handleAddMoney = async (values: CashRegisterTransactionValues) => {
         try {
@@ -80,7 +107,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
 
     const handleWithdrawMoney = async (values: CashRegisterTransactionValues) => {
         try {
-            if (balance !== null && values.amount > balance) {
+            if (cashRegister.balance !== null && values.amount > cashRegister.balance) {
                 toast.error("Fondos insuficientes en la caja", { style: toastErrorStyle });
                 return;
             }
@@ -118,7 +145,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                             <Skeleton className="h-8 w-32 mt-1" />
                         ) : (
                             <div className="text-3xl font-bold">
-                                {balance !== null ? formatCurrency(balance) : "$0.00"}
+                                {cashRegister !== null ? formatCurrency(cashRegister.balance) : "$0.00"}
                             </div>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
@@ -168,8 +195,45 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                 </div>
             </div>
 
-            <div className="mt-8">
-                <h2 className="text-xl font-bold tracking-tight mb-4">Transacciones</h2>
+            <div className="mt-8 flex flex-col gap-4">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <h2 className="text-xl font-bold tracking-tight">Transacciones</h2>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2 mr-2">
+                            <Filter className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm font-medium">Filtros:</span>
+                        </div>
+                        <Select value={sort} onValueChange={(val: 'ASC' | 'DESC') => setSort(val)}>
+                            <SelectTrigger className="h-9 text-xs w-[130px]">
+                                <SelectValue placeholder="Orden" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="DESC">Más recientes</SelectItem>
+                                <SelectItem value="ASC">Más antiguas</SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <DateTimePicker
+                            date={startDate}
+                            setDate={(date) => setStartDate(date)}
+                            label="Inicio"
+                            className="h-9 min-w-[130px] w-auto text-xs"
+                        />
+                        <DateTimePicker
+                            date={endDate}
+                            setDate={(date) => setEndDate(date)}
+                            label="Fin"
+                            className="h-9 min-w-[130px] w-auto text-xs"
+                        />
+                        {hasActiveFilters && (
+                            <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
+                                <XCircle className="w-4 h-4 mr-1" />
+                                Limpiar
+                            </Button>
+                        )}
+                    </div>
+                </div>
+
                 <div className="rounded-md border bg-card overflow-hidden">
                     <Table>
                         <TableHeader className="bg-muted/50">
@@ -190,14 +254,14 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                         </div>
                                     </TableCell>
                                 </TableRow>
-                            ) : transactions.length === 0 ? (
+                            ) : cashRegister?.transactions.data.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
                                         No hay transacciones registradas.
                                     </TableCell>
                                 </TableRow>
                             ) : (
-                                transactions.map((tx) => (
+                                cashRegister?.transactions.data.map((tx) => (
                                     <TableRow key={tx.id}>
                                         <TableCell className="text-muted-foreground text-sm">
                                             {format(new Date(tx.created_at), "dd/MM/yyyy HH:mm")}
@@ -244,6 +308,20 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                         </TableBody>
                     </Table>
                 </div>
+
+                <DataTablePagination
+                    currentPage={cashRegister?.transactions.page || 1}
+                    totalPages={cashRegister?.transactions.totalPages || 1}
+                    onPageChange={setPage}
+                    limit={limit}
+                    onLimitChange={(newLimit) => {
+                        setLimit(newLimit);
+                        setPage(1); // Regresamos a la primer página al cambiar la cantidad de elementos.
+                    }}
+                    totalItems={cashRegister?.transactions.total || 0}
+                    currentCount={cashRegister?.transactions.data.length || 0}
+                    itemName="transacciones"
+                />
             </div>
         </div>
     );
