@@ -55,6 +55,7 @@ interface CartDrawerContentProps {
     // Optional
     businessId?: string;
     disableSubmit?: boolean;
+    initialAmountPaid?: number;
     onAddProductsToGroup?: (groupId: string) => void;
     onContinueShopping?: () => void;
     onCreateGroupWithItem?: (fromGroupId: string, cartItemId: string) => void;
@@ -90,6 +91,7 @@ export function CartDrawerContent({
     setOrderDetails,
     businessId = "default",
     disableSubmit,
+    initialAmountPaid,
     onAddProductsToGroup,
     onContinueShopping,
     onCreateGroupWithItem
@@ -260,6 +262,7 @@ export function CartDrawerContent({
                         onUpdate={onUpdate ? (print) => onUpdate(print) : undefined}
                         isLoading={isLoading}
                         disableSubmit={disableSubmit}
+                        initialAmountPaid={initialAmountPaid}
                     />
                 </>
             )}

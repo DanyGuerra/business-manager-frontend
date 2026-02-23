@@ -267,14 +267,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                             {format(new Date(tx.created_at), "dd/MM/yyyy HH:mm")}
                                         </TableCell>
                                         <TableCell className="font-medium">
-                                            {tx.description.includes("#") ? (
-                                                <>
-                                                    {tx.description.split("#")[0]}#
-                                                    {tx.description.split("#")[1].substring(0, 8)}
-                                                </>
-                                            ) : (
-                                                tx.description
-                                            )}
+                                            {tx.description}
                                         </TableCell>
                                         <TableCell>
                                             {tx.type === "ADD" ? (
@@ -288,12 +281,12 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                             )}
                                         </TableCell>
                                         <TableCell className="text-muted-foreground text-sm font-mono">
-                                            {tx.order?.id ? (
+                                            {tx.order_id ? (
                                                 <Link
-                                                    href={`/business/${businessId}/orders/${tx.order.id}`}
+                                                    href={`/business/${businessId}/orders/${tx.order_id}`}
                                                     className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                                                 >
-                                                    {`#${tx.order.id.substring(0, 8)}`}
+                                                    {`#${tx.order_id.substring(0, 8)}`}
                                                 </Link>
                                             ) : (
                                                 "-"

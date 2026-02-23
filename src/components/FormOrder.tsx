@@ -336,6 +336,7 @@ export default function FormOrder({
                                         inputMode="decimal"
                                         step="0.01"
                                         placeholder="0.00"
+                                        min={form.watch("total") !== undefined ? form.watch("total") : undefined}
                                         {...field}
                                         value={field.value === null || field.value === undefined || Number.isNaN(field.value) ? '' : field.value}
                                         onChange={(e) => {

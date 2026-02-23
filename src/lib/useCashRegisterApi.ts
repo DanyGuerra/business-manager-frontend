@@ -17,6 +17,7 @@ export interface Transaction {
     created_at: string;
     updated_at: string;
     order?: Partial<Order>
+    order_id?: string;
 }
 
 export interface TransactionsPagination {
