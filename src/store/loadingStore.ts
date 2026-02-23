@@ -24,6 +24,8 @@ export enum LoadingsKeyEnum {
   RESEND_VERIFICATION = "resendVerification",
   CONFIRM_EMAIL = "confirmEmail",
   RESET_PASSWORD = "resetPassword",
+  ADD_MONEY = "addMoney",
+  WITHDRAW_MONEY = "withdrawMoney",
 }
 
 type LoadingState = {

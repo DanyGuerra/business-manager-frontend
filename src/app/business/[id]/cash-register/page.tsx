@@ -1,0 +1,250 @@
+"use client";
+
+import { use, useEffect, useState, useCallback } from "react";
+import { useCashRegisterApi, Transaction } from "@/lib/useCashRegisterApi";
+import { formatCurrency } from "@/utils/printTicket";
+import { Button } from "@/components/ui/button";
+import { ArrowDownIcon, ArrowUpIcon, Wallet } from "lucide-react";
+import CustomDialog from "@/components/customDialog";
+import FormCashRegister, { CashRegisterTransactionValues } from "@/components/formCashRegister";
+import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
+import { toast } from "sonner";
+import { toastSuccessStyle, toastErrorStyle } from "@/lib/toastStyles";
+import { Skeleton } from "@/components/ui/skeleton";
+import { handleApiError } from "@/utils/handleApiError";
+import Link from "next/link";
+import { format } from "date-fns";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
+interface CashRegisterPageProps {
+    params: Promise<{
+        id: string;
+    }>;
+}
+
+export default function CashRegisterPage({ params }: CashRegisterPageProps) {
+    const resolvedParams = use(params);
+    const businessId = resolvedParams.id;
+
+    const { getCashRegister, addMoney, withdrawMoney } = useCashRegisterApi();
+    const { startLoading, stopLoading } = useLoadingStore();
+
+    const [balance, setBalance] = useState<number | null>(null);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const [openAddModal, setOpenAddModal] = useState(false);
+    const [openWithdrawModal, setOpenWithdrawModal] = useState(false);
+
+    const fetchBalance = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const { data } = await getCashRegister(businessId);
+            setBalance(Number(data.balance));
+            // Ordenar transacciones por fecha descendente (más recientes primero)
+            const sortedTxs = (data.transactions || []).sort(
+                (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+            );
+            setTransactions(sortedTxs);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [businessId, getCashRegister]);
+
+    useEffect(() => {
+        fetchBalance();
+    }, [fetchBalance]);
+
+    const handleAddMoney = async (values: CashRegisterTransactionValues) => {
+        try {
+            startLoading(LoadingsKeyEnum.ADD_MONEY);
+            await addMoney(businessId, values);
+            toast.success("Ingreso registrado con éxito", { style: toastSuccessStyle });
+            setOpenAddModal(false);
+            fetchBalance();
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.ADD_MONEY);
+        }
+    };
+
+    const handleWithdrawMoney = async (values: CashRegisterTransactionValues) => {
+        try {
+            if (balance !== null && values.amount > balance) {
+                toast.error("Fondos insuficientes en la caja", { style: toastErrorStyle });
+                return;
+            }
+            startLoading(LoadingsKeyEnum.WITHDRAW_MONEY);
+            await withdrawMoney(businessId, values);
+            toast.success("Retiro registrado con éxito", { style: toastSuccessStyle });
+            setOpenWithdrawModal(false);
+            fetchBalance();
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.WITHDRAW_MONEY);
+        }
+    };
+
+    return (
+        <div className="flex h-full flex-col gap-6 w-full p-4 lg:p-8 max-w-7xl mx-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Caja Registradora</h1>
+                    <p className="text-muted-foreground mt-1">
+                        Gestiona los ingresos y egresos de efectivo de tu negocio
+                    </p>
+                </div>
+            </div>
+
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                <div className="rounded-xl border bg-card text-card-foreground shadow">
+                    <div className="p-6 flex flex-row items-center justify-between space-y-0 pb-2">
+                        <h3 className="tracking-tight text-sm font-medium">Balance actual</h3>
+                        <Wallet className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <div className="p-6 pt-0">
+                        {isLoading ? (
+                            <Skeleton className="h-8 w-32 mt-1" />
+                        ) : (
+                            <div className="text-3xl font-bold">
+                                {balance !== null ? formatCurrency(balance) : "$0.00"}
+                            </div>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Efectivo disponible en caja
+                        </p>
+                    </div>
+                </div>
+
+                <div className="flex flex-col gap-3 justify-center">
+                    <CustomDialog
+                        modalTitle="Ingresar Dinero"
+                        modalDescription="Añade fondos a la caja registradora especificando el monto y el concepto (ej. Fondo inicial)."
+                        open={openAddModal}
+                        setOpen={setOpenAddModal}
+                        trigger={
+                            <Button className="w-full justify-start h-12" variant="outline">
+                                <ArrowUpIcon className="mr-2 h-4 w-4 text-emerald-500" />
+                                Ingresar Dinero
+                            </Button>
+                        }
+                    >
+                        <FormCashRegister
+                            buttonTitle="Registrar Ingreso"
+                            loadingKey={LoadingsKeyEnum.ADD_MONEY}
+                            handleSubmitButton={handleAddMoney}
+                        />
+                    </CustomDialog>
+
+                    <CustomDialog
+                        modalTitle="Retirar Dinero"
+                        modalDescription="Registra una salida de efectivo de la caja especificando el monto y el concepto (ej. Pago a proveedor)."
+                        open={openWithdrawModal}
+                        setOpen={setOpenWithdrawModal}
+                        trigger={
+                            <Button className="w-full justify-start h-12" variant="outline">
+                                <ArrowDownIcon className="mr-2 h-4 w-4 text-rose-500" />
+                                Retirar Dinero
+                            </Button>
+                        }
+                    >
+                        <FormCashRegister
+                            buttonTitle="Registrar Retiro"
+                            loadingKey={LoadingsKeyEnum.WITHDRAW_MONEY}
+                            handleSubmitButton={handleWithdrawMoney}
+                        />
+                    </CustomDialog>
+                </div>
+            </div>
+
+            <div className="mt-8">
+                <h2 className="text-xl font-bold tracking-tight mb-4">Transacciones</h2>
+                <div className="rounded-md border bg-card overflow-hidden">
+                    <Table>
+                        <TableHeader className="bg-muted/50">
+                            <TableRow>
+                                <TableHead>Fecha</TableHead>
+                                <TableHead>Concepto</TableHead>
+                                <TableHead>Tipo</TableHead>
+                                <TableHead>Orden</TableHead>
+                                <TableHead className="text-right">Monto</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {isLoading ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">
+                                        <div className="flex justify-center items-center h-full">
+                                            <Skeleton className="h-6 w-full max-w-sm" />
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : transactions.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                        No hay transacciones registradas.
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                transactions.map((tx) => (
+                                    <TableRow key={tx.id}>
+                                        <TableCell className="text-muted-foreground text-sm">
+                                            {format(new Date(tx.created_at), "dd/MM/yyyy HH:mm")}
+                                        </TableCell>
+                                        <TableCell className="font-medium">
+                                            {tx.description.includes("#") ? (
+                                                <>
+                                                    {tx.description.split("#")[0]}#
+                                                    {tx.description.split("#")[1].substring(0, 8)}
+                                                </>
+                                            ) : (
+                                                tx.description
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {tx.type === "ADD" ? (
+                                                <span className="inline-flex items-center rounded-full bg-emerald-100/50 dark:bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                                                    Ingreso
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center rounded-full bg-rose-100/50 dark:bg-rose-500/10 px-2.5 py-0.5 text-xs font-medium text-rose-700 dark:text-rose-400">
+                                                    Retiro
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="text-muted-foreground text-sm font-mono">
+                                            {tx.order?.id ? (
+                                                <Link
+                                                    href={`/business/${businessId}/orders/${tx.order.id}`}
+                                                    className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                                                >
+                                                    {`#${tx.order.id.substring(0, 8)}`}
+                                                </Link>
+                                            ) : (
+                                                "-"
+                                            )}
+                                        </TableCell>
+                                        <TableCell className={`text-right font-bold ${tx.type === "ADD" ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"}`}>
+                                            {tx.type === "ADD" ? "+" : "-"}{formatCurrency(tx.amount)}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
+        </div>
+    );
+}
