@@ -65,7 +65,6 @@ export default function OrderDetailsPage() {
                 setOrder(data);
             } catch (error) {
                 handleApiError(error);
-                toast.error("Error al cargar la orden");
             } finally {
                 setLoading(false);
             }
@@ -134,9 +133,18 @@ export default function OrderDetailsPage() {
 
     if (!order) {
         return (
-            <div className="flex flex-col items-center justify-center h-screen gap-4">
-                <p className="text-muted-foreground">Orden no encontrada</p>
-                <Button onClick={() => router.back()}>Volver</Button>
+            <div className="flex flex-col items-center justify-center h-[80vh] gap-4 p-8 text-center">
+                <div className="p-4 bg-muted rounded-full">
+                    <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h2 className="text-2xl font-bold tracking-tight">Orden no encontrada</h2>
+                <p className="text-muted-foreground max-w-sm">
+                    El pedido que buscas no existe o fue eliminado.
+                </p>
+                <Button onClick={() => router.back()} className="mt-4" variant="outline">
+                    <ChevronLeft className="mr-2 h-4 w-4" />
+                    Volver
+                </Button>
             </div>
         );
     }
