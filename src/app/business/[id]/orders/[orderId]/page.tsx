@@ -191,16 +191,41 @@ export default function OrderDetailsPage() {
                     </Button>
                     <div className="flex flex-col w-full gap-2">
                         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap justify-between">
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 flex-wrap">
+                            <div className="flex flex-col gap-2 flex-wrap">
                                 <div className="flex items-center gap-3">
                                     <h2 className="text-lg sm:text-2xl font-bold tracking-tight">Orden #{order.order_number}</h2>
                                     <Badge variant="outline" className={cn("text-[10px] h-5 px-2", getStatusColor(order.status))}>
                                         {getStatusLabel(order.status)}
                                     </Badge>
                                 </div>
-                                <span className="text-[10px] text-muted-foreground font-mono bg-muted/50 px-1.5 py-0.5 rounded break-all sm:break-normal">
-                                    ID: {order.id}
-                                </span>
+
+                                <div className="flex flex-col gap-1">
+                                    <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+                                        <span className="text-[10px] text-muted-foreground font-mono bg-muted/50 rounded break-all sm:break-normal">
+                                            ID: {order.id}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
+                                        <div className="flex items-center gap-1.5">
+                                            <Clock className="h-3.5 w-3.5 opacity-70" />
+                                            <span className="text-[10px] uppercase opacity-70 font-semibold">Creado: </span>
+                                            <span className="text-[11px] font-bold leading-none">{timeString}</span>
+
+                                        </div>
+
+                                        {scheduledTime && (
+                                            <div className={cn(
+                                                "flex gap-1.5 py-0.5 rounded-sm border",
+                                                "bg-blue-50/50 border-blue-100/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
+                                            )}>
+                                                <Calendar className="h-3 w-3 opacity-90" />
+                                                <span className="text-[10px] uppercase opacity-70 font-semibold">Fecha a entregar:</span>
+                                                <span className="text-[11px] font-bold leading-none">{scheduledTime}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="flex items-center gap-2 mt-2 sm:mt-0">
@@ -272,25 +297,7 @@ export default function OrderDetailsPage() {
                             </div>
                         </div>
 
-                        <div className="flex flex-col gap-0.5 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1.5">
-                                <Clock className="h-3.5 w-3.5 opacity-70" />
-                                <span className="text-[10px] uppercase opacity-70 font-semibold">Creado: </span>
-                                <span className="text-[11px] font-bold leading-none">{timeString}</span>
 
-                            </div>
-
-                            {scheduledTime && (
-                                <div className={cn(
-                                    "flex gap-1.5 py-0.5 rounded-sm border",
-                                    "bg-blue-50/50 border-blue-100/50 text-blue-700 dark:bg-blue-950/20 dark:border-blue-900/30 dark:text-blue-400"
-                                )}>
-                                    <Calendar className="h-3 w-3 opacity-90" />
-                                    <span className="text-[10px] uppercase opacity-70 font-semibold">Fecha a entregar:</span>
-                                    <span className="text-[11px] font-bold leading-none">{scheduledTime}</span>
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>
