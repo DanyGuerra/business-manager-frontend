@@ -204,7 +204,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                             <Filter className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm font-medium">Filtros:</span>
                         </div>
-                        <Select value={sort} onValueChange={(val: 'ASC' | 'DESC') => setSort(val)}>
+                        <Select value={sort} onValueChange={(val: 'ASC' | 'DESC') => { setSort(val); setPage(1); }}>
                             <SelectTrigger className="h-9 text-xs w-[130px]">
                                 <SelectValue placeholder="Orden" />
                             </SelectTrigger>
@@ -215,13 +215,13 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                         </Select>
                         <DateTimePicker
                             date={startDate}
-                            setDate={(date) => setStartDate(date)}
+                            setDate={(date) => { setStartDate(date); setPage(1); }}
                             label="Inicio"
                             className="h-9 min-w-[130px] w-auto text-xs"
                         />
                         <DateTimePicker
                             date={endDate}
-                            setDate={(date) => setEndDate(date)}
+                            setDate={(date) => { setEndDate(date); setPage(1); }}
                             label="Fin"
                             className="h-9 min-w-[130px] w-auto text-xs"
                         />
@@ -247,13 +247,31 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                         </TableHeader>
                         <TableBody>
                             {isLoading ? (
-                                <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center">
-                                        <div className="flex justify-center items-center h-full">
-                                            <Skeleton className="h-6 w-full max-w-sm" />
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
+                                Array.from({ length: 10 }).map((_: unknown, index: number) => (
+                                    <TableRow key={index}>
+                                        <TableCell>
+                                            <Skeleton className="h-4 w-[80px]" />
+                                        </TableCell>
+                                        <TableCell>
+                                            <Skeleton className="h-4 w-full max-w-[250px]" />
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <div className="flex justify-center">
+                                                <Skeleton className="h-5 w-16 rounded-full" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end">
+                                                <Skeleton className="h-4 w-12" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end">
+                                                <Skeleton className="h-4 w-16" />
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
                             ) : cashRegister?.transactions.data.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
@@ -264,7 +282,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                 cashRegister?.transactions.data.map((tx) => (
                                     <TableRow key={tx.id}>
                                         <TableCell className="text-muted-foreground text-sm">
-                                            {format(new Date(tx.created_at), "dd/MM/yyyy HH:mm")}
+                                            {format(new Date(tx.created_at), "dd/MM/yyyy hh:mm a")}
                                         </TableCell>
                                         <TableCell className="font-medium">
                                             {tx.description}

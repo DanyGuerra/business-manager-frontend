@@ -14,6 +14,9 @@ import CustomDialog from "@/components/customDialog";
 import { useEditModeStore } from "@/store/editModeStore";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useBusinessStore } from "@/store/businessStore";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Shield, UserPlus } from "lucide-react";
 
 export default function UsersPage() {
   const userRolesApi = useUserRolesBusinessApi();
@@ -68,37 +71,68 @@ export default function UsersPage() {
   }, [businessId, fetchUsers]);
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Usuarios y roles</h2>
-          <p className="text-muted-foreground">
-            Administra los usuarios y sus roles en este negocio.
-          </p>
-        </div>
-        {isEditMode && <div className="flex gap-2">
+    <div className="space-y-6 max-w-5xl mx-auto pb-8">
+      <Card className="border-none sm:border-solid shadow-none sm:shadow-sm">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4 px-0 sm:px-6">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+              Usuarios y roles
+            </CardTitle>
+            <CardDescription className="text-xs sm:text-sm">
+              Administra los usuarios y los niveles de acceso dentro de este negocio.
+            </CardDescription>
+          </div>
+
           <CustomDialog
             open={open}
             setOpen={setOpen}
             modalTitle="Agregar usuario"
-            modalDescription="Agrega un usuario al negocio y asignale un rol"
+            modalDescription="Agrega un usuario al negocio y asígnale un rol."
+            trigger={
+              <Button variant="default" className="w-full sm:w-auto shrink-0 group">
+                <UserPlus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+                Invitar usuario
+              </Button>
+            }
           >
             <AddUserForm onSubmit={handleAddUser} />
           </CustomDialog>
-        </div>}
-      </div>
-      {loading ? (
-        <div className="space-y-2">
-          <Skeleton className="h-10 w-full" />
-          <Skeleton className="h-20 w-full" />
-          <Skeleton className="h-20 w-full" />
-        </div>
-      ) : (
-        <UsersTable
-          users={users}
-          onDelete={handleDelete}
-        />
-      )}
+
+        </CardHeader>
+        <CardContent className="px-0 sm:px-6">
+          {loading ? (
+            <div className="border rounded-md">
+              <div className="border-b px-4 py-3 flex items-center justify-between bg-muted/30">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-20" />
+                {isEditMode && <Skeleton className="h-4 w-16" />}
+              </div>
+              <div className="divide-y">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-4 px-6">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-40" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                    {isEditMode && <Skeleton className="h-8 w-8 rounded-md" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <UsersTable
+              users={users}
+              onDelete={handleDelete}
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

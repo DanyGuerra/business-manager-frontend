@@ -127,10 +127,12 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
     );
 
     return (
-        <Card className={cn(
-            "w-full transition-all pt-8 duration-300 group relative overflow-hidden bg-white dark:bg-card",
-            isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60'
-        )}>
+        <Card
+            id={`order-${order.id}`}
+            className={cn(
+                "w-full transition-all pt-8 duration-300 group relative overflow-hidden bg-white dark:bg-card",
+                isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60'
+            )}>
             {!isEditMode && (
                 <div className={cn("absolute left-0 top-0 bottom-0 w-[2px] transition-colors", getStatusColor(order.status))} />
             )}
