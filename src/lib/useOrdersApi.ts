@@ -31,6 +31,10 @@ export type CreateOrderDto = {
     notes?: string | null,
 }
 
+export type UpdateOrderStatusDto = {
+    status: OrderStatus,
+}
+
 export interface OrderLabel {
     id: string;
     name: string;
@@ -138,6 +142,12 @@ export function useOrdersApi() {
                 })
                 .then((res) => res.data),
         updateOrder: (orderId: string, data: Partial<CreateOrderDto>, businessId: string) =>
+            api
+                .patch<ApiResponse<Order>>(`/orders/${orderId}`, data, {
+                    headers: { [BusinessIdHeader]: businessId },
+                })
+                .then((res) => res.data),
+        updateOrderStatus: (orderId: string, data: UpdateOrderStatusDto, businessId: string) =>
             api
                 .patch<ApiResponse<Order>>(`/orders/${orderId}`, data, {
                     headers: { [BusinessIdHeader]: businessId },
