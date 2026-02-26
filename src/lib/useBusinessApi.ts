@@ -8,6 +8,12 @@ export type CreateBusinessResponse = {
   id: string;
   name: string;
   address: string;
+  street?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
   owner_id: string;
 };
 
@@ -15,6 +21,12 @@ export type Business = {
   id: string;
   name: string;
   address: string;
+  street?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
   owner_id: string;
 };
 
@@ -42,11 +54,23 @@ export type BusinessFull = Business & {
 type CreateBusinessDto = {
   name: string;
   address?: string;
+  street?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
 };
 
 type UpdateBusinessDto = {
   name?: string;
   address?: string;
+  street?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  phone?: string;
 };
 
 
