@@ -94,11 +94,10 @@ export default function TabOptionGroups() {
     getOptionsGroups();
   }, [getOptionsGroups]);
 
-  const handleSearch = (value: string) => {
+  const handleSearch = useCallback((value: string) => {
     setSearch(value);
     setPage(1);
-    getOptionsGroups(1, limit, value);
-  };
+  }, []);
 
   return (
     <section className="flex flex-col items-center justify-center space-y-4">

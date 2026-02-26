@@ -18,6 +18,11 @@ export function DataTableSearch({
 }: DataTableSearchProps) {
     const [inputValue, setInputValue] = useState(initialValue);
     const isMounted = useRef(false);
+    const onSearchRef = useRef(onSearch);
+
+    useEffect(() => {
+        onSearchRef.current = onSearch;
+    }, [onSearch]);
 
     useEffect(() => {
         setInputValue(initialValue);
@@ -32,16 +37,16 @@ export function DataTableSearch({
         const trimmedValue = inputValue.trim();
 
         if (trimmedValue === "") {
-            onSearch("");
+            onSearchRef.current("");
             return;
         }
 
         const timer = setTimeout(() => {
-            onSearch(trimmedValue);
+            onSearchRef.current(trimmedValue);
         }, 600);
 
         return () => clearTimeout(timer);
-    }, [inputValue, onSearch]);
+    }, [inputValue]);
 
     return (
         <div className="flex flex-col sm:flex-row gap-2">

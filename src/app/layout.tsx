@@ -8,7 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { SocketProvider } from "@/context/SocketContext";
 
 export const metadata: Metadata = {
-  title: "RestHub - Gestión restaurantes",
+  title: "RestAgile - Gestión restaurantes",
   description: "Plataforma integral para administrar restaurantes: gestione pedidos en tiempo real, menús dinámicos, control de inventario y roles de equipo eficientemente.",
 };
 
