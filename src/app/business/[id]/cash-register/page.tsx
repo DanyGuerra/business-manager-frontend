@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useEffect, useState, useCallback } from "react";
-import { useCashRegisterApi, CashRegister } from "@/lib/useCashRegisterApi";
+import { useCashRegisterApi, CashRegister, TransactionType } from "@/lib/useCashRegisterApi";
 import { formatCurrency } from "@/utils/printTicket";
 import { ArrowDownIcon, ArrowUpIcon, Wallet, Filter, XCircle } from "lucide-react";
 import CustomDialog from "@/components/customDialog";
@@ -65,18 +65,27 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
     const [sort, setSort] = useState<"ASC" | "DESC">("DESC");
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
+    const [transactionType, setTransactionType] = useState<TransactionType | "ALL">("ALL");
 
     const fetchBalance = useCallback(async () => {
         try {
             setIsLoading(true);
-            const { data } = await getCashRegister(businessId, page, limit, startDate, endDate, sort);
+            const { data } = await getCashRegister(
+                businessId,
+                page,
+                limit,
+                startDate,
+                endDate,
+                sort,
+                transactionType === "ALL" ? undefined : transactionType
+            );
             setCashRegister(data);
         } catch (error) {
             handleApiError(error);
         } finally {
             setIsLoading(false);
         }
-    }, [businessId, getCashRegister, page, limit, startDate, endDate, sort]);
+    }, [businessId, getCashRegister, page, limit, startDate, endDate, sort, transactionType]);
 
     useEffect(() => {
         fetchBalance();
@@ -86,10 +95,11 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
         setSort("DESC");
         setStartDate(undefined);
         setEndDate(undefined);
+        setTransactionType("ALL");
         setPage(1);
     };
 
-    const hasActiveFilters = sort !== "DESC" || startDate !== undefined || endDate !== undefined;
+    const hasActiveFilters = sort !== "DESC" || startDate !== undefined || endDate !== undefined || transactionType !== "ALL";
 
     const handleAddMoney = async (values: CashRegisterTransactionValues) => {
         try {
@@ -200,41 +210,58 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
             </div>
 
             <div className="mt-8 flex flex-col gap-4">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <h2 className="text-xl font-bold tracking-tight">Transacciones</h2>
+                <div className="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4 w-full">
+                    <h2 className="text-xl font-bold tracking-tight shrink-0">Transacciones</h2>
 
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="flex items-center gap-2 mr-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full xl:w-auto">
+                        <div className="flex items-center gap-2 shrink-0">
                             <Filter className="w-4 h-4 text-muted-foreground" />
                             <span className="text-sm font-medium">Filtros:</span>
                         </div>
-                        <Select value={sort} onValueChange={(val: 'ASC' | 'DESC') => { setSort(val); setPage(1); }}>
-                            <SelectTrigger className="h-9 text-xs w-[130px]">
-                                <SelectValue placeholder="Orden" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="DESC">Más recientes</SelectItem>
-                                <SelectItem value="ASC">Más antiguas</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <DateTimePicker
-                            date={startDate}
-                            setDate={(date) => { setStartDate(date); setPage(1); }}
-                            label="Inicio"
-                            className="h-9 min-w-[130px] w-auto text-xs"
-                        />
-                        <DateTimePicker
-                            date={endDate}
-                            setDate={(date) => { setEndDate(date); setPage(1); }}
-                            label="Fin"
-                            className="h-9 min-w-[130px] w-auto text-xs"
-                        />
-                        {hasActiveFilters && (
-                            <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground">
-                                <XCircle className="w-4 h-4 mr-1" />
-                                Limpiar
-                            </Button>
-                        )}
+
+                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full">
+                            <Select value={sort} onValueChange={(val: 'ASC' | 'DESC') => { setSort(val); setPage(1); }}>
+                                <SelectTrigger className="h-9 text-xs w-full sm:w-[130px]">
+                                    <SelectValue placeholder="Orden" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="DESC">Más recientes</SelectItem>
+                                    <SelectItem value="ASC">Más antiguas</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={transactionType} onValueChange={(val: TransactionType | 'ALL') => { setTransactionType(val); setPage(1); }}>
+                                <SelectTrigger className="h-9 text-xs w-full sm:w-[130px]">
+                                    <SelectValue placeholder="Tipo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="ALL">Todos</SelectItem>
+                                    <SelectItem value={TransactionType.ADD}>Ingresos</SelectItem>
+                                    <SelectItem value={TransactionType.WITHDRAW}>Retiros</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <DateTimePicker
+                                date={startDate}
+                                setDate={(date) => { setStartDate(date); setPage(1); }}
+                                label="Inicio"
+                                className="h-9 w-full sm:min-w-[130px] sm:w-auto text-xs"
+                            />
+
+                            <DateTimePicker
+                                date={endDate}
+                                setDate={(date) => { setEndDate(date); setPage(1); }}
+                                label="Fin"
+                                className="h-9 w-full sm:min-w-[130px] sm:w-auto text-xs"
+                            />
+
+                            {hasActiveFilters && (
+                                <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 px-2 text-muted-foreground hover:text-foreground col-span-2 sm:col-span-1 w-full sm:w-auto">
+                                    <XCircle className="w-4 h-4 mr-1" />
+                                    Limpiar
+                                </Button>
+                            )}
+                        </div>
                     </div>
                 </div>
 

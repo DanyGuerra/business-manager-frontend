@@ -4,7 +4,7 @@ import { BusinessIdHeader } from "@/consts/consts";
 import { ApiResponse } from "@/app/types/auth";
 import { Order } from "./useOrdersApi";
 
-enum TransactionType {
+export enum TransactionType {
     ADD = "ADD",
     WITHDRAW = "WITHDRAW"
 }
@@ -57,7 +57,8 @@ export const useCashRegisterApi = () => {
             limit: number = 10,
             startDate?: Date,
             endDate?: Date,
-            sort: "ASC" | "DESC" = "DESC"
+            sort: "ASC" | "DESC" = "DESC",
+            transactionType?: TransactionType
         ) => {
             const params = new URLSearchParams({
                 page: page.toString(),
@@ -67,6 +68,7 @@ export const useCashRegisterApi = () => {
 
             if (startDate) params.append("start_date", startDate.toISOString());
             if (endDate) params.append("end_date", endDate.toISOString());
+            if (transactionType) params.append("type", transactionType);
 
             return api
                 .get<ApiResponse<CashRegister>>(`/cash-register?${params.toString()}`, {
