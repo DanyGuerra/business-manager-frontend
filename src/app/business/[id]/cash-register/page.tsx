@@ -171,6 +171,8 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                             buttonTitle="Registrar Ingreso"
                             loadingKey={LoadingsKeyEnum.ADD_MONEY}
                             handleSubmitButton={handleAddMoney}
+                            currentBalance={cashRegister?.balance || 0}
+                            transactionType="IN"
                         />
                     </CustomDialog>
 
@@ -190,6 +192,8 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                             buttonTitle="Registrar Retiro"
                             loadingKey={LoadingsKeyEnum.WITHDRAW_MONEY}
                             handleSubmitButton={handleWithdrawMoney}
+                            currentBalance={cashRegister?.balance || 0}
+                            transactionType="OUT"
                         />
                     </CustomDialog>
                 </div>
