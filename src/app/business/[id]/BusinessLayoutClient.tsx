@@ -170,17 +170,34 @@ export default function BusinessLayoutClient({
                 <div className="flex flex-col gap-6 flex-1 w-full min-w-0">
                     <div className="w-full sticky top-[6.5rem] z-10 bg-background/50 backdrop-blur-sm px-4 py-2 border-b flex justify-between items-center gap-4">
                         <div className="flex items-center gap-3 min-w-0">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 shrink-0">
-                                <Store className="h-4 w-4 text-primary" />
+                            <div className="flex flex-col items-center justify-center gap-1 shrink-0">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10">
+                                    <Store className="h-4 w-4 text-primary" />
+                                </div>
                             </div>
                             <div className="flex flex-col min-w-0">
-                                <h1 className="text-sm font-semibold tracking-tight truncate">
+                                <h1 className="text-sm font-semibold tracking-tight truncate flex items-center gap-2">
                                     {business?.name}
+                                    {business?.phone && (
+                                        <span className="text-xs font-normal text-muted-foreground flex items-center gap-1 bg-muted px-1.5 py-0.5 rounded-sm">
+                                            {business.phone}
+                                        </span>
+                                    )}
                                 </h1>
-                                {business.address?.trim() && (
-                                    <div className="flex items-center gap-1 text-muted-foreground">
+                                {(business.address || business.street || business.city) && (
+                                    <div className="flex items-center gap-1 text-muted-foreground mt-0.5">
                                         <MapPin className="h-3 w-3 shrink-0" />
-                                        <p className="text-xs truncate">{business.address}</p>
+                                        <p className="text-xs truncate">
+                                            {[
+                                                business.street,
+                                                business.neighborhood,
+                                                business.city && business.state ? `${business.city}, ${business.state}` : business.city || business.state,
+                                                business.zipCode,
+                                                business.address
+                                            ]
+                                                .filter(Boolean)
+                                                .join(", ")}
+                                        </p>
                                     </div>
                                 )}
                             </div>
@@ -210,6 +227,12 @@ export default function BusinessLayoutClient({
                                             defaultValues={{
                                                 name: business?.name ?? "",
                                                 address: business?.address,
+                                                street: business?.street,
+                                                neighborhood: business?.neighborhood,
+                                                city: business?.city,
+                                                state: business?.state,
+                                                zipCode: business?.zipCode,
+                                                phone: business?.phone,
                                             }}
                                         />
                                     </CustomDialog>}

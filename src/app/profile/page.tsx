@@ -203,8 +203,8 @@ export default function ProfilePage() {
 
       {
         loadings[LoadingsKeyEnum.GET_BUSINESS] ? (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
+          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
               <div key={i} className="flex flex-col space-y-3">
                 <Skeleton className="h-[125px] w-full rounded-xl" />
                 <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function ProfilePage() {
             ))}
           </section>
         ) : businesses && businesses.length > 0 ? (
-          <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {businesses.map((business) => (
               <BusinessCard key={business.id} business={business} />
             ))}

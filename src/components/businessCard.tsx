@@ -1,7 +1,7 @@
 import { Business } from "@/lib/useBusinessApi";
 import { Card, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { useRouter } from "next/navigation";
-import { ChevronRight, MapPin, Store } from "lucide-react";
+import { ChevronRight, MapPin, Store, Phone } from "lucide-react";
 
 type PropsBusinessCard = {
   business: Business;
@@ -29,12 +29,29 @@ export default function BusinessCard({ business }: PropsBusinessCard) {
           <CardTitle className="text-base sm:text-lg font-bold truncate group-hover:text-primary transition-colors">
             {business.name}
           </CardTitle>
-          <CardDescription className="flex items-center gap-1.5 text-xs sm:text-sm">
-            {business.address && (
-              <>
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{business.address}</span>
-              </>
+          <CardDescription className="flex flex-col gap-1 text-xs sm:text-sm mt-1">
+            {(business.phone) && (
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Phone className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{business.phone}</span>
+              </div>
+            )}
+
+            {(business.address || business.street || business.city) && (
+              <div className="flex items-start gap-1.5">
+                <MapPin className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span className="line-clamp-2">
+                  {[
+                    business.street,
+                    business.neighborhood,
+                    business.city && business.state ? `${business.city}, ${business.state}` : business.city || business.state,
+                    business.zipCode,
+                    business.address
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              </div>
             )}
           </CardDescription>
         </div>
