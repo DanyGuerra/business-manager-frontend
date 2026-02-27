@@ -13,6 +13,8 @@ export interface Transaction {
     id: string;
     amount: number;
     description: string;
+    new_balance: number;
+    previous_balance: number;
     type: TransactionType;
     created_at: string;
     updated_at: string;

@@ -273,7 +273,9 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                 <TableHead>Concepto</TableHead>
                                 <TableHead>Tipo</TableHead>
                                 <TableHead>Orden</TableHead>
+                                <TableHead className="text-right">Balance Anterior</TableHead>
                                 <TableHead className="text-right">Monto</TableHead>
+                                <TableHead className="text-right">Balance Nuevo</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -301,11 +303,21 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                                 <Skeleton className="h-4 w-16" />
                                             </div>
                                         </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end">
+                                                <Skeleton className="h-4 w-16" />
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex justify-end">
+                                                <Skeleton className="h-4 w-16" />
+                                            </div>
+                                        </TableCell>
                                     </TableRow>
                                 ))
                             ) : cashRegister?.transactions.data.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                                    <TableCell colSpan={7} className="h-24 text-center text-muted-foreground">
                                         No hay transacciones registradas.
                                     </TableCell>
                                 </TableRow>
@@ -341,8 +353,14 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
                                                 "-"
                                             )}
                                         </TableCell>
+                                        <TableCell className="text-right font-mono text-muted-foreground">
+                                            {tx.previous_balance ? formatCurrency(tx.previous_balance) : "-"}
+                                        </TableCell>
                                         <TableCell className={`text-right font-bold ${tx.type === "ADD" ? "text-emerald-600 dark:text-emerald-500" : "text-rose-600 dark:text-rose-500"}`}>
                                             {tx.type === "ADD" ? "+" : "-"}{formatCurrency(tx.amount)}
+                                        </TableCell>
+                                        <TableCell className="text-right font-mono font-medium">
+                                            {tx.new_balance ? formatCurrency(tx.new_balance) : "-"}
                                         </TableCell>
                                     </TableRow>
                                 ))
