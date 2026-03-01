@@ -109,7 +109,7 @@ export default function BusinessLayoutClient({
                     onClick={() => {
                         if (orderId) {
 
-                            if (!pathname.includes('board')) {
+                            if (!pathname.endsWith(`/orders/board`)) {
                                 router.push(`/business/${businessId}/orders/board`);
                                 setTimeout(() => {
                                     setHighlightedOrderId(orderId);
