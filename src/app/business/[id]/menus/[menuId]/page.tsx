@@ -15,7 +15,6 @@ import { useCartStore } from "@/store/cartStore";
 
 import { Option } from "@/lib/useOptionGroupApi";
 import { toast } from "sonner";
-import { toastSuccessStyle } from "@/lib/toastStyles";
 
 export default function MenuPage() {
     const params = useParams();
@@ -31,7 +30,7 @@ export default function MenuPage() {
 
     const handleAddToCart = (product: Product, options: Option[], quantity: number) => {
         addToCart(businessId, product, options, quantity);
-        toast.success("Producto agregado al carrito", { style: toastSuccessStyle });
+        toast.success("Producto agregado al carrito");
     };
 
     const fetchMenu = useCallback(async () => {

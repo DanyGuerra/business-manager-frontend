@@ -13,7 +13,7 @@ import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { UpdateProductDto, useProductApi } from "@/lib/useProductApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { toast } from "sonner";
-import { toastErrorStyle, toastSuccessStyle } from "@/lib/toastStyles";
+import { toastErrorStyle } from "@/lib/toastStyles";
 import { handleApiError } from "@/utils/handleApiError";
 import { useEditModeStore } from "@/store/editModeStore";
 import { Option } from "@/lib/useOptionGroupApi";
@@ -113,7 +113,7 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
 
         if (onAddToCart) {
             onAddToCart(product, cartOptions, quantity);
-            toast.success("Producto agregado", { style: toastSuccessStyle });
+            toast.success("Producto agregado");
         }
 
         setSelectedOptions({});
@@ -123,9 +123,7 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
     async function handleDeleteProduct(productId: string) {
         try {
             await productApi.deleteProduct(productId, businessId);
-            toast.success("Se eliminó el producto correctamente", {
-                style: toastSuccessStyle,
-            });
+            toast.success("Se eliminó el producto correctamente");
             onRefresh();
         } catch (error) {
             handleApiError(error);
@@ -146,9 +144,7 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
         try {
             startLoading(LoadingsKeyEnum.UPDATE_PRODUCT);
             await productApi.updateProduct(dataUpdate, productId, businessId);
-            toast.success("Se actualizó el producto exitosamente", {
-                style: toastSuccessStyle,
-            });
+            toast.success("Se actualizó el producto exitosamente");
             onRefresh();
         } catch (error) {
             handleApiError(error);

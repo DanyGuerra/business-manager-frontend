@@ -15,7 +15,7 @@ import { OrderStatus, useOrdersApi } from "@/lib/useOrdersApi";
 import { useBusinessStore } from "@/store/businessStore";
 import { handleApiError } from "@/utils/handleApiError";
 import { toast } from "sonner";
-import { toastSuccessStyle, toastErrorStyle } from "@/lib/toastStyles";
+import { toastErrorStyle } from "@/lib/toastStyles";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { CartDrawerContent } from "@/components/CartDrawerContent";
 import { printOrderTicket } from "@/utils/printTicket";
@@ -56,7 +56,7 @@ export default function CartDrawer() {
             };
 
             const response = await ordersApi.createFullOrder(payload, businessId);
-            toast.success("Orden creada exitosamente", { style: toastSuccessStyle });
+            toast.success("Orden creada exitosamente");
 
             if (shouldPrint && response.data?.id) {
                 try {

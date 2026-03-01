@@ -174,7 +174,7 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                     <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                       <Store className="size-4" />
                     </div>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
+                    <div className="grid flex-1 text-left text-sm leading-tight gap-0.5">
                       <span className="truncate font-semibold">
                         {isLoadingBusinesses ? (
                           <Skeleton className="h-4 w-24" />
@@ -182,11 +182,25 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
                           currentBusiness?.name || "Seleccionar negocio"
                         )}
                       </span>
-                      <span className="truncate text-xs">
+                      <span
+                        className="truncate text-xs text-muted-foreground"
+                        title={[
+                          currentBusiness?.street,
+                          currentBusiness?.neighborhood,
+                          currentBusiness?.city,
+                          currentBusiness?.state,
+                          currentBusiness?.zipCode,
+                        ].filter(Boolean).join(", ")}
+                      >
                         {isLoadingBusinesses ? (
                           <Skeleton className="h-3 w-16" />
                         ) : (
-                          currentBusiness?.address || "Sin dirección"
+                          [
+                            currentBusiness?.street,
+                            currentBusiness?.neighborhood
+                          ].filter(Boolean).join(", ") ||
+                          currentBusiness?.address ||
+                          "Sin dirección"
                         )}
                       </span>
                     </div>
