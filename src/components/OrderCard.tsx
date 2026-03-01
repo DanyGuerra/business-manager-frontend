@@ -48,7 +48,7 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
     const { isEditMode } = useEditModeStore();
     const { businessId, business } = useBusinessStore();
     const ordersApi = useOrdersApi();
-    const { updateOrder, removeOrder } = useOrdersStore();
+    const { updateOrder, removeOrder, highlightedOrderId } = useOrdersStore();
     const { startLoading, stopLoading } = useLoadingStore();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { attributes, listeners } = useContext<any>(SortableItemContext) || {};
@@ -131,7 +131,8 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
             id={`order-${order.id}`}
             className={cn(
                 "w-full transition-all pt-8 duration-300 group relative overflow-hidden bg-white dark:bg-card",
-                isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60'
+                isEditMode ? 'border-dashed border-2 border-primary/20 shadow-none' : 'border border-border/40 shadow-sm hover:shadow-md hover:border-border/60',
+                highlightedOrderId === order.id && "ring-4 ring-primary ring-offset-4 ring-offset-background shadow-[0_0_40px_rgba(var(--primary),0.7)] scale-[1.03] animate-pulse bg-primary/10 border-primary"
             )}>
             {!isEditMode && (
                 <div className={cn("absolute left-0 top-0 bottom-0 w-[2px] transition-colors", getStatusColor(order.status))} />

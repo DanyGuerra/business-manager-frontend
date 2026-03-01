@@ -43,6 +43,8 @@ type OrdersState = {
     setOrdersByStatus: (orders: Order[], status: OrderStatus) => void;
     activeOrder: Order | null;
     setActiveOrder: (order: Order | null) => void;
+    highlightedOrderId: string | null;
+    setHighlightedOrderId: (orderId: string | null) => void;
 };
 
 const initialFilters: FilterState = {
@@ -107,4 +109,6 @@ export const useOrdersStore = create<OrdersState>((set) => ({
     }),
     activeOrder: null,
     setActiveOrder: (order) => set({ activeOrder: order }),
+    highlightedOrderId: null,
+    setHighlightedOrderId: (orderId) => set({ highlightedOrderId: orderId }),
 }));
