@@ -50,13 +50,17 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 }
                 body { 
                     font-family: 'Courier New', Courier, monospace, system-ui, sans-serif; 
-                    padding: 0;
+                    padding: 0 1mm;
                     margin: 0 auto; 
                     width: 58mm; 
                     max-width: 58mm;
                     color: #000; 
                     font-size: 13px;
                     line-height: 1.1;
+                    height: max-content;
+                }
+                html {
+                   height: max-content;
                 }
                 * {
                     box-sizing: border-box;
@@ -105,11 +109,13 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                         size: 58mm auto;
                         margin: 0;
                     }
-                    body { 
+                    html, body {
                         width: 58mm; 
                         max-width: 58mm;
-                        padding: 0 1mm; /* Minimum padding so cutter works */
-                        margin: 0;
+                        padding: 0 1mm;
+                        margin: 0 auto;
+                        height: max-content !important;
+                        overflow: visible;
                     }
                 }
             </style>
@@ -210,17 +216,21 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                 display: none !important;
             }
             body {
-                margin: 0 !important;
-                padding: 0 !important;
+                margin: 0 auto !important;
+                padding: 0 1mm !important;
                 background-color: white !important;
+                height: max-content !important;
+                min-height: 0 !important;
             }
             #print-iframe {
                 visibility: visible !important;
                 display: block !important;
-                position: static !important;
-                width: 100% !important;
-                height: 100% !important;
-                min-height: 100vh !important;
+                position: absolute !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 58mm !important;
+                height: max-content !important;
+                min-height: 0 !important;
                 border: none !important;
             }
         }
