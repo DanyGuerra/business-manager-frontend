@@ -5,7 +5,7 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { AnimatedKanbanHero } from "@/components/AnimatedKanbanHero";
 import { FeaturedKanbanCard } from "@/components/FeaturedKanbanCard";
-import { FeatureCard } from "@/components/FeatureCard";
+import { FeatureShowcase } from "@/components/FeatureShowcase";
 import {
   AnimatedUtensils,
   AnimatedUsers,
@@ -48,54 +48,67 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-20 bg-muted/30">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
+      <section className="py-20 bg-muted/30 pb-0">
+        <div className="container px-4 md:px-6 mx-auto mb-20">
+          <div className="flex flex-col gap-12">
             <FeaturedKanbanCard />
-
-            <FeatureCard
-              delay={0.1}
-              icon={<AnimatedUtensils />}
-              title="Gestión de Menús"
-              description="Organice sus productos en menús dinámicos y gestione sus precios de manera eficiente."
-            />
-
-            <FeatureCard
-              delay={0.2}
-              icon={<AnimatedUsers />}
-              title="Usuarios y Roles"
-              description="Control total sobre su equipo. Asigne roles y gestione permisos de acceso de forma segura."
-            />
-
-            <FeatureCard
-              delay={0.3}
-              icon={<AnimatedBarChart />}
-              title="Reportes y estadísticas"
-              description="Tome decisiones informadas con análisis detallados de ventas y rendimiento."
-            />
-
-            <FeatureCard
-              delay={0.4}
-              icon={<AnimatedCalculator />}
-              title="Caja Registradora"
-              description="Gestione todos sus cobros de manera profesional. Registro histórico de transacciones, cálculo de cambios automático y cortes de caja exactos."
-            />
-
-            <FeatureCard
-              delay={0.5}
-              icon={<AnimatedSparkles />}
-              title="Ordenamiento Inteligente"
-              description="Mayor accesibilidad y rapidez. Los productos y complementos más vendidos se ordenan automáticamente al inicio asegurando operaciones ágiles y precisas."
-            />
-
-            <FeatureCard
-              delay={0.6}
-              icon={<AnimatedPrinter />}
-              title="Tickets de Pedido"
-              description="Imprima comprobantes de manera automática y profesional. Formatos optimizados para impresoras térmicas con todo el detalle que su cocina y su cliente necesitan."
-            />
-
           </div>
+        </div>
+
+        <div className="flex flex-col w-full divide-y divide-border/20">
+          <FeatureShowcase
+            index={0}
+            isReversed={false}
+            colorName="orange"
+            icon={<AnimatedUtensils />}
+            title="Administración de Menús"
+            description="Diseñe catálogos de productos claros y estructurados. Gestione precios, ingredientes y categorías de forma centralizada para que su oferta se adapte rápidamente a la demanda."
+          />
+
+          <FeatureShowcase
+            index={1}
+            isReversed={true}
+            colorName="blue"
+            icon={<AnimatedUsers />}
+            title="Control de Accesos y Roles"
+            description="Proteja la información de su negocio de manera eficiente. Asigne permisos específicos asegurando que cada quien vea solo lo que necesita."
+          />
+
+          <FeatureShowcase
+            index={2}
+            isReversed={false}
+            colorName="green"
+            icon={<AnimatedSparkles />}
+            title="Optimización de Ventas Asistida"
+            description="Acelere los tiempos de venta. El sistema identifica sus productos de mayor ventas y los posiciona inteligentemente al frente, garantizando un flujo de trabajo rápido durante horas pico."
+          />
+
+          <FeatureShowcase
+            index={3}
+            isReversed={true}
+            colorName="primary"
+            icon={<AnimatedCalculator />}
+            title="Gestión de Caja"
+            description="Supervise las finanzas diarias con total precisión. Benefíciese de cálculos de cambio automáticos, registros históricos detallados y cortes de caja que garantizan la exactitud de sus ingresos."
+          />
+
+          <FeatureShowcase
+            index={4}
+            isReversed={false}
+            colorName="purple"
+            icon={<AnimatedBarChart />}
+            title="Reportes y Estadísticas"
+            description="Visualice el rendimiento de su negocio de un vistazo. Obtenga gráficas con datos sobre sus ventas diarias, productos mas vendidos y proyecciones de rendimiento."
+          />
+
+          <FeatureShowcase
+            index={5}
+            isReversed={true}
+            colorName="red"
+            icon={<AnimatedPrinter />}
+            title="Impresión de tickets"
+            description="Imprima tickets de venta con un diseño limpio y profesional, totalmente compatibles con sus impresoras térmicas."
+          />
         </div>
       </section>
     </div>
