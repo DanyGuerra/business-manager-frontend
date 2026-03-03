@@ -36,6 +36,7 @@
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.34.5",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.542.0",
     "next": "15.5.9",
