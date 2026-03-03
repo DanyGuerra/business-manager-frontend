@@ -56,7 +56,6 @@ export default function CartDrawer() {
             };
 
             const response = await ordersApi.createFullOrder(payload, businessId);
-            toast.success("Orden creada exitosamente");
 
             if (shouldPrint && response.data?.id) {
                 try {

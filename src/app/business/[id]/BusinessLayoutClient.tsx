@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useEditModeStore } from "@/store/editModeStore";
-import { Edit2Icon, Store, MapPin, Bell } from "lucide-react";
+import { Edit2Icon, Store, MapPin } from "lucide-react";
 import { useEffect, useCallback, useRef } from "react";
 import {
     SidebarInset,
@@ -42,6 +42,9 @@ import { UserRolesBusiness } from "@/lib/useUserRolesBusiness";
 import { useSocket } from "@/context/SocketContext";
 
 import { useOrdersStore } from "@/store/ordersStore";
+
+import { NewOrderToast } from "@/components/NewOrderToast";
+
 
 interface BusinessLayoutClientProps {
     children: React.ReactNode;
@@ -104,12 +107,11 @@ export default function BusinessLayoutClient({
             const orderId = orderData?.id;
 
             toast.custom(() => (
-                <div
-                    className="group flex w-full sm:w-[356px] max-w-full items-start gap-4 rounded-2xl border border-primary/20 bg-card/95 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-md transition-all hover:bg-card hover:shadow-primary/10 dark:shadow-[0_8px_30px_rgba(0,0,0,0.4)] dark:hover:shadow-primary/5 cursor-pointer"
+                <NewOrderToast
+                    orderData={orderData}
                     onClick={() => {
                         if (orderId) {
-
-                            if (!pathname.includes('board')) {
+                            if (!pathname.endsWith(`/orders/board`)) {
                                 router.push(`/business/${businessId}/orders/board`);
                                 setTimeout(() => {
                                     setHighlightedOrderId(orderId);
@@ -120,7 +122,7 @@ export default function BusinessLayoutClient({
                                     }
 
                                     setTimeout(() => setHighlightedOrderId(null), 8000);
-                                }, 3500);
+                                }, 800);
                             } else {
                                 setTimeout(() => {
                                     setHighlightedOrderId(orderId);
@@ -135,31 +137,7 @@ export default function BusinessLayoutClient({
                             }
                         }
                     }}
-                >
-                    <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30 ring-2 ring-background">
-                        <span className="absolute inset-0 -z-10 animate-ping rounded-full bg-primary opacity-60 duration-1000" />
-                        <Bell className="h-6 w-6 text-primary-foreground fill-primary-foreground/20 transition-transform duration-500 group-hover:rotate-12" />
-                    </div>
-
-                    <div className="flex flex-1 flex-col gap-1.5 pt-0.5 justify-center">
-                        <div className="flex items-center justify-between">
-                            <h3 className="flex items-center gap-2 font-bold text-sm text-foreground leading-tight tracking-tight">
-                                ¡Nuevo Pedido!
-                                {orderData.order_number && (
-                                    <span className="bg-primary/10 text-primary text-[10px] px-1.5 py-0.5 rounded-md font-bold uppercase tracking-wider">
-                                        #{orderData.order_number.toString().padStart(2, '0').slice(-2)}
-                                    </span>
-                                )}
-                            </h3>
-                            <span className="flex h-2 w-2 rounded-full bg-primary shadow-[0_0_10px_2px_rgba(var(--primary),0.5)] animate-pulse" />
-                        </div>
-
-                        <p className="text-[10px] text-primary/80 font-bold hover:underline mt-1 flex items-center gap-1 group-hover:text-primary transition-colors cursor-pointer">
-                            VER EN EL TABLERO
-                            <span className="transition-transform duration-300 group-hover:translate-x-1">&rarr;</span>
-                        </p>
-                    </div>
-                </div>
+                />
             ), { duration: 5000 });
         };
 
