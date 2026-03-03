@@ -15,7 +15,6 @@ export function AnimatedUtensils() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
         >
             {/* Tenedor (Fork) */}
             <motion.path
@@ -69,7 +68,6 @@ export function AnimatedUsers() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
         >
             <motion.path
                 d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
@@ -122,7 +120,6 @@ export function AnimatedBarChart() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
         >
             <motion.path d="M3 3v18h18" />
             <motion.path
@@ -172,7 +169,6 @@ export function AnimatedCalculator() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
         >
             <motion.rect x="4" y="2" width="16" height="20" rx="2" />
             <motion.line x1="8" x2="16" y1="6" y2="6" strokeWidth={3} />
@@ -227,7 +223,6 @@ export function AnimatedSparkles() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
             variants={{ hidden: {}, visible: {}, hover: {} }}
         >
             {/* Main Center Sparkle / Star */}
@@ -314,7 +309,6 @@ export function AnimatedPrinter() {
             strokeLinecap="round"
             strokeLinejoin="round"
             className="text-primary overflow-visible"
-            initial="hidden"
         >
             {/* Cuerpo de la impresora térmica */}
             <motion.path d="M6 18H18V12H6V18Z" strokeWidth={2} />
