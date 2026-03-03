@@ -49,60 +49,68 @@ export const printOrderTicket = (order: Order, business?: Business | null) => {
                     margin: 0; 
                 }
                 body { 
-                    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-                    padding: 2mm 2mm;
-                    width: 100%;
-                    max-width: 100%; 
+                    font-family: 'Courier New', Courier, monospace, system-ui, sans-serif; 
+                    padding: 0;
                     margin: 0 auto; 
+                    width: 58mm; 
+                    max-width: 58mm;
                     color: #000; 
-                    font-size: 11px;
-                    line-height: 1.15;
-                    -webkit-font-smoothing: antialiased;
-                    -moz-osx-font-smoothing: grayscale;
+                    font-size: 13px;
+                    line-height: 1.1;
                 }
                 * {
                     box-sizing: border-box;
                 }
-                .business-info { text-align: center; margin-bottom: 6px; padding-bottom: 4px; border-bottom: 1px dashed #000; }
-                .business-info h2 { margin: 0 0 2px 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.5px; line-height: 1; }
-                .business-info p { margin: 1px 0; font-size: 10px; font-weight: 500; color: #111; line-height: 1.1; }
-                .header { text-align: center; margin-bottom: 6px; }
-                .header h3 { margin: 0 0 2px 0; font-size: 18px; font-weight: 900; letter-spacing: -1px; line-height: 1;}
-                .header p { margin: 1px 0; font-size: 11px; font-weight: 600; color: #111;}
-                .header-meta { font-size: 9px !important; font-weight: 500 !important; color: #444 !important; margin-top: 3px !important; word-break: break-all; }
-                .divider { border-top: 1px dashed #000; margin: 4px 0; width: 100%; }
-                .divider-light { border-top: 1px dotted #aaa; margin: 2px 0; width: 100%; }
-                .item { display: flex; justify-content: space-between; margin-bottom: 3px; align-items: flex-start; gap: 4px; }
-                .item-details { flex: 1; min-width: 0; }
-                .item-name { word-break: break-word; font-size: 12px; font-weight: 700; line-height: 1.1; display: flex; align-items: flex-start; gap: 4px; }
-                .item-qty { font-weight: 900; font-size: 12px; }
-                .item-price { white-space: nowrap; font-weight: 800; font-size: 12px; font-variant-numeric: tabular-nums; }
-                .options { font-size: 10px; color: #333; font-weight: 500; display: block; margin-top: 1px; padding-left: 14px; line-height: 1; }
-                .unit-price { font-size: 9px; color: #555; font-weight: 500; display: block; margin-top: 1px; padding-left: 14px; }
-                .group-name { font-weight: 900; margin-top: 6px; margin-bottom: 2px; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid #000; padding-bottom: 1px; width: 100%; line-height: 1.1; }
-                .subtotal-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 2px; font-size: 10px; color: #222; font-weight: 600; }
-                .subtotal-row .item-price { font-size: 11px; }
-                .total { margin-top: 6px; border-top: 2px solid #000; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; }
-                .total span:first-child { font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
-                .total .item-price { font-weight: 900; font-size: 20px; letter-spacing: -1px; }
+                .business-info { text-align: center; margin-bottom: 4px; border-bottom: 1px dashed #000; padding-bottom: 2px; }
+                .business-info h2 { margin: 0 0 2px 0; font-size: 17px; font-weight: bold; text-transform: uppercase; line-height: 1; }
+                .business-info p { margin: 1px 0; font-size: 12px; font-weight: normal; color: #000; }
+                
+                .header { text-align: left; margin-bottom: 4px; padding-top: 2px; font-size: 13px; }
+                .header h3 { margin: 0 0 3px 0; font-size: 18px; font-weight: bold; text-align: center; border-bottom: 1px solid #000; padding-bottom: 2px; }
+                .header p { margin: 2px 0; color: #000; font-weight: bold; }
+                .header p span { font-weight: normal; }
+                .header-meta { font-size: 12px !important; font-weight: normal !important; margin-top: 4px !important; text-align: center !important;}
+                
+                .divider { border-top: 1px dashed #000; margin: 3px 0; width: 100%; }
+                .divider-light { border-top: 1px dotted #000; margin: 3px 0; width: 100%; }
+                
+                .item { display: flex; justify-content: space-between; margin-bottom: 4px; align-items: flex-start; gap: 2px; }
+                .item-details { flex: 1; min-width: 0; padding-right: 4px; }
+                .item-name { font-size: 13px; font-weight: bold; line-height: 1.1; display: flex; align-items: flex-start; gap: 4px; word-break: break-all; }
+                .item-qty { font-weight: bold; }
+                .item-price { white-space: nowrap; font-weight: bold; font-size: 13px; }
+                
+                .options { font-size: 12px; color: #000; font-weight: normal; display: block; margin-top: 1px; padding-left: 12px; line-height: 1.1; }
+                .unit-price { font-size: 11px; color: #000; font-weight: normal; display: block; margin-top: 1px; padding-left: 12px; }
+                
+                .group-name { font-weight: bold; margin-top: 6px; margin-bottom: 3px; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #000; width: 100%; text-align: center; }
+                
+                .subtotal-row { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 2px; font-size: 12px; font-weight: normal; }
+                
+                .total { margin-top: 4px; border-top: 2px solid #000; padding-top: 4px; display: flex; justify-content: space-between; align-items: center; }
+                .total span:first-child { font-weight: bold; font-size: 16px; text-transform: uppercase; }
+                .total .item-price { font-weight: bold; font-size: 18px; }
+                
                 .payment-info { margin-top: 4px; }
-                .payment-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-weight: 600; font-size: 12px; color: #222;}
-                .payment-row.change { border-top: 1px dashed #000; padding-top: 2px; margin-top: 2px; font-size: 14px; font-weight: 800; color: #000; }
-                .notes { margin-top: 6px; font-size: 11px; font-weight: 700; border: 1px solid #000; padding: 4px; border-radius: 2px; background: #fdfdfd; }
-                .footer { text-align: center; margin-top: 10px; font-size: 13px; font-weight: 800; padding-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+                .payment-row { display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 13px;}
+                .payment-row.change { border-top: 1px dashed #000; padding-top: 2px; margin-top: 2px; font-size: 15px; font-weight: bold; }
+                
+                .notes { margin-top: 4px; font-size: 12px; border: 1px solid #000; padding: 2px; }
+                .notes strong { display: block; border-bottom: 1px solid #000; margin-bottom: 2px; }
+                
+                .footer { text-align: center; margin-top: 8px; font-size: 14px; font-weight: bold; padding-bottom: 8px; }
                 
                 @media print {
                     @page {
-                        size: 80mm auto;
+                        size: 58mm auto;
                         margin: 0;
                     }
                     body { 
-                        width: 100%; 
-                        max-width: 100%;
-                        padding: 0 2mm;
+                        width: 58mm; 
+                        max-width: 58mm;
+                        padding: 0 1mm; /* Minimum padding so cutter works */
                         margin: 0;
                     }
-                    html, body { height: auto; }
                 }
             </style>
         </head>
