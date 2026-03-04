@@ -14,7 +14,7 @@ export function useUser() {
 
     const logout = async () => {
         localStorage.clear();
-        Cookies.remove("refreshToken", { path: "/" });
+        Cookies.remove("refresh_token", { path: "/" });
         Cookies.remove("accessToken", { path: "/" });
         storeLogout();
         setAccessToken(null);

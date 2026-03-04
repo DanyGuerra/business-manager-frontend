@@ -15,7 +15,7 @@ export function middleware(request: NextRequest) {
     }
 
     const hasToken = request.cookies.get("accessToken")?.value;
-    const hasRefreshToken = request.cookies.get("refreshToken")?.value;
+    const hasRefreshToken = request.cookies.get("refresh_token")?.value;
     const isPublicPath = publicPaths.includes(pathname);
 
     if (!isPublicPath && !hasToken && !hasRefreshToken) {
