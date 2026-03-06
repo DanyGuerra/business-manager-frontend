@@ -310,11 +310,9 @@ export function AnimatedPrinter() {
             strokeLinejoin="round"
             className="text-primary overflow-visible"
         >
-            {/* Cuerpo de la impresora térmica */}
             <motion.path d="M6 18H18V12H6V18Z" strokeWidth={2} />
             <motion.path d="M6 14H18" strokeWidth={1} />
 
-            {/* Ticket de papel subiendo lentamente */}
             <motion.path
                 d="M8 12V4H16V12"
                 fill="none"
@@ -325,7 +323,6 @@ export function AnimatedPrinter() {
                     hover: { y: -2, pathLength: 1, opacity: 1, transition: { duration: 0.8, ease: "easeOut" } }
                 }}
             />
-            {/* Lineas de texto en el ticket */}
             <motion.line
                 x1="10" x2="14" y1="6" y2="6" strokeWidth={1}
                 variants={{
@@ -345,12 +342,11 @@ export function AnimatedPrinter() {
                 }}
             />
 
-            {/* Luz de estado o botón */}
             <motion.circle
                 cx="16" cy="16" r="1" fill="currentColor"
                 variants={{
                     hidden: { opacity: 0.5 }, visible: { opacity: 0.5 },
-                    hover: { opacity: [0.5, 1, 0.5], transition: { duration: 0.5, repeat: Infinity } }
+                    hover: { opacity: [0.5, 1, 0.5], transition: { duration: 0.5, repeat: 10 } }
                 }}
             />
         </motion.svg>
