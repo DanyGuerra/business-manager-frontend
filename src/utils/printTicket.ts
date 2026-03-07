@@ -134,13 +134,19 @@ export const generateTicketHtml = (order: Order, business?: Business | null, tic
                 body { 
                     font-family: 'Courier New', Courier, monospace; 
                     padding: 0;
-                    margin: 0; 
-                    width: ${paperSize}mm; 
-                    max-width: ${paperSize}mm;
+                    margin: 0;
                     color: #000; 
                     font-size: ${baseFontSize}px;
                     line-height: 1;
+                    min-height: 100vh;
+                    display: flex;
+                    justify-content: center;
+                }
+                .ticket-wrapper {
+                    width: ${paperSize}mm; 
+                    max-width: ${paperSize}mm;
                     height: max-content;
+                    margin: 0 auto;
                 }
                 html { height: max-content; }
                 * { box-sizing: border-box; }
@@ -173,17 +179,24 @@ export const generateTicketHtml = (order: Order, business?: Business | null, tic
                 .total-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1px; }
                 
                 @media print {
-                    @page { size: ${paperSize}mm auto; margin: 0; }
+                    @page { margin: 0; auto; }
                     html, body {
-                        width: ${paperSize}mm; 
-                        max-width: ${paperSize}mm;
+                        width: 100%;
                         height: max-content !important;
                         overflow: visible;
+                        display: flex;
+                        justify-content: center;
+                    }
+                    .ticket-wrapper {
+                        width: ${paperSize}mm;
+                        max-width: ${paperSize}mm;
+                        margin: 0 auto;
                     }
                 }
             </style>
         </head>
         <body>
+            <div class="ticket-wrapper">
             ${business ? `
             <div class="business tx-c b-bot pb-1">
                 <h2 class="fs-l fw-b">${business.name}</h2>
@@ -275,6 +288,7 @@ export const generateTicketHtml = (order: Order, business?: Business | null, tic
                 ` : ''}
             </div>
             ` : ''}
+            </div>
         </body>
         </html>
     `;
@@ -294,22 +308,24 @@ export const printOrderTicket = (order: Order, business?: Business | null, ticke
                 display: none !important;
             }
             body {
-                margin: 0 auto !important;
-                padding: 0 1mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 background-color: white !important;
                 height: max-content !important;
                 min-height: 0 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: flex-start !important;
             }
             #print-iframe {
                 visibility: visible !important;
                 display: block !important;
-                position: absolute !important;
-                top: 0 !important;
-                left: 0 !important;
+                position: relative !important;
                 width: ${paperSize}mm !important;
                 height: max-content !important;
                 min-height: 0 !important;
                 border: none !important;
+                margin: 0 auto !important;
             }
         }
     `;
