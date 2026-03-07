@@ -17,6 +17,7 @@ import {
   BarChart3,
   Wallet,
   Plus,
+  Settings,
 } from "lucide-react";
 import {
   Sidebar,
@@ -150,7 +151,12 @@ export function BusinessSidebar({ businessId }: SidebarProps) {
       icon: Users,
       allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
     },
-
+    {
+      title: "Configuraciones",
+      href: `/business/${businessId}/settings`,
+      icon: Settings,
+      allowedRoles: [UserRole.OWNER, UserRole.ADMIN],
+    },
   ].filter((item) => {
     if (item.allowedRoles) {
       if (loadingRoles) return false;

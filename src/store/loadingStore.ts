@@ -26,6 +26,8 @@ export enum LoadingsKeyEnum {
   RESET_PASSWORD = "resetPassword",
   ADD_MONEY = "addMoney",
   WITHDRAW_MONEY = "withdrawMoney",
+  TICKET_SETTINGS_UPDATE = "ticketSettingUpdate",
+  TICKET_SETTINGS_GET = "ticketSettingGet"
 }
 
 type LoadingState = {
