@@ -45,9 +45,9 @@ export default function KanbanBoard() {
         if (!b.scheduled_at) return -1;
         return new Date(a.scheduled_at).getTime() - new Date(b.scheduled_at).getTime();
     });
-    const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING);
-    const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING);
-    const readyOrders = orders.filter(o => o.status === OrderStatus.READY);
+    const pendingOrders = orders.filter(o => o.status === OrderStatus.PENDING).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const preparingOrders = orders.filter(o => o.status === OrderStatus.PREPARING).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    const readyOrders = orders.filter(o => o.status === OrderStatus.READY).sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     const completedOrders = orders.filter(o => o.status === OrderStatus.COMPLETED).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     const [activeOrder, setActiveOrder] = useState<Order | null>(null);
