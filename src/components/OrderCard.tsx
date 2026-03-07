@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, ShoppingBag, Utensils, Bike, User, Calendar, Pencil, DollarSign, Eye, GripHorizontal, ChevronDown, Printer } from "lucide-react";
 import { formatCurrency, cn, getStatusColor, getStatusLabel, getConsumptionLabel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import ButtonLoading from "./buttonLoading";
 
 import CustomDialog from "./customDialog";
 import { DeleteDialogConfirmation } from "./deleteDialogConfirmation";
@@ -21,10 +22,12 @@ import { useOrdersApi } from "@/lib/useOrdersApi";
 import { LoadingsKeyEnum, useLoadingStore } from "@/store/loadingStore";
 import { toast } from "sonner";
 import { handleApiError } from "@/utils/handleApiError";
-import { useContext, useState, memo } from "react";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useOrdersStore } from "@/store/ordersStore";
+import { useTicketSettingsStore } from "@/store/ticketSettingsStore";
+import { useTicketSettingsApi } from "@/lib/useTicketSettings";
 import { SortableItemContext } from "@/app/business/[id]/orders/board/SortableItem";
+import React, { useContext, useState, memo } from "react";
 
 interface OrderCardProps {
     order: Order;
@@ -48,8 +51,10 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
     const { isEditMode } = useEditModeStore();
     const { businessId, business } = useBusinessStore();
     const ordersApi = useOrdersApi();
+    const ticketSettingsApi = useTicketSettingsApi();
     const { updateOrder, removeOrder, highlightedOrderId } = useOrdersStore();
-    const { startLoading, stopLoading } = useLoadingStore();
+    const { setTicketSetting, ticketSetting } = useTicketSettingsStore();
+    const { startLoading, stopLoading, loadings } = useLoadingStore();
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { attributes, listeners } = useContext<any>(SortableItemContext) || {};
 
@@ -109,10 +114,28 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
         }
     }
 
-    const handlePrint = (e: React.MouseEvent) => {
+    const handlePrint = async (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        printOrderTicket(order, business);
+
+        try {
+            startLoading(LoadingsKeyEnum.TICKET_SETTINGS_GET);
+            let currentSettings = ticketSetting
+
+            if (!ticketSetting) {
+                const { data } = await ticketSettingsApi.getTicketSettingsByBusinessId(businessId);
+                if (data) {
+                    currentSettings = data;
+                    setTicketSetting(currentSettings);
+                }
+            }
+
+            printOrderTicket(order, business, currentSettings);
+        } catch (error) {
+            handleApiError(error);
+        } finally {
+            stopLoading(LoadingsKeyEnum.TICKET_SETTINGS_GET);
+        }
     };
 
     const date = new Date(order.created_at);
@@ -394,16 +417,16 @@ export const OrderCard = memo(function OrderCard({ order, onOrderUpdate }: Order
                     )}
                 </div>
 
-                <Button
+                <ButtonLoading
+                    disabled={loadings[LoadingsKeyEnum.TICKET_SETTINGS_GET]}
+                    loadingState={loadings[LoadingsKeyEnum.TICKET_SETTINGS_GET] || false}
                     variant="secondary"
                     size="sm"
                     onClick={handlePrint}
                     className="w-full h-7 text-[12px] font-semibold text-muted-foreground hover:text-foreground bg-muted hover:bg-muted/80 transition-all rounded-md flex items-center justify-center gap-1.5"
-                    title="Imprimir Ticket"
-                >
-                    <Printer className="h-3.5 w-3.5" />
-                    Imprimir Ticket
-                </Button>
+                    buttonTitle="Imprimir Ticket"
+                    icon={<Printer className="h-3.5 w-3.5" />}
+                />
             </div>
         </Card >
     );

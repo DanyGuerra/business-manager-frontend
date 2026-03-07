@@ -45,7 +45,7 @@ export default function Header() {
             href="/"
             className="flex justify-center items-center text-lg font-bold"
           >
-            RestHub
+            RestAgile
           </Link>
         </div>
         <div className="flex justify-center items-center gap-3">
