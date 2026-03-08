@@ -1,5 +1,5 @@
 import { Order, OrderStatus } from "@/lib/useOrdersApi";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Badge } from "@/components/ui/badge";
 import { OrderCard } from "@/components/OrderCard";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
@@ -101,14 +101,14 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
         <div
             ref={setNodeRefWithScroll}
             className={cn(
-                "flex flex-col h-full min-w-[300px] w-full rounded-xl border relative overflow-hidden",
+                "flex flex-col min-w-[300px] w-full rounded-xl border relative",
                 isActive
                     ? cn(styles.active, "ring-2 shadow-lg border-dashed")
                     : "bg-muted/40 hover:bg-muted/60 border-transparent hover:border-border/50"
             )}
         >
             <div className={cn(
-                "p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 relative z-9",
+                "sticky top-0 p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 z-10",
                 isActive ? styles.headerBorder : "border-border/40"
             )}>
                 <div className="flex items-center gap-2.5">
@@ -137,7 +137,7 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                 </Badge>
             </div>
 
-            <ScrollArea className="flex-1 px-3">
+            <div className="px-3">
                 <SortableContext
                     items={orders.map(o => o.id)}
                     strategy={verticalListSortingStrategy}
@@ -165,7 +165,7 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                         )}
                     </div>
                 </SortableContext>
-            </ScrollArea>
+            </div>
 
             {isActive && (
                 <div className={cn(
