@@ -1,11 +1,11 @@
 import { Order, OrderStatus } from "@/lib/useOrdersApi";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { Badge } from "@/components/ui/badge";
 import { OrderCard } from "@/components/OrderCard";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
 import { SortableItem } from "./SortableItem";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Clock, Ghost, Flame, Bell, CheckCheck, ArrowDown } from "lucide-react";
+import { Clock, Ghost, Flame, Bell, CheckCheck, ArrowDown, ArrowUp } from "lucide-react";
 import { OrderCardSkeleton } from "@/components/OrderCardSkeleton";
 import { cn } from "@/lib/utils";
 
@@ -77,11 +77,18 @@ const getStatusIcon = (status: OrderStatus) => {
     }
 };
 
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { useState, useRef } from "react";
+
+// ... Inside KanbanColumn before return
 export function KanbanColumn({ title, status, orders, colorScheme = 'primary', loading }: KanbanColumnProps) {
     const { setNodeRef, isOver } = useDroppable({
         id: status,
     });
     const { active, over } = useDndContext();
+    const [showScrollTop, setShowScrollTop] = useState(false);
+    const scrollViewportRef = useRef<HTMLDivElement>(null);
 
     const setNodeRefWithScroll = (node: HTMLElement | null) => {
         setNodeRef(node);
@@ -97,18 +104,34 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
 
     const styles = colorMap[colorScheme] || colorMap.primary;
 
+    const handleScrollCapture = (e: React.UIEvent<HTMLDivElement>) => {
+        const target = e.target as HTMLElement;
+        if (target.getAttribute('data-slot') === 'scroll-area-viewport') {
+            setShowScrollTop(target.scrollTop > 200);
+        }
+    };
+
+    const scrollToTop = () => {
+        if (scrollViewportRef.current) {
+            const viewport = scrollViewportRef.current.querySelector('[data-slot="scroll-area-viewport"]');
+            if (viewport) {
+                viewport.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+    };
+
     return (
         <div
             ref={setNodeRefWithScroll}
             className={cn(
-                "flex flex-col h-full min-w-[300px] w-full rounded-xl border relative overflow-hidden",
+                "flex flex-col h-full max-h-full min-w-[300px] w-full rounded-xl border relative overflow-hidden",
                 isActive
                     ? cn(styles.active, "ring-2 shadow-lg border-dashed")
                     : "bg-muted/40 hover:bg-muted/60 border-transparent hover:border-border/50"
             )}
         >
             <div className={cn(
-                "p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 relative z-9",
+                "p-4 flex justify-between items-center border-b backdrop-blur-xl bg-muted/80 rounded-t-xl transition-colors duration-300 z-9",
                 isActive ? styles.headerBorder : "border-border/40"
             )}>
                 <div className="flex items-center gap-2.5">
@@ -137,7 +160,11 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                 </Badge>
             </div>
 
-            <ScrollArea className="flex-1 px-3">
+            <ScrollArea
+                className="flex-[1_1_0%] min-h-0 px-3 relative"
+                ref={scrollViewportRef}
+                onScrollCapture={handleScrollCapture}
+            >
                 <SortableContext
                     items={orders.map(o => o.id)}
                     strategy={verticalListSortingStrategy}
@@ -165,24 +192,43 @@ export function KanbanColumn({ title, status, orders, colorScheme = 'primary', l
                         )}
                     </div>
                 </SortableContext>
+
+                {showScrollTop && (
+                    <div className="sticky bottom-4 w-full flex justify-center z-[50] pointer-events-none pb-2">
+                        <Button
+                            variant="default"
+                            size="icon"
+                            className={cn(
+                                "pointer-events-auto flex items-center justify-center rounded-full w-12 h-12 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5",
+                                "bg-primary text-primary-foreground shadow-[0_8px_30px_rgb(0,0,0,0.24)] hover:shadow-[0_8px_30px_rgb(0,0,0,0.32)] hover:-translate-y-1 hover:bg-primary/95"
+                            )}
+                            onClick={scrollToTop}
+                            aria-label="Volver arriba"
+                        >
+                            <ArrowUp className="w-5 h-5 transition-transform group-hover:-translate-y-1 animate-bounce" />
+                        </Button>
+                    </div>
+                )}
             </ScrollArea>
 
-            {isActive && (
-                <div className={cn(
-                    "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24 transition-all duration-700 animate-in fade-in",
-                    "bg-background/40"
-                )}>
+            {
+                isActive && (
                     <div className={cn(
-                        "flex items-center gap-2 px-6 py-3 rounded-full shadow-2xl border-2 transition-all duration-700 animate-in zoom-in-95",
-                        "bg-transparent",
-                        styles.border,
-                        styles.title
+                        "absolute inset-0 z-8 flex items-start justify-center rounded-xl pointer-events-none pt-24 transition-all duration-700 animate-in fade-in",
+                        "bg-background/40"
                     )}>
-                        <ArrowDown className="w-5 h-5 animate-bounce" />
-                        <span className="font-bold text-sm uppercase tracking-wider">Soltar aquí</span>
+                        <div className={cn(
+                            "flex items-center justify-center gap-2 px-6 py-3 rounded-full shadow-2xl border-2 transition-all duration-700 animate-in zoom-in-95",
+                            "bg-transparent",
+                            styles.border,
+                            styles.title
+                        )}>
+                            <ArrowDown className="w-5 h-5 animate-bounce" />
+                            <span className="font-bold text-sm uppercase tracking-wider">Soltar aquí</span>
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

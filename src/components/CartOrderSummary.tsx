@@ -193,7 +193,8 @@ export function CartOrderSummary({
                                             id="time-picker"
                                             value={currentDate ? format(currentDate!, "HH:mm") : ""}
                                             onChange={handleTimeChange}
-                                            className="pl-9 text-xs bg-background h-8 min-w-[120px] [&::-webkit-calendar-picker-indicator]:hidden"
+                                            className="pl-9 py-0 text-xs bg-background h-8 min-h-[32px] w-full appearance-none [&::-webkit-calendar-picker-indicator]:hidden"
+                                            style={{ WebkitAppearance: 'none', height: '32px', boxSizing: 'border-box', margin: 0 }}
                                         />
                                     </div>
                                 </div>
