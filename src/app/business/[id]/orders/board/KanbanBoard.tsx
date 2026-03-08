@@ -23,7 +23,6 @@ import { handleApiError } from "@/utils/handleApiError";
 import { useBusinessStore } from "@/store/businessStore";
 import { useSocket } from "@/context/SocketContext";
 import { getStatusLabel } from "@/lib/utils";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 const dropAnimation: DropAnimation = {
     sideEffects: defaultDropAnimationSideEffects({
@@ -205,21 +204,18 @@ export default function KanbanBoard() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <ScrollArea className="h-full w-full rounded-xl outline outline-1 outline-border/40">
-                <div className="flex h-max min-w-max gap-4 px-4 pb-4 pt-0">
-                    {columns.map((column) => (
-                        <KanbanColumn
-                            key={column.status}
-                            title={column.title}
-                            status={column.status}
-                            orders={column.orders}
-                            colorScheme={column.colorScheme}
-                            loading={loading}
-                        />
-                    ))}
-                </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            <div className="flex h-full w-full gap-4 overflow-x-auto overflow-y-hidden pb-4">
+                {columns.map((column) => (
+                    <KanbanColumn
+                        key={column.status}
+                        title={column.title}
+                        status={column.status}
+                        orders={column.orders}
+                        colorScheme={column.colorScheme}
+                        loading={loading}
+                    />
+                ))}
+            </div>
 
             <DragOverlay dropAnimation={dropAnimation}>
                 {activeOrder ? (
