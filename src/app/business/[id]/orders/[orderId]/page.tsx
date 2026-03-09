@@ -184,7 +184,7 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="flex flex-col h-full bg-muted/10">
-            <div className="flex flex-col border-b bg-background px-4 py-4 md:px-6 md:py-5 gap-4">
+            <div className="flex flex-col border-b bg-background pb-4 gap-4">
                 <div className="flex items-start gap-3">
                     <Button variant="ghost" size="icon" onClick={() => router.back()} className="shrink-0 -ml-2 mt-0.5" aria-label="Volver">
                         <ChevronLeft className="h-6 w-6" />
@@ -302,7 +302,7 @@ export default function OrderDetailsPage() {
                 </div>
             </div>
 
-            <div className="flex-1 p-4 md:p-6 overflow-auto">
+            <div className="flex-1 pt-4 overflow-auto">
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
                     {/* Main Content - Items */}
                     <div className="lg:col-span-2 space-y-6">

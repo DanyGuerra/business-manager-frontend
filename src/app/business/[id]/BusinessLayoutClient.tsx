@@ -255,7 +255,7 @@ export default function BusinessLayoutClient({
                     </Breadcrumb>
                 </header>
 
-                <div className="flex flex-col gap-6 flex-1 w-full min-w-0">
+                <div className="flex flex-col gap-1 flex-1 w-full min-w-0">
                     <div className="w-full sticky top-[6.5rem] z-10 bg-background/50 backdrop-blur-sm px-4 py-2 border-b flex justify-between items-center gap-4">
                         <div className="flex items-center gap-3 min-w-0">
                             <div className="flex flex-col items-center justify-center gap-1 shrink-0">
@@ -346,7 +346,9 @@ export default function BusinessLayoutClient({
                         </div>
                     </div>
 
-                    {children}
+                    <div className="py-2 px-6">
+                        {children}
+                    </div>
                 </div>
             </SidebarInset>
             <CartDrawer />

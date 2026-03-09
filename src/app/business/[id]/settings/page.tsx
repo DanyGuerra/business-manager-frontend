@@ -63,8 +63,8 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="space-y-8 max-w-full w-full mx-auto pb-8">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4 px-4 sm:px-6">
+        <div className="space-y-8 max-w-full w-full mx-auto">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4">
                 <div className="space-y-1.5">
                     <h2 className="flex items-center gap-2 text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
                         <Settings className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
@@ -76,7 +76,7 @@ export default function SettingsPage() {
                 </div>
             </div>
 
-            <div className="px-4 sm:px-6">
+            <div>
                 <Tabs defaultValue="tickets" className="w-full">
                     <TabsList className="mb-6 h-12 p-1 bg-muted/50 w-full justify-start rounded-lg">
                         <TabsTrigger
