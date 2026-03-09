@@ -244,7 +244,7 @@ export default function BusinessLayoutClient({
                         <Breadcrumb>
                             <BreadcrumbList className="sm:gap-1">
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href={`/business/${businessId}`} className="text-xs font-semibold px-2 py-1 rounded-md bg-primary/5 hover:bg-primary/10 transition-colors">
+                                    <BreadcrumbLink href={`/business/${businessId}`} className="text-xs font-semibold px-2 py-1 rounded-md transition-colors">
                                         <div className="flex items-center gap-1.5">
                                             <Store className="h-3 w-3 text-primary" />
                                             {business.name}

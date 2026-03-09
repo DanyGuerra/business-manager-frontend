@@ -160,8 +160,6 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
             newGroups[targetGroupIndex] = targetGroup;
             return newGroups;
         });
-
-        toast.success("Agregado a la selección", { style: toastSuccessStyle });
     };
 
     const handleUpdateQuantity = (groupId: string, itemId: string, quantity: number) => {
@@ -370,11 +368,8 @@ export function AddOrderItemsSheet({ order, onSuccess, trigger, defaultView = 'p
                 }
             }
             setOpen(val);
-            if (!val) {
-                setView(defaultView);
-            } else {
-                setView(defaultView);
-            }
+            setView(defaultView);
+
         }}>
             <SheetTrigger asChild>
                 {trigger || (
