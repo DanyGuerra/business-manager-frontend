@@ -14,8 +14,11 @@ import {
   AnimatedSparkles,
   AnimatedPrinter
 } from "@/components/AnimatedFeatureIcons";
+import { useUserStore } from "@/store/useUserStore";
 
 export default function Home() {
+  const user = useUserStore((state) => state.user);
+
   return (
     <div className="flex flex-col min-h-screen">
       <section className="flex-1 flex flex-col items-center justify-center pt-24 pb-8 md:pt-32 md:pb-12 px-4 md:px-6 bg-gradient-to-b from-background to-muted/20 overflow-hidden">
@@ -30,7 +33,7 @@ export default function Home() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/profile">
+            <Link href={user ? "/profile" : "/login"}>
               <Button size="lg" className="h-12 px-8 text-base gap-2">
                 Comenzar Ahora
                 <ArrowRight className="h-4 w-4" />
