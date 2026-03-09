@@ -155,7 +155,10 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
     }
 
     return (
-        <div className="group relative flex flex-col h-full rounded-xl border bg-card p-5 hover:shadow-lg transition-all duration-300">
+        <div className={cn(
+            "group relative flex flex-col h-full rounded-xl border bg-card p-5 hover:shadow-lg transition-all duration-300",
+            isEditMode && "border-dashed border-2 border-primary/50"
+        )}>
             {!product.available && (
                 <div className="absolute top-3 right-3">
                     <Badge variant="destructive" className="h-5 px-1.5 text-[10px]">
