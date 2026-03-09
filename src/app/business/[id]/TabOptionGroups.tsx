@@ -101,6 +101,12 @@ export default function TabOptionGroups() {
 
   return (
     <section className="flex flex-col items-center justify-center space-y-4">
+      <div className="w-full text-left flex flex-col items-start pb-2">
+        <h2 className="text-2xl font-bold tracking-tight">Grupos de opciones</h2>
+        <p className="text-sm text-muted-foreground">
+          Crea y administra variantes y modificadores para tus productos.
+        </p>
+      </div>
       <div className="w-full">
         <DataTableSearch
           onSearch={handleSearch}

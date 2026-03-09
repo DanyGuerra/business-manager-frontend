@@ -67,7 +67,7 @@ export default function OrdersPage() {
 
     return (
         <div className="flex flex-col h-full bg-muted/10">
-            <div className="flex flex-col border-b bg-background px-4 py-4 md:px-6 md:py-5 gap-4">
+            <div className="flex flex-col border-b bg-background pb-4 gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
                         <h2 className="text-xl md:text-2xl font-bold tracking-tight">Pedidos</h2>
@@ -168,7 +168,7 @@ export default function OrdersPage() {
                 </div>
             </div>
 
-            <div className="flex-1 p-4 md:p-6 overflow-auto">
+            <div className="flex-1 pt-4 overflow-auto">
                 {loading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                         {[...Array(8)].map((_, i) => (
