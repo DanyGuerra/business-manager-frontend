@@ -71,9 +71,9 @@ export default function UsersPage() {
   }, [businessId, fetchUsers]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-8">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <Card className="border-none sm:border-solid shadow-none sm:shadow-sm">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4 px-0 sm:px-6">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4">
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
               <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -100,7 +100,7 @@ export default function UsersPage() {
           </CustomDialog>
 
         </CardHeader>
-        <CardContent className="px-0 sm:px-6">
+        <CardContent>
           {loading ? (
             <div className="border rounded-md">
               <div className="border-b px-4 py-3 flex items-center justify-between bg-muted/30">

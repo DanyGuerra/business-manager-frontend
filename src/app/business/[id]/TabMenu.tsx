@@ -82,6 +82,12 @@ export default function TabMenu() {
 
   return (
     <div className="flex flex-col gap-5">
+      <div>
+        <h2 className="text-2xl font-bold tracking-tight">Menú de productos</h2>
+        <p className="text-sm text-muted-foreground">
+          Administra las categorías y grupos de productos de tu negocio.
+        </p>
+      </div>
       <DataTableSearch
         onSearch={(val) => {
           setSearch(val);
