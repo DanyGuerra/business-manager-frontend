@@ -180,7 +180,7 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
                 <p className="font-bold text-xl text-primary">${product.base_price}</p>
             </div>
 
-            <div className="flex-1 mb-6">
+            <div className="mb-6">
                 {product.description ? (
                     <p className="text-sm text-foreground/80 leading-relaxed line-clamp-3">
                         {product.description}
@@ -190,21 +190,20 @@ export default function ProductListItem({ product, onRefresh, forceViewMode = fa
                         Sin descripción
                     </p>
                 )}
+                {product.option_groups && product.option_groups.length > 0 && (
+                    <div className="mt-3 space-y-1.5 border-t pt-3">
+                        {product.option_groups.map((group) => (
+                            <ProductOptionGroupItem
+                                key={group.id}
+                                group={group}
+                                selectedOptions={selectedOptions[group.id] || []}
+                                onSelectOption={handleOptionSelect}
+                                isEditMode={isEditMode}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
-
-            {product.option_groups && product.option_groups.length > 0 && (
-                <div className="mb-4 space-y-1.5 border-t pt-3">
-                    {product.option_groups.map((group) => (
-                        <ProductOptionGroupItem
-                            key={group.id}
-                            group={group}
-                            selectedOptions={selectedOptions[group.id] || []}
-                            onSelectOption={handleOptionSelect}
-                            isEditMode={isEditMode}
-                        />
-                    ))}
-                </div>
-            )}
 
             <div className="flex flex-col gap-2 mt-auto">
                 <ProductDetailSheet product={product} onRefresh={onRefresh} forceViewMode={forceViewMode} />
