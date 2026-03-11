@@ -14,9 +14,16 @@ import CustomDialog from "@/components/customDialog";
 import { useEditModeStore } from "@/store/editModeStore";
 import { toastSuccessStyle } from "@/lib/toastStyles";
 import { useBusinessStore } from "@/store/businessStore";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Shield, UserPlus } from "lucide-react";
+import { UserPlus } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function UsersPage() {
   const userRolesApi = useUserRolesBusinessApi();
@@ -71,68 +78,73 @@ export default function UsersPage() {
   }, [businessId, fetchUsers]);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <Card className="border-none sm:border-solid shadow-none sm:shadow-sm">
-        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0 gap-4">
-          <div className="space-y-1">
-            <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              Usuarios y roles
-            </CardTitle>
-            <CardDescription className="text-xs sm:text-sm">
-              Administra los usuarios y los niveles de acceso dentro de este negocio.
-            </CardDescription>
-          </div>
+    <div className="flex h-full flex-col gap-6 w-full mx-auto">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Usuarios y roles</h1>
+          <p className="text-muted-foreground mt-1">
+            Administra los usuarios y los niveles de acceso dentro de este negocio.
+          </p>
+        </div>
 
-          <CustomDialog
-            open={open}
-            setOpen={setOpen}
-            modalTitle="Agregar usuario"
-            modalDescription="Agrega un usuario al negocio y asígnale un rol."
-            trigger={
-              <Button variant="default" className="w-full sm:w-auto shrink-0 group">
-                <UserPlus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-                Invitar usuario
-              </Button>
-            }
-          >
-            <AddUserForm onSubmit={handleAddUser} />
-          </CustomDialog>
+        <CustomDialog
+          open={open}
+          setOpen={setOpen}
+          modalTitle="Agregar usuario"
+          modalDescription="Agrega un usuario al negocio y asígnale un rol."
+          trigger={
+            <Button variant="default" className="w-full sm:w-auto shrink-0 group">
+              <UserPlus className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+              Invitar usuario
+            </Button>
+          }
+        >
+          <AddUserForm onSubmit={handleAddUser} />
+        </CustomDialog>
+      </div>
 
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="border rounded-md">
-              <div className="border-b px-4 py-3 flex items-center justify-between bg-muted/30">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-4 w-32" />
-                <Skeleton className="h-4 w-20" />
-                {isEditMode && <Skeleton className="h-4 w-16" />}
-              </div>
-              <div className="divide-y">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 px-6">
+      {loading ? (
+        <div className="rounded-md border bg-card overflow-hidden">
+          <Table>
+            <TableHeader className="bg-muted/50">
+              <TableRow>
+                <TableHead className="px-3 sm:px-4">Usuario</TableHead>
+                <TableHead className="px-3 sm:px-4">Correo electrónico</TableHead>
+                <TableHead className="px-3 sm:px-4">Rol</TableHead>
+                {isEditMode && <TableHead className="px-3 sm:px-4 text-center">Acciones</TableHead>}
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell className="px-3 sm:px-4">
                     <div className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <div className="space-y-2">
-                        <Skeleton className="h-4 w-32" />
-                        <Skeleton className="h-3 w-40" />
-                      </div>
+                      <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+                      <Skeleton className="h-4 w-32" />
                     </div>
+                  </TableCell>
+                  <TableCell className="px-3 sm:px-4">
+                    <Skeleton className="h-4 w-40" />
+                  </TableCell>
+                  <TableCell className="px-3 sm:px-4">
                     <Skeleton className="h-6 w-24 rounded-full" />
-                    {isEditMode && <Skeleton className="h-8 w-8 rounded-md" />}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <UsersTable
-              users={users}
-              onDelete={handleDelete}
-            />
-          )}
-        </CardContent>
-      </Card>
+                  </TableCell>
+                  {isEditMode && (
+                    <TableCell className="px-3 sm:px-4 text-center">
+                      <Skeleton className="h-8 w-8 rounded-md mx-auto" />
+                    </TableCell>
+                  )}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      ) : (
+        <UsersTable
+          users={users}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

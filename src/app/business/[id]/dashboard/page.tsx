@@ -10,6 +10,7 @@ import { DailySalesResponse, useStatsApi } from "@/lib/useStatsApi";
 import { DailySalesChart } from "@/components/DailySalesChart";
 import { StatsData } from "@/app/types/stats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useBusinessStore } from "@/store/businessStore";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -65,8 +66,75 @@ export default function DashboardPage() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center h-full">
-                <p>Cargando estadísticas...</p>
+            <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                    <Skeleton className="h-9 w-48" />
+                    <div className="flex flex-col md:flex-row w-full md:w-auto gap-3">
+                        <Skeleton className="h-10 w-full md:w-[260px]" />
+                        <Skeleton className="h-10 w-full md:w-[130px]" />
+                    </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    {[1, 2, 3, 4].map((i) => (
+                        <Card key={i}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                <Skeleton className="h-4 w-24" />
+                                <Skeleton className="h-4 w-4 rounded" />
+                            </CardHeader>
+                            <CardContent>
+                                <Skeleton className="h-8 w-20 mb-2" />
+                                <Skeleton className="h-3 w-32" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+
+                <Card className="col-span-full">
+                    <CardHeader>
+                        <Skeleton className="h-6 w-40" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-[350px] w-full rounded-lg" />
+                    </CardContent>
+                </Card>
+
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <Card className="col-span-full lg:col-span-4">
+                        <CardHeader>
+                            <Skeleton className="h-6 w-44" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                    <div key={i} className="flex items-center gap-4">
+                                        <Skeleton className="h-9 w-9 rounded-full" />
+                                        <div className="flex-1 space-y-1">
+                                            <Skeleton className="h-4 w-32" />
+                                            <Skeleton className="h-3 w-16" />
+                                        </div>
+                                        <Skeleton className="h-4 w-16" />
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card className="col-span-full lg:col-span-3">
+                        <CardHeader>
+                            <Skeleton className="h-6 w-36" />
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {[1, 2, 3, 4].map((i) => (
+                                    <div key={i} className="flex items-center justify-between">
+                                        <Skeleton className="h-4 w-24" />
+                                        <Skeleton className="h-4 w-12" />
+                                    </div>
+                                ))}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
             </div>
         );
     }
