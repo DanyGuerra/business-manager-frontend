@@ -12,7 +12,16 @@ import { useEditModeStore } from "@/store/editModeStore";
 import { Edit2Icon, Store } from "lucide-react";
 import { useEffect, useCallback, useRef } from "react";
 import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
     SidebarInset,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
     SidebarProvider,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
@@ -227,9 +236,109 @@ export default function BusinessLayoutClient({
 
     if (!business) {
         return (
-            <div className="flex h-screen items-center justify-center">
-                <Skeleton className="h-[40px] w-[30%] rounded-full" />
-            </div>
+            <SidebarProvider defaultOpen={false}>
+                <Sidebar collapsible="icon">
+                    <SidebarHeader>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    size="lg"
+                                    className="cursor-pointer"
+                                >
+                                    <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <Skeleton className="size-4 rounded-sm" />
+                                    </div>
+                                    <div className="grid flex-1 text-left text-sm leading-tight gap-0.5 group-data-[collapsible=icon]:hidden">
+                                        <span className="truncate font-semibold">
+                                            <Skeleton className="h-4 w-24" />
+                                        </span>
+                                        <span className="truncate text-xs text-muted-foreground">
+                                            <Skeleton className="h-3 w-16" />
+                                        </span>
+                                    </div>
+                                    <Skeleton className="h-4 w-4 rounded-sm ml-auto group-data-[collapsible=icon]:hidden" />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarGroup>
+                            <SidebarGroupContent>
+                                <SidebarMenu>
+                                    {[...Array(6)].map((_, i) => (
+                                        <SidebarMenuItem key={i}>
+                                            <SidebarMenuButton className="pointer-events-none">
+                                                <Skeleton className="size-4 shrink-0 rounded-sm" />
+                                                <Skeleton className="h-4 w-24 rounded-sm group-data-[collapsible=icon]:hidden" />
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    ))}
+                                </SidebarMenu>
+                            </SidebarGroupContent>
+                        </SidebarGroup>
+                    </SidebarContent>
+                    <SidebarFooter>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    size="lg"
+                                    className="cursor-pointer"
+                                >
+                                    <Skeleton className="h-8 w-8 rounded-lg shrink-0" />
+                                    <div className="grid flex-1 text-left text-sm leading-tight gap-0.5 group-data-[collapsible=icon]:hidden">
+                                        <span className="truncate font-semibold">
+                                            <Skeleton className="h-4 w-24" />
+                                        </span>
+                                        <span className="truncate text-xs">
+                                            <Skeleton className="h-3 w-32" />
+                                        </span>
+                                    </div>
+                                    <Skeleton className="size-4 rounded-sm ml-auto group-data-[collapsible=icon]:hidden" />
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarFooter>
+                </Sidebar>
+                <SidebarInset className="min-w-0">
+                    <div className="flex flex-col gap-1 flex-1 w-full min-w-0">
+                        <header className="flex h-10 shrink-0 items-center justify-between gap-2 border-b px-4 sticky top-14 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                            <div className="flex items-center gap-2">
+                                <SidebarTrigger className="-ml-1 cursor-pointer h-7 w-7" />
+                                <Separator orientation="vertical" className="mr-2 h-4" />
+                                <div className="flex items-center gap-2">
+                                    <Skeleton className="h-5 w-24 rounded-md" />
+                                    <span className="hidden md:inline text-muted-foreground/30 text-xs">/</span>
+                                    <Skeleton className="h-5 w-20 rounded-md hidden md:block" />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3 shrink-0">
+                                <Skeleton className="h-6 w-8 rounded-full" />
+                                <Skeleton className="h-7 w-24 rounded-md" />
+                            </div>
+                        </header>
+                        <div className="py-2 px-4">
+                            <div className="space-y-6 pt-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-8 w-[250px] md:w-[350px]" />
+                                        <Skeleton className="h-4 w-[200px] md:w-[300px]" />
+                                    </div>
+                                    <Skeleton className="h-10 w-[100px] md:w-[140px] hidden sm:block" />
+                                </div>
+                                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                                    {[1, 2, 3, 4].map((i) => (
+                                        <Skeleton key={i} className="h-28 rounded-xl" />
+                                    ))}
+                                </div>
+                                <div className="flex gap-4 flex-col lg:flex-row">
+                                    <Skeleton className="h-[400px] flex-1 rounded-xl" />
+                                    <Skeleton className="h-[400px] w-full lg:w-1/3 rounded-xl hidden lg:block" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </SidebarInset>
+            </SidebarProvider>
         );
     }
 

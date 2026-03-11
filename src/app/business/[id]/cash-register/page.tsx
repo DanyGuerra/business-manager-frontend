@@ -134,7 +134,7 @@ export default function CashRegisterPage({ params }: CashRegisterPageProps) {
     };
 
     return (
-        <div className="flex h-full flex-col gap-6 w-full max-w-7xl mx-auto">
+        <div className="flex h-full flex-col gap-6 w-full mx-auto">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Caja Registradora</h1>
