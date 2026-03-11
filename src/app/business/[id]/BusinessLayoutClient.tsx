@@ -316,7 +316,7 @@ export default function BusinessLayoutClient({
                 </header>
                 <div className="flex flex-col gap-1 flex-1 w-full min-w-0">
 
-                    <div className="py-2 px-6">
+                    <div className="py-2 px-4">
                         {children}
                     </div>
                 </div>
